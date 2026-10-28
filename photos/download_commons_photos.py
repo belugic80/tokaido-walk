@@ -316,12 +316,22 @@ def search_station(station):
         f'{station["en"]} Tokaido Japan',
         f'{station["en"]} historical site Japan',
         f'{station["ja"]} 東海道',
+        f'{station["ja"]} 観光',
         f'{station["en"]} Japan',
+        f'{station["en"]} landmark',
     ]
     found = {}
     for query in queries:
         try:
-            data = get_json({"action":"query","format":"json","generator":"search","gsrsearch":query,"gsrnamespace":6,"gsrlimit":30,"prop":"imageinfo","iiprop":"url|size|mime|extmetadata","iiurlwidth":1800})
+            data = None
+            for attempt in range(3):
+                try:
+                    data = get_json({"action":"query","format":"json","generator":"search","gsrsearch":query,"gsrnamespace":6,"gsrlimit":30,"prop":"imageinfo","iiprop":"url|size|mime|extmetadata","iiurlwidth":1800})
+                    break
+                except Exception:
+                    if attempt == 2:
+                        raise
+                    time.sleep(1.5 * (attempt + 1))
             pages = list((data.get("query", {}).get("pages", {}) or {}).values())
             candidates = []
             for page in pages:
@@ -419,7 +429,7 @@ def main():
     if failures:
         manifest.extend(["## Stations needing manual review", ""])
         manifest.extend([f'- {s["n"]}. {s["ja"]} ({s["en"]}) — {err}.' for s, err in failures])
-    (ROOT / "STATION-PHOTO-MANIFEST.md").write_text("\n".join(manifest)+"\n",encoding="utf-8")
+    (ROOT / "photos" / "STATION-PHOTO-MANIFEST.md").write_text("\n".join(manifest)+"\n",encoding="utf-8")
     print(f"FINISHED: {successful_stations}/{len(STATIONS)} stations covered; {image_count} photo candidates; {len(failures)} stations need manual review.", flush=True)
 
 if __name__ == "__main__":

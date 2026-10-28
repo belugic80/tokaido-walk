@@ -119,6 +119,7 @@ mark.warn{background:var(--amber-bg);color:var(--amber);font-weight:800;padding:
 .chart .avgt{font-size:11.5px;font-weight:700;fill:var(--ink-soft)}
 .chart .hrline{fill:none;stroke:var(--danger);stroke-width:2.4;stroke-linejoin:round}
 .chart .hrdot{fill:var(--danger)}.chart .hrt{font-size:12px;font-weight:800;fill:var(--danger)}
+.restmv{display:flex;flex-direction:column;gap:12px}.rmstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rmstat>span{display:flex;flex-direction:column;gap:2px;background:var(--sub);border-radius:10px;padding:10px 12px}.rmstat b{font-size:20px}.rmlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.45}.rmlist li{display:flex;gap:8px;align-items:flex-start}.rmlist .tag{flex:none;font-size:12px;font-weight:800;padding:2px 7px;border-radius:6px}.rmlist .tag.tr{background:var(--amber-bg);color:var(--amber)}.rmlist .tag.wk{background:var(--accent-bg);color:var(--accent-ink)}
 .sess{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}.sess th{font-size:12.5px;color:var(--ink-faint);font-weight:700;text-align:right;padding:4px 6px;border-bottom:1px solid var(--line)}.sess th:first-child,.sess td:first-child{text-align:left}.sess td{text-align:right;padding:9px 6px;border-bottom:1px solid var(--line)}.sess tfoot td{border-bottom:0;color:var(--ink-soft);font-weight:700}.sessempty{text-align:center;padding:30px 0;margin:0}
 .chart .bar{fill:var(--accent)}.chart .bv{font-size:10px;font-weight:700;fill:var(--ink-soft)}
 .chart .planline{fill:none;stroke:var(--ink-faint);stroke-width:2;stroke-dasharray:5 5}
@@ -626,6 +627,9 @@ function dateOf(n){ const d = new Date(TRIP_START); d.setDate(d.getDate() + n - 
 const PRACTICE_START = new Date(2026, 9, 28);
 const isPractice = () => new Date() < TRIP_START;
 function recDateOf(n){ const d = new Date(isPractice() ? PRACTICE_START : TRIP_START); d.setDate(d.getDate() + n - 1); return d; }
+/* 연습 기간에는 일차 옆 날짜를 실제 오늘 기준(10/28=1일차)으로 표시. D-day는 그대로 */
+if (isPractice()) DATA.days.forEach(d => { d.date0 = d.date; d.dow0 = d.dow; const x = recDateOf(d.n);
+  d.date = (x.getMonth() + 1) + '/' + x.getDate(); d.dow = '일월화수목금토'[x.getDay()]; });
 function practiceN(){ const now = new Date(); const t = new Date(now.getFullYear(), now.getMonth(), now.getDate()); return Math.floor((t - PRACTICE_START) / 864e5) + 1; }
 function todayN(){
   const now = new Date(); const t = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1164,11 +1168,24 @@ function spendBox(d){
       <input id="sp-${k}" type="number" inputmode="numeric" value="${sp[k].v ?? ''}" data-c="${sp[k].c}"></label>`).join('')}
     <div class="sptot"><span class="lab">오늘 합계</span><b>${totW.toLocaleString()}원</b><span class="small">엔 칸은 1엔 = ${DATA.rate}원으로 환산${demo ? ' · 예시' : ''}</span><button type="submit" class="btn primary">저장</button></div></form>`;
 }
+/* 걷는 경로가 없는 날(도착·쉬는 날·이동일): 머무는 곳 주변 지도 + 오늘 움직임 */
+function restRoute(d, r){
+  const c = ll(d), ss = r.sessions || [], nm = x => String(x || '').replace(/\s*\(숙소\)\s*/, '');
+  const mv = (d.steps || []).filter(x => x.k === '교통' || x.k === '걷기');
+  return `<div class="card s2"><h3>${I.map}오늘 다닌 곳<span class="aside" style="margin-left:auto">${esc(nm(d.stay))} 주변</span></h3>
+      <div class="map" style="height:170px"><iframe title="오늘 머무는 곳 지도" loading="lazy" src="https://www.google.com/maps/d/embed?mid=${MYMAP_MID}&ehbc=2E312F&ll=${c}&z=14"></iframe></div></div>
+    <div class="card s2 restmv"><h3>${I.foot}오늘 움직임</h3>
+      <div class="rmstat"><span><span class="lab">걸은 거리</span><b class="num">${r.km != null && r.km !== '' ? (+r.km).toFixed(1) + 'km' : '—'}</b></span>
+        <span><span class="lab">걸음</span><b class="num">${r.steps ? Number(r.steps).toLocaleString() : '—'}</b></span>
+        <span><span class="lab">걷기 운동</span><b class="num">${ss.length ? ss.length + '번' : '—'}</b></span></div>
+      ${mv.length ? `<ul class="rmlist">${mv.map(x => `<li><span class="tag ${x.k === '교통' ? 'tr' : 'wk'}">${x.k}</span>${esc(x.t)}</li>`).join('')}</ul>` : '<p class="small muted" style="margin:0">정해진 이동 없음 · 동네 산책하기 좋은 날</p>'}
+    </div>`;
+}
 function todayExtras(d, r){
   if (!r) r = {};
   return `<section><div class="sh"><h2>${I.map}오늘의 길</h2></div><div class="grid ${r.demo ? 'is-demo' : ''}">
       ${d.route.length ? `<div class="card s2"><h3>${I.map}실제 걸은 경로${d.route.length ? '<span class="legend" style="margin-left:auto;font-weight:500"><i class="lg plan"></i>계획 <i class="lg act"></i>실제</span>' : ''}</h3>${routeMap(d, r)}</div>
-      <div class="card s2">${(() => { const svg = elevChart(d, r), g = elevChart.last; return `<h3>${I.mountain}고도<span class="aside" style="margin-left:auto">오른 높이 <b class="num">${g.gain.toLocaleString()}m</b> · 최고 ${g.top}m</span></h3>${svg}`; })()}</div>` : ''}
+      <div class="card s2">${(() => { const svg = elevChart(d, r), g = elevChart.last; return `<h3>${I.mountain}고도<span class="aside" style="margin-left:auto">오른 높이 <b class="num">${g.gain.toLocaleString()}m</b> · 최고 ${g.top}m</span></h3>${svg}`; })()}</div>` : restRoute(d, r)}
       <div class="card s4"><h3>${I.heart}심박 구간 <span class="aside">걷는 동안 어느 강도로 걸었나</span></h3>${hrZones(r)}</div>
     </div></section>
     <section><div class="sh"><h2>${I.note}오늘 남기기</h2></div><div class="grid">
@@ -1464,7 +1481,7 @@ const WX_CACHE = {};
 function weatherBox(d){
   const dt = dateOf(d.n), diff = Math.round((dt - new Date(new Date().toDateString())) / 864e5);
   const id = 'wx-' + d.n;
-  if (diff > 15 || diff < 0) return `<div class="card wx" id="${id}"><h3>${I.sunrise}오늘 날씨<span class="aside" style="margin-left:auto">${diff > 15 ? `예보는 ${d.date} 16일 전부터 나옵니다` : '지난 날짜'}</span></h3>
+  if (diff > 15 || diff < 0) return `<div class="card wx" id="${id}"><h3>${I.sunrise}오늘 날씨<span class="aside" style="margin-left:auto">${diff > 15 ? `예보는 ${d.date0 || d.date} 16일 전부터 나옵니다` : '지난 날짜'}</span></h3>
     <p class="small" style="margin:0">12월 평년: 태평양 쪽은 맑고 건조 · 낮 10~13도, 아침 0~5도 · 하코네·스즈카 고개는 더 춥고 바람이 셉니다.</p></div>`;
   return `<div class="card wx" id="${id}" data-wx="${ll(d)}" data-date="${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}"><h3>${I.sunrise}오늘 날씨<span class="aside" style="margin-left:auto">${esc(d.stay)} 기준 · 불러오는 중…</span></h3></div>`;
 }

@@ -31,13 +31,13 @@ jobs:
         run: python3 photos/download_commons_photos.py
       - name: Commit photo files and attribution
         run: |
-          if [ -z "$(git status --porcelain -- photos/assets photos/ATTRIBUTION.md)" ]; then
+          if [ -z "$(git status --porcelain -- photos/assets photos/ATTRIBUTION.md photos/STATION-PHOTO-MANIFEST.md)" ]; then
             echo "No new photo files to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f photos/assets photos/ATTRIBUTION.md
+          git add -f photos/assets photos/ATTRIBUTION.md photos/STATION-PHOTO-MANIFEST.md
           git commit -m "Add licensed Tokaido photo assets with attribution"
           git pull --rebase origin photo-assets-collection
           git push origin HEAD:photo-assets-collection

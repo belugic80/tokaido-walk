@@ -301,12 +301,21 @@ def slug(s):
 def val(meta, key):
     return (meta.get(key) or {}).get("value", "").strip()
 
+ARTWORK_RE = re.compile(r"\\b(illustration|illustrated|drawing|painting|woodcut|woodblock|ukiyo[- ]?e|lithograph|engraving|etching|cartoon|sketch|printmaking|poster|artwork|painting|絵画|挿絵|イラスト|浮世絵|版画|木版画|絵図)\\b", re.I)
+
+def is_artwork(title, description="", author=""):
+    # Reject clearly non-photographic artwork using Commons title and metadata.
+    text = " ".join(str(x or "") for x in (title, description, author))
+    return bool(ARTWORK_RE.search(text)) or "Abstract/medium" in text and any(x in text.lower() for x in ("woodcut", "print :", "painting", "drawing"))
+
 def eligible(info):
     meta = info.get("extmetadata", {})
     license_name = val(meta, "LicenseShortName")
     if not any(x.lower() in license_name.lower() for x in ALLOWED):
         return False
     if not info.get("mime", "").startswith("image/"):
+        return False
+    if is_artwork(info.get("canonicaltitle", ""), val(meta, "ImageDescription"), val(meta, "Artist")):
         return False
     return max(info.get("width", 0), info.get("height", 0)) >= 1200 and min(info.get("width", 0), info.get("height", 0)) >= 600
 
@@ -361,6 +370,11 @@ def process_station(station):
             try:
                 record = json.loads(meta_path.read_text(encoding="utf-8"))
                 img_path = ASSETS / (meta_path.stem + ".jpg")
+                if is_artwork(record.get("commons_title"), record.get("description"), record.get("author")):
+                    if img_path.exists(): img_path.unlink()
+                    meta_path.unlink()
+                    print(f"REMOVED non-photo artwork: {meta_path.name}", flush=True)
+                    continue
                 if img_path.exists() and img_path.stat().st_size >= 15000:
                     existing.append((img_path.name, record))
             except Exception:

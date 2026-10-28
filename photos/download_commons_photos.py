@@ -301,7 +301,7 @@ def slug(s):
 def val(meta, key):
     return (meta.get(key) or {}).get("value", "").strip()
 
-ARTWORK_RE = re.compile(r"\\b(illustration|illustrated|drawing|painting|woodcut|woodblock|ukiyo[- ]?e|lithograph|engraving|etching|cartoon|sketch|printmaking|poster|artwork|painting|絵画|挿絵|イラスト|浮世絵|版画|木版画|絵図)\\b", re.I)
+ARTWORK_RE = re.compile(r"(illustration|illustrated|drawing|painting|woodcut|woodblock|ukiyo[- ]?e|lithograph|engraving|etching|cartoon|sketch|printmaking|poster|artwork|絵画|挿絵|イラスト|浮世絵|版画|木版画|絵図)", re.I)
 
 def is_artwork(title, description="", author=""):
     # Reject clearly non-photographic artwork using Commons title and metadata.

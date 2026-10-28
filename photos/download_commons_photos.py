@@ -291,7 +291,7 @@ ALLOWED = ("CC BY-SA", "CC BY ", "CC0", "Public domain", "PD-old", "PD-Japan")
 
 def get_json(params):
     req = Request(API + "?" + urlencode(params), headers={"User-Agent": UA})
-    with urlopen(req, timeout=45) as response:
+    with urlopen(req, timeout=15) as response:
         return json.loads(response.read().decode("utf-8"))
 
 def slug(s):
@@ -310,7 +310,7 @@ def eligible(info):
     return max(info.get("width", 0), info.get("height", 0)) >= 1200 and min(info.get("width", 0), info.get("height", 0)) >= 600
 
 def search_station(station):
-    queries = [f'"{station["ja"]}" Japan', f'"{station["en"]}" Japan', f'{station["en"]} Tokaido Japan']
+    queries = [f'{station["en"]} Tokaido Japan', f'{station["en"]} Japan']
     for query in queries:
         try:
             data = get_json({"action":"query","format":"json","generator":"search","gsrsearch":query,"gsrnamespace":6,"gsrlimit":30,"prop":"imageinfo","iiprop":"url|size|mime|extmetadata","iiurlwidth":1800})
@@ -326,7 +326,7 @@ def search_station(station):
                 return candidates[0]
         except Exception as exc:
             print(f'WARN search failed for {station["en"]} / {query}: {exc}')
-        time.sleep(0.2)
+        time.sleep(0.05)
     return None
 
 def main():
@@ -365,7 +365,7 @@ def main():
         author = re.sub(r"\s+", " ", re.sub("<[^>]+>", "", record.get("author",""))).strip()
         manifest.append(f'| {station["n"]} | {station["ja"]} / {station["en"]} | [{filename}](assets/stations/{filename}) | {author[:120]} | {record.get("license","See source page")} | {record.get("width")} × {record.get("height")} | [Commons source]({record.get("source_page")}) |')
         successes += 1
-        time.sleep(0.15)
+        time.sleep(0.03)
     manifest.extend(["", f"**Collected:** {successes}/{len(STATIONS)} station images.", ""])
     if failures:
         manifest.extend(["## Stations needing manual review", ""])

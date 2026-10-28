@@ -19,8 +19,18 @@ Deno.serve(async (req) => {
   if (req.headers.get("x-api-key") !== await key("webhook_key")) {
     return new Response("unauthorized", { status: 401 });
   }
+  const raw = await req.text();
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return new Response("bad json", { status: 400 }); }
+  try { body = JSON.parse(raw); } catch { return new Response("bad json", { status: 400 }); }
+  try { return await save(body); } catch (e) {
+    const err = e instanceof Error ? e.message : String(e);
+    console.error("hc-webhook", err);
+    await db.from("hc_payloads").insert({ app_version: String(body.app_version ?? ""), err, sample: raw.slice(0, 4000) });
+    return new Response("error: " + err, { status: 500 });
+  }
+});
+
+async function save(body: Record<string, unknown>) {
 
   const rows: Record<string, unknown>[] = [];
   const counts: Record<string, number> = {};
@@ -32,7 +42,7 @@ Deno.serve(async (req) => {
       const start = rec.start_time ?? rec.time ??
         (rec.session_end_time && rec.duration_seconds
           ? new Date(Date.parse(rec.session_end_time) - rec.duration_seconds * 1000).toISOString() : null);
-      if (!start) continue;
+      if (!start || isNaN(Date.parse(start))) continue;
       const end = rec.end_time ?? rec.session_end_time ?? null;
       const { metadata, ...v } = rec;
       // 원본 기록은 Health Connect id, 묶음(집계) 값은 종류+시작 시각으로 덮어쓰기
@@ -41,13 +51,15 @@ Deno.serve(async (req) => {
       rows.push({ id, type, t_start: start, t_end: end, v, received_at: new Date().toISOString() });
     }
   }
-  for (let i = 0; i < rows.length; i += 500) {
-    const { error } = await db.from("hc_records").upsert(rows.slice(i, i + 500));
-    if (error) return new Response("db error: " + error.message, { status: 500 });
+  // 같은 id가 한 번에 두 번 오면 upsert가 실패하므로 마지막 값만 남김
+  const uniq = [...new Map(rows.map((r) => [r.id as string, r])).values()];
+  for (let i = 0; i < uniq.length; i += 500) {
+    const { error } = await db.from("hc_records").upsert(uniq.slice(i, i + 500));
+    if (error) throw new Error("db: " + error.message);
   }
   const del = Array.isArray(body.deleted) ? (body.deleted as { type: string; id: string }[]) : [];
   if (del.length) await db.from("hc_records").delete().in("id", del.map((d) => `${d.type}:${d.id}`));
   await db.from("hc_payloads").insert({ app_version: body.app_version ?? null, counts: { ...counts, deleted: del.length } });
 
-  return Response.json({ ok: true, saved: rows.length, deleted: del.length });
-});
+  return Response.json({ ok: true, saved: uniq.length, deleted: del.length });
+}

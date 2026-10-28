@@ -311,7 +311,14 @@ def eligible(info):
     return max(info.get("width", 0), info.get("height", 0)) >= 1200 and min(info.get("width", 0), info.get("height", 0)) >= 600
 
 def search_station(station):
-    queries = [f'{station["en"]} Tokaido Japan', f'{station["en"]} Japan']
+    # Collect several distinct candidates so the site editor can choose the best fit.
+    queries = [
+        f'{station["en"]} Tokaido Japan',
+        f'{station["en"]} historical site Japan',
+        f'{station["ja"]} 東海道',
+        f'{station["en"]} Japan',
+    ]
+    found = {}
     for query in queries:
         try:
             data = get_json({"action":"query","format":"json","generator":"search","gsrsearch":query,"gsrnamespace":6,"gsrlimit":30,"prop":"imageinfo","iiprop":"url|size|mime|extmetadata","iiurlwidth":1800})
@@ -321,66 +328,99 @@ def search_station(station):
                 ii = (page.get("imageinfo") or [{}])[0]
                 title = page.get("title", "").lower()
                 if eligible(ii) and not any(bad in title for bad in ("map", "logo", "flag", "diagram", "coat of arms")):
-                    candidates.append((page, ii))
-            if candidates:
-                candidates.sort(key=lambda pair: (pair[1].get("width",0)*pair[1].get("height",0), int(pair[1].get("width",0)>=pair[1].get("height",0))), reverse=True)
-                return candidates[0]
+                    key = page.get("title", "").lower()
+                    if key not in found:
+                        candidates.append((page, ii))
+            candidates.sort(key=lambda pair: (pair[1].get("width",0)*pair[1].get("height",0), int(pair[1].get("width",0)>=pair[1].get("height",0))), reverse=True)
+            for pair in candidates:
+                found[pair[0].get("title", "").lower()] = pair
+                if len(found) >= 4:
+                    break
+            if len(found) >= 4:
+                break
         except Exception as exc:
-            print(f'WARN search failed for {station["en"]} / {query}: {exc}')
-        time.sleep(0.05)
-    return None
+            print(f'WARN search failed for {station["en"]} / {query}: {exc}', flush=True)
+        time.sleep(0.4)
+    return list(found.values())[:4]
 
 def process_station(station):
     stem = f'{station["n"]:02d}-{slug(station["en"])}'
-    filename = stem + ".jpg"
-    destination = ASSETS / filename
-    metadata_path = ASSETS / (stem + ".json")
     try:
-        if destination.exists() and metadata_path.exists():
-            record = json.loads(metadata_path.read_text(encoding="utf-8"))
-            return station, filename, record, None
-        result = search_station(station)
-        if not result:
-            return station, filename, None, "No eligible licensed image found"
-        page, ii = result
-        url = ii.get("thumburl") or ii.get("url")
-        req = Request(url, headers={"User-Agent": UA})
-        with urlopen(req, timeout=30) as response:
-            data, mime = response.read(), response.headers.get("Content-Type", "")
-        if not mime.startswith("image/") or len(data) < 15000:
-            raise RuntimeError(f"unexpected payload: {mime}, {len(data)} bytes")
-        destination.write_bytes(data)
-        meta = ii.get("extmetadata", {})
-        record = {"route_number":station["n"],"station_ja":station["ja"],"station_en":station["en"],"commons_title":page.get("title",""),"source_page":"https://commons.wikimedia.org/wiki/"+page.get("title","").replace(" ","_"),"author":val(meta,"Artist") or "Not stated on file page","license":val(meta,"LicenseShortName") or "See source page","license_url":val(meta,"LicenseUrl"),"description":val(meta,"ImageDescription"),"source_file_url":ii.get("descriptionurl") or ii.get("url"),"width":ii.get("width"),"height":ii.get("height"),"stored_bytes":len(data),"stored_url":url}
-        metadata_path.write_text(json.dumps(record,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
-        print(f'OK {station["n"]:02d}/{len(STATIONS)} {station["en"]}: {page.get("title")} ({len(data):,} bytes; {record["license"]})', flush=True)
-        return station, filename, record, None
+        existing = []
+        for meta_path in sorted(ASSETS.glob(stem + "-*.json")):
+            try:
+                record = json.loads(meta_path.read_text(encoding="utf-8"))
+                img_path = ASSETS / (meta_path.stem + ".jpg")
+                if img_path.exists() and img_path.stat().st_size >= 15000:
+                    existing.append((img_path.name, record))
+            except Exception:
+                pass
+        if len(existing) >= 3:
+            return station, existing, None
+
+        results = search_station(station)
+        saved = list(existing)
+        seen = {rec.get("commons_title", "").lower() for _, rec in saved}
+        for page, ii in results:
+            if len(saved) >= 4:
+                break
+            title = page.get("title", "")
+            if title.lower() in seen:
+                continue
+            # Stable candidate number based on currently saved files.
+            used = {int(Path(name).stem.rsplit("-", 1)[-1]) for name, _ in saved}
+            slot = next((i for i in range(1, 5) if i not in used), None)
+            if slot is None:
+                break
+            candidate_stem = f"{stem}-{slot:02d}"
+            filename = candidate_stem + ".jpg"
+            destination = ASSETS / filename
+            metadata_path = ASSETS / (candidate_stem + ".json")
+            url = ii.get("thumburl") or ii.get("url")
+            req = Request(url, headers={"User-Agent": UA})
+            with urlopen(req, timeout=30) as response:
+                data, mime = response.read(), response.headers.get("Content-Type", "")
+            if not mime.startswith("image/") or len(data) < 15000:
+                print(f'WARN skipped {title}: unexpected payload {mime}, {len(data)} bytes', flush=True)
+                continue
+            destination.write_bytes(data)
+            meta = ii.get("extmetadata", {})
+            record = {"route_number":station["n"],"station_ja":station["ja"],"station_en":station["en"],"candidate_number":slot,"commons_title":title,"source_page":"https://commons.wikimedia.org/wiki/"+title.replace(" ", "_"),"author":val(meta,"Artist") or "Not stated on file page","license":val(meta,"LicenseShortName") or "See source page","license_url":val(meta,"LicenseUrl"),"description":val(meta,"ImageDescription"),"source_file_url":ii.get("descriptionurl") or ii.get("url"),"width":ii.get("width"),"height":ii.get("height"),"stored_bytes":len(data),"stored_url":url}
+            metadata_path.write_text(json.dumps(record,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+            saved.append((filename, record))
+            seen.add(title.lower())
+            print(f'OK {station["n"]:02d}/{len(STATIONS)} {station["en"]} candidate {slot}: {title} ({len(data):,} bytes; {record["license"]})', flush=True)
+        if not saved:
+            return station, [], "No eligible licensed images found"
+        return station, saved, None
     except Exception as exc:
         print(f'FAILED {station["n"]:02d} {station["en"]}: {exc}', flush=True)
-        return station, filename, None, str(exc)
+        return station, [], str(exc)
 
 def main():
-    manifest = ["# Tokaido station photo assets", "", "Automatically collected from Wikimedia Commons. Only files with an explicit reuse-friendly license were accepted. Please review visual relevance before using on the live site.", "", "| Route no. | Station | File | Author | License | Dimensions | Source |", "|---:|---|---|---|---|---:|---|"]
+    manifest = ["# Tokaido station photo assets", "", "Multiple candidate photos per station are collected from Wikimedia Commons. Only explicitly reusable licenses are accepted. Review visual relevance before use on the live site.", "", "| Route no. | Station | Candidate file | Author | License | Dimensions | Source |", "|---:|---|---|---|---|---:|---|"]
     results = []
-    with ThreadPoolExecutor(max_workers=10) as pool:
+    with ThreadPoolExecutor(max_workers=4) as pool:
         futures = [pool.submit(process_station, station) for station in STATIONS]
         for future in as_completed(futures):
             results.append(future.result())
     results.sort(key=lambda row: row[0]["n"])
-    successes, failures = 0, []
-    for station, filename, record, error in results:
-        if not record:
-            failures.append(station)
+    successful_stations, image_count, failures = 0, 0, []
+    for station, images, error in results:
+        if not images:
+            failures.append((station, error or "No eligible licensed images found"))
             continue
-        author = re.sub(r"\\s+", " ", re.sub("<[^>]+>", "", record.get("author",""))).strip()
-        manifest.append(f'| {station["n"]} | {station["ja"]} / {station["en"]} | [{filename}](assets/stations/{filename}) | {author[:120]} | {record.get("license","See source page")} | {record.get("width")} × {record.get("height")} | [Commons source]({record.get("source_page")}) |')
-        successes += 1
-    manifest.extend(["", f"**Collected:** {successes}/{len(STATIONS)} station images.", ""])
+        successful_stations += 1
+        for filename, record in sorted(images, key=lambda item: item[0]):
+            author = re.sub(r"\s+", " ", re.sub("<[^>]+>", "", record.get("author",""))).strip()
+            manifest.append(f'| {station["n"]} | {station["ja"]} / {station["en"]} | [{filename}](assets/stations/{filename}) | {author[:120]} | {record.get("license","See source page")} | {record.get("width")} × {record.get("height")} | [Commons source]({record.get("source_page")}) |')
+            image_count += 1
+    manifest.extend(["", f"**Stations with photos:** {successful_stations}/{len(STATIONS)}.", f"**Total photo candidates:** {image_count}.", ""])
     if failures:
         manifest.extend(["## Stations needing manual review", ""])
-        manifest.extend([f'- {s["n"]}. {s["ja"]} ({s["en"]}) — no eligible image found by automated search.' for s in failures])
-    (ROOT / "STATION-PHOTO-MANIFEST.md").write_text("\\n".join(manifest)+"\\n",encoding="utf-8")
-    print(f"FINISHED: {successes}/{len(STATIONS)} station images; {len(failures)} need manual review.", flush=True)
+        manifest.extend([f'- {s["n"]}. {s["ja"]} ({s["en"]}) — {err}.' for s, err in failures])
+    (ROOT / "STATION-PHOTO-MANIFEST.md").write_text("\n".join(manifest)+"\n",encoding="utf-8")
+    print(f"FINISHED: {successful_stations}/{len(STATIONS)} stations covered; {image_count} photo candidates; {len(failures)} stations need manual review.", flush=True)
 
 if __name__ == "__main__":
     main()

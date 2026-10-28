@@ -346,7 +346,7 @@ def search_station(station):
             for page in pages:
                 ii = (page.get("imageinfo") or [{}])[0]
                 title = page.get("title", "").lower()
-                if eligible(ii) and not any(bad in title for bad in ("map", "logo", "flag", "diagram", "coat of arms")):
+                if eligible(ii) and not is_artwork(page.get("title", ""), val(ii.get("extmetadata", {}), "ImageDescription"), val(ii.get("extmetadata", {}), "Artist")) and not any(bad in title for bad in ("map", "logo", "flag", "diagram", "coat of arms")):
                     key = page.get("title", "").lower()
                     if key not in found:
                         candidates.append((page, ii))

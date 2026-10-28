@@ -119,6 +119,12 @@ mark.warn{background:var(--amber-bg);color:var(--amber);font-weight:800;padding:
 .chart .avgt{font-size:11.5px;font-weight:700;fill:var(--ink-soft)}
 .chart .hrline{fill:none;stroke:var(--danger);stroke-width:2.4;stroke-linejoin:round}
 .chart .hrdot{fill:var(--danger)}.chart .hrt{font-size:12px;font-weight:800;fill:var(--danger)}
+.recnav{display:flex;align-items:center;gap:8px;margin:2px 0 14px}.recnav .rnday{flex:1;display:flex;align-items:center;gap:12px;flex-wrap:wrap;height:44px;padding:0 16px;border:1px solid var(--accent);border-radius:10px;background:var(--card)}.recnav .rnday b{font-size:17px;color:var(--accent-ink)}.rnarea{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--ink)}.rntrip{margin-left:auto;font-size:12.5px;font-weight:800;color:var(--accent-ink);background:var(--accent-bg);padding:3px 9px;border-radius:999px}
+.recnav .step:disabled{opacity:.35}
+.loctrail{margin:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:15px}.loctrail small{color:var(--ink-faint)}.loctrail .arr{color:var(--ink-faint)}
+
+.chart .bar.on{fill:var(--accent-ink)}.pbar{cursor:pointer}
+.tripdiv{display:flex;align-items:center;gap:12px;margin:26px 0 6px;color:var(--ink-faint);font-weight:800;font-size:13px}.tripdiv::before,.tripdiv::after{content:'';flex:1;height:1px;background:var(--line)}
 .restmv{display:flex;flex-direction:column;gap:12px}.rmstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rmstat>span{display:flex;flex-direction:column;gap:2px;background:var(--sub);border-radius:10px;padding:10px 12px}.rmstat b{font-size:20px}.rmlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.45}.rmlist li{display:flex;gap:8px;align-items:flex-start}.rmlist .tag{flex:none;font-size:12px;font-weight:800;padding:2px 7px;border-radius:6px}.rmlist .tag.tr{background:var(--amber-bg);color:var(--amber)}.rmlist .tag.wk{background:var(--accent-bg);color:var(--accent-ink)}
 .sess{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}.sess th{font-size:12.5px;color:var(--ink-faint);font-weight:700;text-align:right;padding:4px 6px;border-bottom:1px solid var(--line)}.sess th:first-child,.sess td:first-child{text-align:left}.sess td{text-align:right;padding:9px 6px;border-bottom:1px solid var(--line)}.sess tfoot td{border-bottom:0;color:var(--ink-soft);font-weight:700}.sessempty{text-align:center;padding:30px 0;margin:0}
 .chart .bar{fill:var(--accent)}.chart .bv{font-size:10px;font-weight:700;fill:var(--ink-soft)}
@@ -216,6 +222,7 @@ mark.warn{background:var(--amber-bg);color:var(--amber);font-weight:800;padding:
 .seg2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .seg2 button{height:42px;border-radius:9px;border:1.5px solid var(--menu);background:var(--card);color:var(--menu);font-size:14px;font-weight:700}
 .seg2 button.on{background:var(--menu);color:#fff}
+.seg2.sm{display:inline-flex;gap:0;border:1.5px solid var(--menu);border-radius:9px;overflow:hidden}.seg2.sm button{height:34px;padding:0 13px;border:0;border-radius:0;font-size:13.5px}.seg2.sm button+button{border-left:1px solid var(--line)}
 .chgnote{display:flex;align-items:center;gap:8px;font-size:14px;background:var(--amber-bg);color:var(--ink);border-radius:9px;padding:7px 10px}
 .chgnote .ic{color:var(--amber)}
 .btrend{margin-top:auto;padding-top:8px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
@@ -623,14 +630,14 @@ function labeled(line){
 function arrows(s){ return String(s || '').split('→').map(x => { x = x.trim(); return x.replace(/\(.*?\)/g, '').trim().length <= 16 ? `<span class="nw">${hl(x)}</span>` : hl(x); }).join(' <span class="arr">→</span> '); }
 function kind(t){ return t === '걷기' ? 'b-walk' : t === '교통' ? 'b-train' : 'b-see'; }
 function dateOf(n){ const d = new Date(TRIP_START); d.setDate(d.getDate() + n - 1); return d; }
-/* 출발 전 연습: 10/28을 1일차로 삼아 실제 기록을 하루씩 쌓음 (12/4부터는 원래 날짜로) */
-const PRACTICE_START = new Date(2026, 9, 28);
-const isPractice = () => new Date() < TRIP_START;
-function recDateOf(n){ const d = new Date(isPractice() ? PRACTICE_START : TRIP_START); d.setDate(d.getDate() + n - 1); return d; }
-/* 연습 기간에는 일차 옆 날짜를 실제 오늘 기준(10/28=1일차)으로 표시. D-day는 그대로 */
-if (isPractice()) DATA.days.forEach(d => { d.date0 = d.date; d.dow0 = d.dow; const x = recDateOf(d.n);
-  d.date = (x.getMonth() + 1) + '/' + x.getDate(); d.dow = '일월화수목금토'[x.getDay()]; });
-function practiceN(){ const now = new Date(); const t = new Date(now.getFullYear(), now.getMonth(), now.getDate()); return Math.floor((t - PRACTICE_START) / 864e5) + 1; }
+/* 날짜 도우미: 기록은 실제 날짜(YYYY-MM-DD) 기준, 여행 기간이면 일차로 연결 */
+const isoDay = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+const isoToDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, k) => { const d = isoToDate(s); d.setDate(d.getDate() + k); return isoDay(d); };
+const todayIso = () => isoDay(new Date());
+const tripDayOf = s => { const n = Math.round((isoToDate(s) - TRIP_START) / 864e5) + 1; return n >= 1 && n <= DATA.days.length ? DATA.days[n - 1] : null; };
+const dowOf = s => '일월화수목금토'[isoToDate(s).getDay()];
+const mdOf = s => { const d = isoToDate(s); return (d.getMonth() + 1) + '/' + d.getDate(); };
 function todayN(){
   const now = new Date(); const t = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   return Math.floor((t - TRIP_START) / 864e5) + 1;
@@ -659,9 +666,7 @@ function renderTrail(){
 function renderHeader(){
   const d = DATA.days[cur - 1];
   renderTrail();
-  $('#daylabel').innerHTML = isPractice()
-    ? `<span style="white-space:nowrap">연습 ${d.n}일차 · ${dateHtml(d, false)}</span> <small>서울</small>`
-    : `<span style="white-space:nowrap">${d.n}일차 · ${dateHtml(d, false)}</span> ${HOLI[d.date] ? `<small class="holi">${HOLI[d.date]}</small>` : `<small>${esc(d.region)}</small>`}`;
+  $('#daylabel').innerHTML = `<span style="white-space:nowrap">${d.n}일차 · ${dateHtml(d, false)}</span> ${HOLI[d.date] ? `<small class="holi">${HOLI[d.date]}</small>` : `<small>${esc(d.region)}</small>`}`;
   $('#prev').disabled = cur === 1; $('#next').disabled = cur === DATA.days.length;
   const tn = todayN();
   $('#state').textContent = tn < 1 ? `출발까지 D-${1 - tn}` : tn > DATA.days.length ? '여행 완료' : `출발 후 D+${tn - 1} · ${tn}일차`;
@@ -715,18 +720,24 @@ function restExtra(d){
   return h ? `<div class="restx">${h}</div>` : '';
 }
 /* 실제 기록: 지금은 이 폰에 저장(직접 입력), 나중에 Supabase·워치 연동으로 자동 채움 */
-/* MAN: 직접 입력(이 폰), SREC: 삼성 헬스(Supabase에서 받아옴), REC: 둘을 합친 것(직접 입력이 우선) */
-let MAN = {}; try { MAN = JSON.parse(localStorage.getItem('tk-rec') || '{}'); } catch(e){ MAN = {}; }
-let SREC = {}, HCLAST = null; try { const c = JSON.parse(localStorage.getItem('tk-hc') || 'null'); if (c) { SREC = c.rec || {}; HCLAST = c; } } catch(e){}
-let REC = {};
+/* 기록은 날짜(YYYY-MM-DD)별로 쌓음. 평소 운동 + 여행 기간 모두.
+   MAND: 직접 입력(이 폰), HCD: 삼성 헬스(Supabase), DREC: 둘을 합친 것(직접 입력이 우선)
+   REC[n]: 여행 n일차 날짜의 기록 (여정 그래프·도착 등 여행 화면용) */
+let MAND = {}; try { MAND = JSON.parse(localStorage.getItem('tk-recd') || '{}'); } catch(e){ MAND = {}; }
+try { const old = JSON.parse(localStorage.getItem('tk-rec') || '{}'); /* 예전(일차 기준) 직접 입력 → 날짜 기준으로 옮김 */
+  Object.entries(old).forEach(([n, r]) => { const k = isoDay(dateOf(+n)); if (!MAND[k]) MAND[k] = r; });
+  if (Object.keys(old).length) { localStorage.setItem('tk-recd', JSON.stringify(MAND)); localStorage.removeItem('tk-rec'); } } catch(e){}
+let HCD = {}, HCLAST = null; try { const c = JSON.parse(localStorage.getItem('tk-hc2') || 'null'); if (c) { HCD = c.byDate || {}; HCLAST = c; } } catch(e){}
+let DREC = {}, REC = {};
 function mergeRec(){
-  REC = {};
-  Object.entries(SREC).forEach(([n, r]) => REC[n] = { ...r });
-  Object.entries(MAN).forEach(([n, r]) => { const o = {}; Object.entries(r).forEach(([k, v]) => { if (v != null && v !== '') o[k] = v; });
-    REC[n] = SREC[n] ? { ...SREC[n], ...o, source: 'mixed' } : { ...r }; });
+  DREC = {};
+  Object.entries(HCD).forEach(([k, r]) => DREC[k] = { ...r });
+  Object.entries(MAND).forEach(([k, r]) => { const o = {}; Object.entries(r).forEach(([f, v]) => { if (v != null && v !== '') o[f] = v; });
+    DREC[k] = HCD[k] ? { ...HCD[k], ...o, source: 'mixed' } : { ...r }; });
+  REC = {}; DATA.days.forEach(d => { const r = DREC[isoDay(dateOf(d.n))]; if (r) REC[d.n] = r; });
 }
 mergeRec();
-function saveRec(){ try { localStorage.setItem('tk-rec', JSON.stringify(MAN)); } catch(e){} mergeRec(); }
+function saveRec(){ try { localStorage.setItem('tk-recd', JSON.stringify(MAND)); } catch(e){} mergeRec(); }
 const walkedActual = n => Object.entries(REC).filter(([k]) => +k < n).reduce((s, [, r]) => s + (+r.km || 0), 0);
 let recEdit = false;
 /* ── 삼성 헬스 기록 (Health Connect → 사이트) ──
@@ -767,24 +778,23 @@ const nv = x => x == null || x === '' ? '—' : x;
 const HC_URL = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/hc-read';
 let HCKEY = ''; try { HCKEY = localStorage.getItem('tk-hckey') || ''; } catch(e){}
 (function(){ const m = location.hash.match(/[#&]k=([\w-]+)/); if (m) { HCKEY = m[1]; try { localStorage.setItem('tk-hckey', HCKEY); } catch(e){} history.replaceState(null, '', location.pathname); } })();
-const isoDay = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 let HCSTATE = HCKEY ? 'wait' : 'off';
 async function loadHC(){
   if (!HCKEY || !navigator.onLine) return;
-  const now = new Date(), start = recDateOf(1), end = recDateOf(DATA.days.length);
-  const from = isoDay(start), to = isoDay(end > now ? end : now);
+  const now = new Date(), to = todayIso();
+  let from = addDays(to, -119); const ts = isoDay(TRIP_START); if (to >= ts && ts < from) from = ts;  /* 최근 120일 + 여행 기간 */
   try {
     const res = await fetch(`${HC_URL}?from=${from}&to=${to}`, { headers: { 'x-read-key': HCKEY }, cache: 'no-store' });
     if (res.status === 401) { HCSTATE = 'badkey'; return renderRec(); }
     if (!res.ok) throw 0;
-    const j = await res.json(), rec = {}, byDate = j.days || {};
-    DATA.days.forEach(d => { const rd = recDateOf(d.n), s = byDate[isoDay(rd)]; if (!s || !(s.steps || s.km || s.min)) return;
-      rec[d.n] = { km: Math.max(+s.km || 0, +s.exKm || 0), steps: s.steps || 0, hr: s.hr ?? null, hrMax: s.hrMax ?? null, hrRest: s.hrRest ?? null,
+    const j = await res.json(), out = {};
+    Object.entries(j.days || {}).forEach(([k, s]) => { if (!(s.steps || s.km || s.min || s.weight)) return;
+      out[k] = { km: Math.max(+s.km || 0, +s.exKm || 0), steps: s.steps || 0, hr: s.hr ?? null, hrMax: s.hrMax ?? null, hrRest: s.hrRest ?? null,
         min: s.min ?? null, kcal: s.kcal ?? s.kcalActive ?? null, sleepMin: s.sleepMin ?? null, weight: s.weight ?? null,
-        series: s.series || [], hourly: s.hourly || {}, sessions: s.sessions || [], source: 'samsung', synced: s.synced || '', practice: isPractice() ? (rd.getMonth() + 1) + '/' + rd.getDate() : '' }; });
-    SREC = rec; HCSTATE = 'ok';
-    HCLAST = { rec, last: j.last, today: byDate[isoDay(now)] || null, at: Date.now() };
-    try { localStorage.setItem('tk-hc', JSON.stringify(HCLAST)); } catch(e){}
+        series: s.series || [], hourly: s.hourly || {}, sessions: s.sessions || [], source: 'samsung', synced: s.synced || '' }; });
+    HCD = out; HCSTATE = 'ok';
+    HCLAST = { byDate: out, last: j.last, today: (j.days || {})[to] || null, at: Date.now() };
+    try { localStorage.setItem('tk-hc2', JSON.stringify(HCLAST)); localStorage.removeItem('tk-hc'); } catch(e){}
     mergeRec(); renderAllViews();
   } catch(e){ HCSTATE = 'err'; renderRec(); }
 }
@@ -837,49 +847,59 @@ function stepChart(r){
     return `<rect x="${x}" y="${y}" width="${w}" height="${bh}" rx="3" class="bar"/><text x="${x + w / 2}" y="${y - 5}" text-anchor="middle" class="bv">${v ? (v >= 1000 ? (v / 1000).toFixed(1) + '천' : v) : ''}</text><text x="${x + w / 2}" y="${H - 6}" text-anchor="middle" class="ax">${h}시</text>`; }).join('')}</svg>`;
 }
 
-function recordSection(d){
-  const r = recOf(d);
-  const badge = r && r.demo ? '<span class="srcb demo">예시 데이터 · 출발 후 삼성 헬스 기록으로 바뀜</span>'
-    : r && r.source === 'samsung' ? `<span class="srcb">${Is.heart}삼성 헬스 · ${r.practice ? '연습 ' + esc(r.practice) + ' 기록' : esc(r.synced || '') + ' 동기화'}</span>` : r && r.source === 'mixed' ? `<span class="srcb">${Is.heart}삼성 헬스 + 직접 고침</span>` : r ? '<span class="srcb">직접 입력</span>' : '';
-  const head = `<div class="sh row"><h2>${I.heart}오늘의 기록</h2><span style="display:flex;gap:8px;align-items:center">${badge}<button class="linkbtn" id="recEditBtn">${REC[d.n] ? '기록 고치기' : '직접 입력'}</button></span></div>`;
+let recDate = todayIso();  /* 기록 탭에서 보고 있는 날짜 */
+function recordSection(k){
+  const r = DREC[k], td = tripDayOf(k), isT = k === todayIso();
+  const badge = r && r.source === 'samsung' ? `<span class="srcb">${Is.heart}삼성 헬스 · ${esc(r.synced || '')} 받음</span>` : r && r.source === 'mixed' ? `<span class="srcb">${Is.heart}삼성 헬스 + 직접 고침</span>` : r ? '<span class="srcb">직접 입력</span>' : '';
+  const head = `<div class="sh row"><h2>${I.heart}${isT ? '오늘의' : mdOf(k) + ' (' + dowOf(k) + ')'} 기록</h2><span style="display:flex;gap:8px;align-items:center">${badge}<button class="linkbtn" id="recEditBtn">${r ? '기록 고치기' : '직접 입력'}</button></span></div>`;
   if (recEdit) {
-    const v = k => REC[d.n] && REC[d.n][k] != null ? REC[d.n][k] : '';
+    const v = f => r && r[f] != null ? r[f] : '';
     return `<section>${head}<form class="card recform" id="recForm">
-      <label>실제 걸은 거리 <span>km</span><input id="rf-km" type="number" step="0.1" inputmode="decimal" value="${v('km')}" placeholder="${d.km || ''}"></label>
+      <label>실제 걸은 거리 <span>km</span><input id="rf-km" type="number" step="0.1" inputmode="decimal" value="${v('km')}" placeholder="${td && td.km || ''}"></label>
       <label>걸음 수 <span>보</span><input id="rf-steps" type="number" inputmode="numeric" value="${v('steps')}"></label>
       <label>평균 심박 <span>bpm</span><input id="rf-hr" type="number" inputmode="numeric" value="${v('hr')}"></label>
       <label>최고 심박 <span>bpm</span><input id="rf-hrmax" type="number" inputmode="numeric" value="${v('hrMax')}"></label>
       <label>걸은 시간 <span>분</span><input id="rf-min" type="number" inputmode="numeric" value="${v('min')}"></label>
       <label>칼로리 <span>kcal</span><input id="rf-kcal" type="number" inputmode="numeric" value="${v('kcal')}"></label>
-      <div class="recbtns"><button type="submit" class="btn primary">저장</button><button type="button" class="btn" id="rf-cancel">취소</button>${MAN[d.n] ? `<button type="button" class="btn" id="rf-del">${SREC[d.n] ? '고친 값 지우기' : '기록 지우기'}</button>` : ''}</div>
+      <div class="recbtns"><button type="submit" class="btn primary">저장</button><button type="button" class="btn" id="rf-cancel">취소</button>${MAND[k] ? `<button type="button" class="btn" id="rf-del">${HCD[k] ? '고친 값 지우기' : '기록 지우기'}</button>` : ''}</div>
     </form></section>`;
   }
-  if (!r) return `<section>${head}<div class="card recempty">${Is.foot}<span>아직 기록이 없습니다. 삼성 헬스에서 '걷기' 운동을 기록하면 밤에 자동으로 들어옵니다.</span></div></section>`;
-  const pct = d.km ? Math.round(r.km / d.km * 100) : null;
+  if (!r) return `<section>${head}<div class="card recempty">${Is.foot}<span>${k > todayIso() ? '아직 오지 않은 날입니다.' : '이날은 기록이 없습니다. 삼성 헬스 기록은 15분마다 자동으로 들어옵니다.'}</span></div></section>`;
+  const pct = td && td.km ? Math.round(r.km / td.km * 100) : null;
   const pace = r.km && r.min ? r.min / r.km : null;
-  const goal = 20000, sp = Math.min(r.steps / goal, 1);
+  const goal = 10000, sp = Math.min((r.steps || 0) / goal, 1);
   const ring = `<svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><circle cx="22" cy="22" r="18" class="rbg"/><circle cx="22" cy="22" r="18" class="rfg" stroke-dasharray="${(sp * 113.1).toFixed(1)} 113.1" transform="rotate(-90 22 22)"/></svg>`;
-  return `<section class="${r.demo ? 'is-demo' : ''}">${head}<div class="grid">
-    <div class="stat"><span class="lab">${Is.foot}실제 걸은 거리</span><span class="big first">${(+r.km).toFixed(1)}km</span>
-      ${pct != null ? `<span class="small">계획 ${d.km}km의 <b style="color:${pct >= 100 ? 'var(--see)' : 'var(--amber)'}">${pct}%</b></span><span class="gauge" style="height:6px"><i style="width:${Math.min(pct, 100)}%;background:${pct >= 100 ? 'var(--see)' : 'var(--accent)'}"></i></span>` : '<span class="small">쉬는 날 산책</span>'}</div>
-    <div class="stat"><span class="lab">${Is.steps}걸음 수</span><span class="ringrow">${ring}<span><span class="big">${Number(r.steps).toLocaleString()}</span><span class="small" style="display:block">목표 2만 보의 ${Math.round(r.steps / goal * 100)}%</span></span></span></div>
+  return `<section>${head}<div class="grid">
+    <div class="stat"><span class="lab">${Is.foot}걸은 거리</span><span class="big first">${(+r.km || 0).toFixed(1)}km</span>
+      ${pct != null ? `<span class="small">계획 ${td.km}km의 <b style="color:${pct >= 100 ? 'var(--see)' : 'var(--amber)'}">${pct}%</b></span><span class="gauge" style="height:6px"><i style="width:${Math.min(pct, 100)}%;background:${pct >= 100 ? 'var(--see)' : 'var(--accent)'}"></i></span>` : `<span class="small">${r.min ? '걷기 운동 ' + hm(r.min) : '하루 이동 거리'}</span>`}</div>
+    <div class="stat"><span class="lab">${Is.steps}걸음 수</span><span class="ringrow">${ring}<span><span class="big">${Number(r.steps || 0).toLocaleString()}</span><span class="small" style="display:block">하루 1만 보의 ${Math.round((r.steps || 0) / goal * 100)}%</span></span></span></div>
     <div class="stat"><span class="lab">${Is.heart}평균 심박</span><span class="big">${nv(r.hr)}<small class="unit"> bpm</small></span><span class="small">최고 ${nv(r.hrMax)} · 안정 시 ${r.hrRest || '—'}</span></div>
-    <div class="stat"><span class="lab">${Is.clock}걸은 시간</span><span class="big">${hm(r.min)}</span><span class="small">${[pace ? '1km당 ' + Math.floor(pace) + '분 ' + String(Math.round((pace % 1) * 60)).padStart(2, '0') + '초' : '', r.kcal ? Number(r.kcal).toLocaleString() + 'kcal' : ''].filter(Boolean).join(' · ')}</span></div>
+    <div class="stat"><span class="lab">${Is.clock}걸은 시간</span><span class="big">${hm(r.min)}</span><span class="small">${[pace ? '1km당 ' + Math.floor(pace) + '분 ' + String(Math.round((pace % 1) * 60)).padStart(2, '0') + '초' : '', r.kcal ? Number(r.kcal).toLocaleString() + 'kcal' : ''].filter(Boolean).join(' · ') || '걷기 운동을 켜면 기록돼요'}</span></div>
     <div class="card s2"><h3>${I.heart}걷는 동안 심박수</h3>${hrChart(r)}</div>
     <div class="card s2"><h3>${I.steps}시간대별 걸음 <span class="aside">오전 6시 ~ 오후 6시</span></h3>${stepChart(r)}</div>
     ${(r.sessions || []).length ? `<div class="card s4"><h3>${I.foot}걷기 운동 기록 <span class="aside">삼성 헬스에서 '걷기'를 켜고 끈 구간마다</span></h3>${sessionTable(r)}</div>` : ''}
     <div class="card s4 recov"><span class="lab">${Is.bed}회복 상태</span>
-      <span><b>지난밤 수면</b> ${r.sleepMin ? hm(r.sleepMin) : '—'}</span><span><b>안정 시 심박</b> ${r.hrRest || '—'} bpm</span>
-      <span>${r.hrRest && r.hrRest > 63 ? '<mark class="warn">안정 시 심박이 높음 · 오늘은 천천히</mark>' : '<span style="color:var(--see);font-weight:700">컨디션 양호</span>'}</span></div>
+      <span><b>지난밤 수면</b> ${r.sleepMin ? hm(r.sleepMin) : '—'}</span><span><b>안정 시 심박</b> ${r.hrRest || '—'} bpm</span>${r.weight ? `<span><b>체중</b> ${r.weight}kg</span>` : ''}
+      <span>${r.hrRest && r.hrRest > 63 ? '<mark class="warn">안정 시 심박이 높음 · 오늘은 천천히</mark>' : r.hrRest ? '<span style="color:var(--see);font-weight:700">컨디션 양호</span>' : ''}</span></div>
   </div></section>`;
 }
-function bindRec(d){
+function bindRec(k){
   const eb = document.getElementById('recEditBtn'); if (eb) eb.onclick = () => { recEdit = !recEdit; renderRec(); };
   const f = document.getElementById('recForm'); if (!f) return;
   const num = id => { const x = document.getElementById(id).value; return x === '' ? null : +x; };
-  f.onsubmit = e => { e.preventDefault(); MAN[d.n] = { km: num('rf-km'), steps: num('rf-steps'), hr: num('rf-hr'), hrMax: num('rf-hrmax'), min: num('rf-min'), kcal: num('rf-kcal') }; saveRec(); recEdit = false; renderHeader(); renderDay(); renderRec(); renderAll(); };
+  f.onsubmit = e => { e.preventDefault(); MAND[k] = { km: num('rf-km'), steps: num('rf-steps'), hr: num('rf-hr'), hrMax: num('rf-hrmax'), min: num('rf-min'), kcal: num('rf-kcal') }; saveRec(); recEdit = false; renderAllViews(); };
   document.getElementById('rf-cancel').onclick = () => { recEdit = false; renderRec(); };
-  const del = document.getElementById('rf-del'); if (del) del.onclick = () => { delete MAN[d.n]; saveRec(); recEdit = false; renderHeader(); renderDay(); renderRec(); renderAll(); };
+  const del = document.getElementById('rf-del'); if (del) del.onclick = () => { delete MAND[k]; saveRec(); recEdit = false; renderAllViews(); };
+}
+/* 기록 탭 날짜 넘기기 + 그날 지역 + 여행 일차 꼬리표 */
+function recNav(k){
+  const td = tripDayOf(k), places = (LOC[k] || []).map(x => x.nm).filter(Boolean);
+  const area = places.length ? places[places.length - 1] : '';
+  return `<div class="recnav">
+    <button class="step" id="rnPrev" aria-label="전날">${'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>'}</button>
+    <div class="rnday"><b>${mdOf(k)} (${dowOf(k)})</b>${area ? `<span class="rnarea">${Is.pin || ''}${esc(area)}</span>` : ''}${td ? `<span class="rntrip">도카이도 ${td.n}일차 · ${esc(td.region)}</span>` : ''}</div>
+    <button class="step" id="rnNext" aria-label="다음날" ${k >= todayIso() ? 'disabled' : ''}>${'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>'}</button>
+    <button class="step" id="rnToday" style="width:auto;padding:0 12px;font-size:12.5px;font-weight:800" ${k === todayIso() ? 'disabled' : ''}>오늘</button></div>`;
 }
 function renderDay(){
   const d = eff(DATA.days[cur - 1]);
@@ -1008,7 +1028,7 @@ function renderDay(){
     $('#view-day').querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-selected', x === b));
     $('#view-day').querySelectorAll('.pp').forEach(pn => pn.hidden = pn.dataset.panel !== placeCat);
   });
-  document.getElementById('toRec').onclick = () => { setTab('rec'); scrollTo(0, 0); };
+  document.getElementById('toRec').onclick = () => { const k = isoDay(dateOf(d.n)); recDate = k <= todayIso() ? k : todayIso(); renderRec(); setTab('rec'); scrollTo(0, 0); };
   fillWeather(d);
   fillPhotos(d);
 }
@@ -1171,31 +1191,108 @@ function spendBox(d){
       <input id="sp-${k}" type="number" inputmode="numeric" value="${sp[k].v ?? ''}" data-c="${sp[k].c}"></label>`).join('')}
     <div class="sptot"><span class="lab">오늘 합계</span><b>${totW.toLocaleString()}원</b><span class="small">엔 칸은 1엔 = ${DATA.rate}원으로 환산${demo ? ' · 예시' : ''}</span><button type="submit" class="btn primary">저장</button></div></form>`;
 }
-/* 걷는 경로가 없는 날(도착·쉬는 날·이동일): 머무는 곳 주변 지도 + 오늘 움직임 */
-function restRoute(d, r){
-  const P = isPractice(), c = P ? '37.5665,126.978' : ll(d), ss = r.sessions || [], nm = x => String(x || '').replace(/\s*\(숙소\)\s*/, '');
-  const mv = P ? [] : (d.steps || []).filter(x => x.k === '교통' || x.k === '걷기');
-  return `<div class="card s2"><h3>${I.map}오늘 다닌 곳<span class="aside" style="margin-left:auto">${P ? '서울 · 연습' : esc(nm(d.stay)) + ' 주변'}</span></h3>
-      <div class="map" style="height:170px"><iframe title="오늘 머무는 곳 지도" loading="lazy" src="https://www.google.com/maps/d/embed?mid=${MYMAP_MID}&ehbc=2E312F&ll=${c}&z=${P ? 12 : 14}"></iframe></div></div>
-    <div class="card s2 restmv"><h3>${I.foot}오늘 움직임</h3>
+/* 다닌 곳: 사이트를 열 때 잡힌 휴대폰 위치로 그날 지역 표시 (여행 쉬는 날은 숙소 주변) */
+function placeCards(k, td, r){
+  const ss = r.sessions || [], locs = LOC[k] || [], last = locs[locs.length - 1];
+  const nm = x => String(x || '').replace(/\s*\(숙소\)\s*/, '');
+  const c = last ? last.la.toFixed(4) + ',' + last.lo.toFixed(4) : td ? ll(td) : LOCLAST ? LOCLAST.la.toFixed(4) + ',' + LOCLAST.lo.toFixed(4) : '37.2636,127.0286';
+  const mv = td ? (td.steps || []).filter(x => x.k === '교통' || x.k === '걷기') : [];
+  const trail = locs.length ? `<p class="loctrail">${locs.map(x => `<span><b>${esc(x.nm || '현재 위치')}</b> <small>${x.t}</small></span>`).join('<span class="arr">→</span>')}</p>` : '';
+  const askBtn = !locs.length && k === todayIso() && LOCPERM !== 'granted' ? `<button class="btn" id="locOn">${I.pin || ''}위치 켜기 · 지역 자동 표시</button>` : '';
+  return `<div class="card s2"><h3>${I.map}다닌 곳<span class="aside" style="margin-left:auto">${last ? esc(last.nm || '현재 위치') : td ? esc(nm(td.stay)) + ' 주변' : '위치 기록 없음'}</span></h3>
+      <div class="map" style="height:200px"><iframe title="이날 다닌 곳 지도" loading="lazy" src="https://www.google.com/maps/d/embed?mid=${MYMAP_MID}&ehbc=2E312F&ll=${c}&z=13"></iframe></div></div>
+    <div class="card s2 restmv"><h3>${I.foot}움직임</h3>
       <div class="rmstat"><span><span class="lab">걸은 거리</span><b class="num">${r.km != null && r.km !== '' ? (+r.km).toFixed(1) + 'km' : '—'}</b></span>
         <span><span class="lab">걸음</span><b class="num">${r.steps ? Number(r.steps).toLocaleString() : '—'}</b></span>
         <span><span class="lab">걷기 운동</span><b class="num">${ss.length ? ss.length + '번' : '—'}</b></span></div>
-      ${mv.length ? `<ul class="rmlist">${mv.map(x => `<li><span class="tag ${x.k === '교통' ? 'tr' : 'wk'}">${x.k}</span>${esc(x.t)}</li>`).join('')}</ul>` : `<p class="small muted" style="margin:0">${P ? '출발 전 연습 기간 · 서울에서 걷는 기록이 쌓입니다' : '정해진 이동 없음 · 동네 산책하기 좋은 날'}</p>`}
+      ${trail}${askBtn}
+      ${mv.length ? `<ul class="rmlist">${mv.map(x => `<li><span class="tag ${x.k === '교통' ? 'tr' : 'wk'}">${x.k}</span>${esc(x.t)}</li>`).join('')}</ul>` : ''}
+      ${!trail && !askBtn && !mv.length ? `<p class="small muted" style="margin:0">${LOCPERM === 'denied' ? '위치 사용이 꺼져 있어 지역을 표시하지 못했습니다' : '이날은 사이트를 열지 않아 지역 기록이 없습니다'}</p>` : ''}
     </div>`;
 }
-function todayExtras(d, r){
-  if (!r) r = {};
-  return `<section><div class="sh"><h2>${I.map}오늘의 길</h2></div><div class="grid ${r.demo ? 'is-demo' : ''}">
-      ${d.route.length && !isPractice() ? `<div class="card s2"><h3>${I.map}실제 걸은 경로${d.route.length ? '<span class="legend" style="margin-left:auto;font-weight:500"><i class="lg plan"></i>계획 <i class="lg act"></i>실제</span>' : ''}</h3>${routeMap(d, r)}</div>
-      <div class="card s2">${(() => { const svg = elevChart(d, r), g = elevChart.last; return `<h3>${I.mountain}고도<span class="aside" style="margin-left:auto">오른 높이 <b class="num">${g.gain.toLocaleString()}m</b> · 최고 ${g.top}m</span></h3>${svg}`; })()}</div>` : restRoute(d, r)}
+function dayExtras(k, r){
+  const td = tripDayOf(k); r = r || {};
+  const route = td && td.route.length && k <= todayIso();
+  return `<section><div class="sh"><h2>${I.map}${k === todayIso() ? '오늘의' : '이날의'} 길</h2></div><div class="grid">
+      ${route ? `<div class="card s2"><h3>${I.map}실제 걸은 경로<span class="legend" style="margin-left:auto;font-weight:500"><i class="lg plan"></i>계획 <i class="lg act"></i>실제</span></h3>${routeMap(td, r)}</div>
+      <div class="card s2">${(() => { const svg = elevChart(td, r), g = elevChart.last; return `<h3>${I.mountain}고도<span class="aside" style="margin-left:auto">오른 높이 <b class="num">${g.gain.toLocaleString()}m</b> · 최고 ${g.top}m</span></h3>${svg}`; })()}</div>` : placeCards(k, td, r)}
       <div class="card s4"><h3>${I.heart}심박 구간 <span class="aside">걷는 동안 어느 강도로 걸었나</span></h3>${hrZones(r)}</div>
     </div></section>
-    <section><div class="sh"><h2>${I.note}오늘 남기기</h2></div><div class="grid">
-      <div class="card s2"><h3>${I.foot}몸 상태</h3>${bodyCheck(d)}</div>
-      <div class="card s2"><h3>${I.book}오늘의 쉼표<span class="aside" style="margin-left:auto">${d.n}일차의 쉼표 · ${esc(d.date)} (${esc(d.dow)})</span></h3>${noteBox(d)}</div>
-      <div class="card s4"><h3>${I.gift}오늘 지출</h3>${spendBox(d)}</div>
+    ${td ? `<section><div class="sh"><h2>${I.note}오늘 남기기</h2><p>도카이도 ${td.n}일차</p></div><div class="grid">
+      <div class="card s2"><h3>${I.foot}몸 상태</h3>${bodyCheck(td)}</div>
+      <div class="card s2"><h3>${I.book}오늘의 쉼표<span class="aside" style="margin-left:auto">${td.n}일차의 쉼표 · ${esc(td.date)} (${esc(td.dow)})</span></h3>${noteBox(td)}</div>
+      <div class="card s4"><h3>${I.gift}오늘 지출</h3>${spendBox(td)}</div>
+    </div></section>` : ''}`;
+}
+
+/* ── 기간별 추이: 최근 7일 · 30일 · 전체 ── */
+let PER = '7', PERM = 'km';
+try { PER = localStorage.getItem('tk-per') || '7'; PERM = localStorage.getItem('tk-perm') || 'km'; } catch(e){}
+function periodSection(){
+  const t = todayIso(), keys = Object.keys(DREC).filter(k => k <= t).sort();
+  const first = keys[0] || t;
+  const n = PER === 'all' ? Math.round((isoToDate(t) - isoToDate(first)) / 864e5) + 1 : +PER;
+  const days = []; for (let i = n - 1; i >= 0; i--) days.push(addDays(t, -i));
+  const val = k => { const r = DREC[k]; return r ? (PERM === 'km' ? +r.km || 0 : +r.steps || 0) : 0; };
+  /* 60일이 넘으면 주 단위로 묶음 */
+  let bars = days.map(k => ({ k, v: val(k), lab: n <= 7 ? dowOf(k) : mdOf(k) }));
+  const weekly = bars.length > 60;
+  if (weekly) { const w = []; for (let i = 0; i < bars.length; i += 7) { const g = bars.slice(i, i + 7); w.push({ k: g[0].k, v: g.reduce((a, b) => a + b.v, 0), lab: mdOf(g[0].k) }); } bars = w; }
+  const rs = days.map(k => DREC[k]).filter(Boolean);
+  const totKm = rs.reduce((a, r) => a + (+r.km || 0), 0), totSt = rs.reduce((a, r) => a + (+r.steps || 0), 0), totMin = rs.reduce((a, r) => a + (+r.min || 0), 0);
+  const ws = days.map(k => DREC[k] && DREC[k].weight ? [k, +DREC[k].weight] : null).filter(Boolean);
+  const wd = ws.length > 1 ? +(ws[ws.length - 1][1] - ws[0][1]).toFixed(1) : null;
+  const W = 800, H = 210, L = 8, R = 8, T = 22, B = 26, mx = Math.max(...bars.map(b => b.v), PERM === 'km' ? 1 : 1000), bw = (W - L - R) / bars.length;
+  const every = bars.length <= 14 ? 1 : Math.ceil(bars.length / 10);
+  const fmt = v => PERM === 'km' ? (v >= 10 ? Math.round(v) : v.toFixed(1)) : v >= 1000 ? (v / 1000).toFixed(1) + '천' : v;
+  const chart = `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="기간별 ${PERM === 'km' ? '걸은 거리' : '걸음 수'}">${bars.map((b, i) => {
+      const bh = b.v / mx * (H - T - B), x = L + i * bw + bw * .16, w = Math.max(bw * .68, 2), y = H - B - bh, on = !weekly && b.k === recDate;
+      return `<g class="pbar" data-date="${weekly ? '' : b.k}"><rect x="${L + i * bw}" y="${T - 4}" width="${bw}" height="${H - T - B + 4}" fill="transparent"/><rect x="${x}" y="${y}" width="${w}" height="${Math.max(bh, b.v ? 2 : 0)}" rx="3" class="bar${on ? ' on' : ''}"/>
+        ${bars.length <= 31 && b.v ? `<text x="${x + w / 2}" y="${y - 5}" text-anchor="middle" class="bv">${fmt(b.v)}</text>` : ''}
+        ${i % every === 0 ? `<text x="${x + w / 2}" y="${H - 7}" text-anchor="middle" class="ax">${b.lab}</text>` : ''}</g>`; }).join('')}</svg>`;
+  const seg = (id, cur, opts) => `<span class="seg2 sm">${opts.map(([v, t]) => `<button type="button" data-${id}="${v}" class="${cur === v ? 'on' : ''}">${t}</button>`).join('')}</span>`;
+  return `<section><div class="sh row"><h2>${I.mountain}기간별 운동량</h2><span style="display:flex;gap:8px">${seg('per', PER, [['7', '7일'], ['30', '30일'], ['all', '전체']])}${seg('perm', PERM, [['km', '거리'], ['steps', '걸음']])}</span></div>
+    <div class="grid">
+      <div class="stat"><span class="lab">${Is.foot}총 거리</span><span class="big first">${totKm.toFixed(1)}km</span><span class="small">${rs.length}일 기록 · 하루 평균 ${rs.length ? (totKm / rs.length).toFixed(1) : 0}km</span></div>
+      <div class="stat"><span class="lab">${Is.steps}하루 평균 걸음</span><span class="big">${rs.length ? Math.round(totSt / rs.length).toLocaleString() : '—'}</span><span class="small">총 ${totSt.toLocaleString()}보</span></div>
+      <div class="stat"><span class="lab">${Is.clock}걷기 운동 시간</span><span class="big">${hm(totMin)}</span><span class="small">${rs.filter(r => r.min).length}일 걷기 운동</span></div>
+      <div class="stat"><span class="lab">${Is.heart}체중</span><span class="big">${ws.length ? ws[ws.length - 1][1] + '<small class="unit"> kg</small>' : '—'}</span><span class="small">${wd != null ? `기간 중 <b style="color:${wd <= 0 ? 'var(--see)' : 'var(--amber)'}">${wd > 0 ? '+' : ''}${wd}kg</b>` : '삼성 헬스 체중 기록'}</span></div>
+      <div class="card s4"><h3>${I.steps}${PER === 'all' ? '전체' : '최근 ' + PER + '일'} ${PERM === 'km' ? '걸은 거리' : '걸음 수'}<span class="aside">${weekly ? '주 단위 합계' : '막대를 누르면 그날 기록으로 이동'}</span></h3>${chart}</div>
     </div></section>`;
+}
+function bindPeriod(){
+  const v = $('#view-rec');
+  v.querySelectorAll('[data-per]').forEach(b => b.onclick = () => { PER = b.dataset.per; try { localStorage.setItem('tk-per', PER); } catch(e){} renderRec(); });
+  v.querySelectorAll('[data-perm]').forEach(b => b.onclick = () => { PERM = b.dataset.perm; try { localStorage.setItem('tk-perm', PERM); } catch(e){} renderRec(); });
+  v.querySelectorAll('.pbar').forEach(g => { if (g.dataset.date) g.onclick = () => { recDate = g.dataset.date; recEdit = false; renderRec(); scrollTo(0, 0); }; });
+}
+
+/* ── 위치: 사이트를 열 때 휴대폰 위치 → 지역 이름 (이 폰에만 저장) ── */
+let LOC = {}, LOCLAST = null, LOCPERM = 'prompt';
+try { LOC = JSON.parse(localStorage.getItem('tk-loc') || '{}'); LOCLAST = JSON.parse(localStorage.getItem('tk-locl') || 'null'); } catch(e){ LOC = {}; }
+async function placeName(la, lo){
+  try { const j = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${la}&longitude=${lo}&localityLanguage=ko`)).json();
+    const city = String(j.city || j.principalSubdivision || '').replace(/특별시|광역시|특별자치시|시$/, '');
+    const loc = String(j.locality || '').trim();
+    return [city, loc && loc !== j.city ? loc : ''].filter(Boolean).join(' ') || null; } catch(e){ return null; }
+}
+function getLoc(force){
+  if (!navigator.geolocation) { LOCPERM = 'denied'; return; }
+  if (!force && LOCLAST && Date.now() - LOCLAST.at < 20 * 60e3) return;
+  navigator.geolocation.getCurrentPosition(async pos => {
+    LOCPERM = 'granted';
+    const la = pos.coords.latitude, lo = pos.coords.longitude, nm = await placeName(la, lo), k = todayIso(), now = new Date();
+    const t = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    const arr = LOC[k] = LOC[k] || [], prev = arr[arr.length - 1];
+    if (!prev || prev.nm !== nm) arr.push({ t, la, lo, nm }); else { prev.la = la; prev.lo = lo; }
+    LOCLAST = { la, lo, nm, at: Date.now() };
+    try { localStorage.setItem('tk-loc', JSON.stringify(LOC)); localStorage.setItem('tk-locl', JSON.stringify(LOCLAST)); } catch(e){}
+    renderRec();
+  }, err => { LOCPERM = err.code === 1 ? 'denied' : LOCPERM; if (tab === 'rec') renderRec(); }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 10 * 60e3 });
+}
+async function initLoc(){
+  try { const st = await navigator.permissions.query({ name: 'geolocation' }); LOCPERM = st.state; st.onchange = () => { LOCPERM = st.state; }; } catch(e){}
+  if (LOCPERM === 'granted') getLoc();
 }
 
 /* 4. 회복 추이 · 5. 체중 · 6. 도장판 · 10. 배지 · 지출 합계 */
@@ -1399,9 +1496,17 @@ function bindArr(d){
 function renderAllViews(){ renderHeader(); renderDay(); renderRec(); renderAll(); }
 
 function renderRec(){
-  const d = DATA.days[cur - 1];
-  $('#view-rec').innerHTML = hcBox() + arrivalCard(d) + recordSection(d) + todayExtras(d, recOf(d)) + journeyChart() + journeyExtras();
-  bindRec(d); bindExtras(d); bindArr(d);
+  const k = recDate, td = tripDayOf(k), d = td || DATA.days[cur - 1];
+  const tripOn = todayIso() >= isoDay(TRIP_START);
+  $('#view-rec').innerHTML = hcBox() + recNav(k) + (td && k <= todayIso() ? arrivalCard(td) : '') + recordSection(k) + dayExtras(k, DREC[k])
+    + periodSection()
+    + `<div class="tripdiv"><span>도카이도 여정 ${tripOn ? '' : '· 출발 전 미리보기'}</span></div>` + journeyChart() + journeyExtras();
+  bindRec(k); bindExtras(d); if (td) bindArr(td); bindPeriod();
+  const go1 = n => { recDate = n; recEdit = false; renderRec(); };
+  $('#rnPrev').onclick = () => go1(addDays(k, -1));
+  $('#rnNext').onclick = () => { if (k < todayIso()) go1(addDays(k, 1)); };
+  $('#rnToday').onclick = () => go1(todayIso());
+  const lo = document.getElementById('locOn'); if (lo) lo.onclick = () => { lo.textContent = '위치 확인 중…'; getLoc(true); };
   const hr = document.getElementById('hcRefresh'); if (hr) hr.onclick = () => { hr.textContent = '받는 중…'; loadHC(); };
 }
 function renderAll(){
@@ -1651,13 +1756,13 @@ async function fillPhotos(d){
 
 }
 
-function go(n){ placeCat = 's'; recEdit = false; cur = Math.min(Math.max(n, 1), DATA.days.length); store.set('tk-day', cur); renderHeader(); renderDay(); renderRec(); renderAll(); }
+function go(n){ placeCat = 's'; recEdit = false; cur = Math.min(Math.max(n, 1), DATA.days.length); store.set('tk-day', cur); { const k = isoDay(dateOf(cur)); if (k <= todayIso()) recDate = k; } renderHeader(); renderDay(); renderRec(); renderAll(); }
 function setTab(t){
   tab = t;
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
   ['day','rec','all','tips','ja'].forEach(k => $('#view-' + k).hidden = k !== t);
   if (t === 'tips' && FX.rate) renderTips();
-  const stepVis = t === 'day' || t === 'all' || t === 'rec';
+  const stepVis = t === 'day' || t === 'all';
   ['#prev','#next','#daylabel','#todayBtn'].forEach(s => $(s).style.visibility = stepVis ? 'visible' : 'hidden');
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
@@ -1677,10 +1782,10 @@ $('#fsBtn').onclick = async () => {
 };
 document.addEventListener('fullscreenchange', () => $('#fsBtn').setAttribute('aria-pressed', !!document.fullscreenElement));
 $('#next').onclick = () => go(cur + 1);
-$('#todayBtn').onclick = () => go(Math.min(Math.max(isPractice() ? practiceN() : todayN(), 1), DATA.days.length));
+$('#todayBtn').onclick = () => go(Math.min(Math.max(todayN(), 1), DATA.days.length));
 /* 삼성 헬스: 열 때 + 화면으로 돌아올 때(30분 간격) 새로 받기 */
-setTimeout(loadHC, 300);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && (!HCLAST || Date.now() - (HCLAST.at || 0) > 18e5)) loadHC(); });
+setTimeout(loadHC, 300); setTimeout(initLoc, 600);
+document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (!HCLAST || Date.now() - (HCLAST.at || 0) > 9e5) loadHC(); if (LOCPERM === 'granted') getLoc(); if (recDate < todayIso() && tab !== 'rec') recDate = todayIso(); });
 
 /* 화면이 880px보다 좁은 곳(미리보기 등)에서는 통째로 축소해 고정 배치 유지 */
 function fit(){ const w = document.documentElement.clientWidth; $('#app').style.zoom = w < 880 ? (w / 880) : 1; }
@@ -1688,8 +1793,7 @@ addEventListener('resize', fit);
 
 const tn = todayN();
 const saved = parseInt(store.get('tk-day'));
-const pn = isPractice() ? practiceN() : tn;
-cur = pn >= 1 && pn <= DATA.days.length ? pn : (saved || 1);
+cur = tn >= 1 && tn <= DATA.days.length ? tn : (saved || 1);
 renderHeader(); renderDay(); renderRec(); renderAll(); renderTips(); renderJa(); fit(); netBanner(); loadFx();
 </script>
 <script>(function(){const n=document.querySelector('.tabs');n.classList.add('bottom');document.getElementById('app').appendChild(n);})();</script>

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fetch freely licensed photo candidates for every station listed in the Tokaido route."""
 import json, re, time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -329,49 +330,57 @@ def search_station(station):
         time.sleep(0.05)
     return None
 
-def main():
-    manifest = ["# Tokaido station photo assets", "", "Automatically collected from Wikimedia Commons. Only files with an explicit reuse-friendly license were accepted. Please review visual relevance before using on the live site.", "", "| Route no. | Station | File | Author | License | Dimensions | Source |", "|---:|---|---|---|---|---:|---|"]
-    successes, failures = 0, []
-    for station in STATIONS:
-        stem = f'{station["n"]:02d}-{slug(station["en"])}'
-        filename = stem + ".jpg"
-        destination = ASSETS / filename
-        metadata_path = ASSETS / (stem + ".json")
+def process_station(station):
+    stem = f'{station["n"]:02d}-{slug(station["en"])}'
+    filename = stem + ".jpg"
+    destination = ASSETS / filename
+    metadata_path = ASSETS / (stem + ".json")
+    try:
         if destination.exists() and metadata_path.exists():
             record = json.loads(metadata_path.read_text(encoding="utf-8"))
-        else:
-            result = search_station(station)
-            if not result:
-                failures.append(station)
-                print(f'NO LICENSED IMAGE FOUND: {station["n"]}. {station["en"]} ({station["ja"]})')
-                continue
-            page, ii = result
-            url = ii.get("thumburl") or ii.get("url")
-            try:
-                req = Request(url, headers={"User-Agent": UA})
-                with urlopen(req, timeout=60) as response:
-                    data, mime = response.read(), response.headers.get("Content-Type", "")
-                if not mime.startswith("image/") or len(data) < 15000:
-                    raise RuntimeError(f"unexpected payload: {mime}, {len(data)} bytes")
-                destination.write_bytes(data)
-            except Exception as exc:
-                failures.append(station)
-                print(f'DOWNLOAD FAILED: {station["en"]}: {exc}')
-                continue
-            meta = ii.get("extmetadata", {})
-            record = {"route_number":station["n"],"station_ja":station["ja"],"station_en":station["en"],"commons_title":page.get("title",""),"source_page":"https://commons.wikimedia.org/wiki/"+page.get("title","").replace(" ","_"),"author":val(meta,"Artist") or "Not stated on file page","license":val(meta,"LicenseShortName") or "See source page","license_url":val(meta,"LicenseUrl"),"description":val(meta,"ImageDescription"),"source_file_url":ii.get("descriptionurl") or ii.get("url"),"width":ii.get("width"),"height":ii.get("height"),"stored_bytes":len(data),"stored_url":url}
-            metadata_path.write_text(json.dumps(record,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-            print(f'OK {station["n"]:02d}/{len(STATIONS)} {station["en"]}: {page.get("title")} ({len(data):,} bytes; {record["license"]})')
-        author = re.sub(r"\s+", " ", re.sub("<[^>]+>", "", record.get("author",""))).strip()
+            return station, filename, record, None
+        result = search_station(station)
+        if not result:
+            return station, filename, None, "No eligible licensed image found"
+        page, ii = result
+        url = ii.get("thumburl") or ii.get("url")
+        req = Request(url, headers={"User-Agent": UA})
+        with urlopen(req, timeout=30) as response:
+            data, mime = response.read(), response.headers.get("Content-Type", "")
+        if not mime.startswith("image/") or len(data) < 15000:
+            raise RuntimeError(f"unexpected payload: {mime}, {len(data)} bytes")
+        destination.write_bytes(data)
+        meta = ii.get("extmetadata", {})
+        record = {"route_number":station["n"],"station_ja":station["ja"],"station_en":station["en"],"commons_title":page.get("title",""),"source_page":"https://commons.wikimedia.org/wiki/"+page.get("title","").replace(" ","_"),"author":val(meta,"Artist") or "Not stated on file page","license":val(meta,"LicenseShortName") or "See source page","license_url":val(meta,"LicenseUrl"),"description":val(meta,"ImageDescription"),"source_file_url":ii.get("descriptionurl") or ii.get("url"),"width":ii.get("width"),"height":ii.get("height"),"stored_bytes":len(data),"stored_url":url}
+        metadata_path.write_text(json.dumps(record,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+        print(f'OK {station["n"]:02d}/{len(STATIONS)} {station["en"]}: {page.get("title")} ({len(data):,} bytes; {record["license"]})', flush=True)
+        return station, filename, record, None
+    except Exception as exc:
+        print(f'FAILED {station["n"]:02d} {station["en"]}: {exc}', flush=True)
+        return station, filename, None, str(exc)
+
+def main():
+    manifest = ["# Tokaido station photo assets", "", "Automatically collected from Wikimedia Commons. Only files with an explicit reuse-friendly license were accepted. Please review visual relevance before using on the live site.", "", "| Route no. | Station | File | Author | License | Dimensions | Source |", "|---:|---|---|---|---|---:|---|"]
+    results = []
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = [pool.submit(process_station, station) for station in STATIONS]
+        for future in as_completed(futures):
+            results.append(future.result())
+    results.sort(key=lambda row: row[0]["n"])
+    successes, failures = 0, []
+    for station, filename, record, error in results:
+        if not record:
+            failures.append(station)
+            continue
+        author = re.sub(r"\\s+", " ", re.sub("<[^>]+>", "", record.get("author",""))).strip()
         manifest.append(f'| {station["n"]} | {station["ja"]} / {station["en"]} | [{filename}](assets/stations/{filename}) | {author[:120]} | {record.get("license","See source page")} | {record.get("width")} × {record.get("height")} | [Commons source]({record.get("source_page")}) |')
         successes += 1
-        time.sleep(0.03)
     manifest.extend(["", f"**Collected:** {successes}/{len(STATIONS)} station images.", ""])
     if failures:
         manifest.extend(["## Stations needing manual review", ""])
         manifest.extend([f'- {s["n"]}. {s["ja"]} ({s["en"]}) — no eligible image found by automated search.' for s in failures])
-    (ROOT / "STATION-PHOTO-MANIFEST.md").write_text("\n".join(manifest)+"\n",encoding="utf-8")
-    print(f"FINISHED: {successes}/{len(STATIONS)} station images; {len(failures)} need manual review.")
+    (ROOT / "STATION-PHOTO-MANIFEST.md").write_text("\\n".join(manifest)+"\\n",encoding="utf-8")
+    print(f"FINISHED: {successes}/{len(STATIONS)} station images; {len(failures)} need manual review.", flush=True)
 
 if __name__ == "__main__":
     main()

@@ -22,6 +22,8 @@ Deno.serve(async (req) => {
   const raw = await req.text();
   let body: Record<string, unknown>;
   try { body = JSON.parse(raw); } catch { return new Response("bad json", { status: 400 }); }
+  // 앱의 「웹훅 테스트」는 가짜 예시 데이터(test: true)를 보냄 → 연결 확인만 하고 저장하지 않음
+  if (body.test === true) return Response.json({ ok: true, test: true, saved: 0 });
   try { return await save(body); } catch (e) {
     const err = e instanceof Error ? e.message : String(e);
     console.error("hc-webhook", err);

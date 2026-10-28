@@ -659,7 +659,9 @@ function renderTrail(){
 function renderHeader(){
   const d = DATA.days[cur - 1];
   renderTrail();
-  $('#daylabel').innerHTML = `<span style="white-space:nowrap">${d.n}일차 · ${dateHtml(d, false)}</span> ${HOLI[d.date] ? `<small class="holi">${HOLI[d.date]}</small>` : `<small>${esc(d.region)}</small>`}`;
+  $('#daylabel').innerHTML = isPractice()
+    ? `<span style="white-space:nowrap">연습 ${d.n}일차 · ${dateHtml(d, false)}</span> <small>서울</small>`
+    : `<span style="white-space:nowrap">${d.n}일차 · ${dateHtml(d, false)}</span> ${HOLI[d.date] ? `<small class="holi">${HOLI[d.date]}</small>` : `<small>${esc(d.region)}</small>`}`;
   $('#prev').disabled = cur === 1; $('#next').disabled = cur === DATA.days.length;
   const tn = todayN();
   $('#state').textContent = tn < 1 ? `출발까지 D-${1 - tn}` : tn > DATA.days.length ? '여행 완료' : `출발 후 D+${tn - 1} · ${tn}일차`;
@@ -777,9 +779,9 @@ async function loadHC(){
     if (!res.ok) throw 0;
     const j = await res.json(), rec = {}, byDate = j.days || {};
     DATA.days.forEach(d => { const rd = recDateOf(d.n), s = byDate[isoDay(rd)]; if (!s || !(s.steps || s.km || s.min)) return;
-      rec[d.n] = { km: s.km || s.exKm || 0, steps: s.steps || 0, hr: s.hr ?? null, hrMax: s.hrMax ?? null, hrRest: s.hrRest ?? null,
+      rec[d.n] = { km: Math.max(+s.km || 0, +s.exKm || 0), steps: s.steps || 0, hr: s.hr ?? null, hrMax: s.hrMax ?? null, hrRest: s.hrRest ?? null,
         min: s.min ?? null, kcal: s.kcal ?? s.kcalActive ?? null, sleepMin: s.sleepMin ?? null, weight: s.weight ?? null,
-        series: s.series || [], sessions: s.sessions || [], source: 'samsung', synced: s.synced || '', practice: isPractice() ? (rd.getMonth() + 1) + '/' + rd.getDate() : '' }; });
+        series: s.series || [], hourly: s.hourly || {}, sessions: s.sessions || [], source: 'samsung', synced: s.synced || '', practice: isPractice() ? (rd.getMonth() + 1) + '/' + rd.getDate() : '' }; });
     SREC = rec; HCSTATE = 'ok';
     HCLAST = { rec, last: j.last, today: byDate[isoDay(now)] || null, at: Date.now() };
     try { localStorage.setItem('tk-hc', JSON.stringify(HCLAST)); } catch(e){}
@@ -824,7 +826,7 @@ function sessionTable(r){
     ${ss.map(x => `<tr><td><b>${esc(x.s)}</b>~${esc(x.e)}</td><td class="num"><b>${x.km != null ? (+x.km).toFixed(1) + 'km' : '—'}</b></td><td class="num">${hm(x.min)}</td><td class="num">${pace(x)}</td></tr>`).join('')}
     </tbody>${ss.length > 1 ? `<tfoot><tr><td>합계 ${ss.length}번</td><td class="num"><b>${tk.toFixed(1)}km</b></td><td class="num">${hm(tm)}</td><td class="num">${pace({ km: tk, min: tm })}</td></tr></tfoot>` : ''}</table>`;
 }
-/* 시간대별 걸음 (막대) — 지금은 쓰지 않음 */
+/* 시간대별 걸음 (막대) */
 function stepChart(r){
   const W = 380, H = 190, L = 4, R = 4, T = 20, B = 22;
   const src = r.hourly || {}; if (!Object.keys(src).length) return '<p class="muted">걸음 기록 없음</p>';
@@ -864,7 +866,8 @@ function recordSection(d){
     <div class="stat"><span class="lab">${Is.heart}평균 심박</span><span class="big">${nv(r.hr)}<small class="unit"> bpm</small></span><span class="small">최고 ${nv(r.hrMax)} · 안정 시 ${r.hrRest || '—'}</span></div>
     <div class="stat"><span class="lab">${Is.clock}걸은 시간</span><span class="big">${hm(r.min)}</span><span class="small">${[pace ? '1km당 ' + Math.floor(pace) + '분 ' + String(Math.round((pace % 1) * 60)).padStart(2, '0') + '초' : '', r.kcal ? Number(r.kcal).toLocaleString() + 'kcal' : ''].filter(Boolean).join(' · ')}</span></div>
     <div class="card s2"><h3>${I.heart}걷는 동안 심박수</h3>${hrChart(r)}</div>
-    <div class="card s2"><h3>${I.steps}걷기 운동 기록 <span class="aside">켜고 끈 구간마다</span></h3>${sessionTable(r)}</div>
+    <div class="card s2"><h3>${I.steps}시간대별 걸음 <span class="aside">오전 6시 ~ 오후 6시</span></h3>${stepChart(r)}</div>
+    ${(r.sessions || []).length ? `<div class="card s4"><h3>${I.foot}걷기 운동 기록 <span class="aside">삼성 헬스에서 '걷기'를 켜고 끈 구간마다</span></h3>${sessionTable(r)}</div>` : ''}
     <div class="card s4 recov"><span class="lab">${Is.bed}회복 상태</span>
       <span><b>지난밤 수면</b> ${r.sleepMin ? hm(r.sleepMin) : '—'}</span><span><b>안정 시 심박</b> ${r.hrRest || '—'} bpm</span>
       <span>${r.hrRest && r.hrRest > 63 ? '<mark class="warn">안정 시 심박이 높음 · 오늘은 천천히</mark>' : '<span style="color:var(--see);font-weight:700">컨디션 양호</span>'}</span></div>
@@ -1170,21 +1173,21 @@ function spendBox(d){
 }
 /* 걷는 경로가 없는 날(도착·쉬는 날·이동일): 머무는 곳 주변 지도 + 오늘 움직임 */
 function restRoute(d, r){
-  const c = ll(d), ss = r.sessions || [], nm = x => String(x || '').replace(/\s*\(숙소\)\s*/, '');
-  const mv = (d.steps || []).filter(x => x.k === '교통' || x.k === '걷기');
-  return `<div class="card s2"><h3>${I.map}오늘 다닌 곳<span class="aside" style="margin-left:auto">${esc(nm(d.stay))} 주변</span></h3>
-      <div class="map" style="height:170px"><iframe title="오늘 머무는 곳 지도" loading="lazy" src="https://www.google.com/maps/d/embed?mid=${MYMAP_MID}&ehbc=2E312F&ll=${c}&z=14"></iframe></div></div>
+  const P = isPractice(), c = P ? '37.5665,126.978' : ll(d), ss = r.sessions || [], nm = x => String(x || '').replace(/\s*\(숙소\)\s*/, '');
+  const mv = P ? [] : (d.steps || []).filter(x => x.k === '교통' || x.k === '걷기');
+  return `<div class="card s2"><h3>${I.map}오늘 다닌 곳<span class="aside" style="margin-left:auto">${P ? '서울 · 연습' : esc(nm(d.stay)) + ' 주변'}</span></h3>
+      <div class="map" style="height:170px"><iframe title="오늘 머무는 곳 지도" loading="lazy" src="https://www.google.com/maps/d/embed?mid=${MYMAP_MID}&ehbc=2E312F&ll=${c}&z=${P ? 12 : 14}"></iframe></div></div>
     <div class="card s2 restmv"><h3>${I.foot}오늘 움직임</h3>
       <div class="rmstat"><span><span class="lab">걸은 거리</span><b class="num">${r.km != null && r.km !== '' ? (+r.km).toFixed(1) + 'km' : '—'}</b></span>
         <span><span class="lab">걸음</span><b class="num">${r.steps ? Number(r.steps).toLocaleString() : '—'}</b></span>
         <span><span class="lab">걷기 운동</span><b class="num">${ss.length ? ss.length + '번' : '—'}</b></span></div>
-      ${mv.length ? `<ul class="rmlist">${mv.map(x => `<li><span class="tag ${x.k === '교통' ? 'tr' : 'wk'}">${x.k}</span>${esc(x.t)}</li>`).join('')}</ul>` : '<p class="small muted" style="margin:0">정해진 이동 없음 · 동네 산책하기 좋은 날</p>'}
+      ${mv.length ? `<ul class="rmlist">${mv.map(x => `<li><span class="tag ${x.k === '교통' ? 'tr' : 'wk'}">${x.k}</span>${esc(x.t)}</li>`).join('')}</ul>` : `<p class="small muted" style="margin:0">${P ? '출발 전 연습 기간 · 서울에서 걷는 기록이 쌓입니다' : '정해진 이동 없음 · 동네 산책하기 좋은 날'}</p>`}
     </div>`;
 }
 function todayExtras(d, r){
   if (!r) r = {};
   return `<section><div class="sh"><h2>${I.map}오늘의 길</h2></div><div class="grid ${r.demo ? 'is-demo' : ''}">
-      ${d.route.length ? `<div class="card s2"><h3>${I.map}실제 걸은 경로${d.route.length ? '<span class="legend" style="margin-left:auto;font-weight:500"><i class="lg plan"></i>계획 <i class="lg act"></i>실제</span>' : ''}</h3>${routeMap(d, r)}</div>
+      ${d.route.length && !isPractice() ? `<div class="card s2"><h3>${I.map}실제 걸은 경로${d.route.length ? '<span class="legend" style="margin-left:auto;font-weight:500"><i class="lg plan"></i>계획 <i class="lg act"></i>실제</span>' : ''}</h3>${routeMap(d, r)}</div>
       <div class="card s2">${(() => { const svg = elevChart(d, r), g = elevChart.last; return `<h3>${I.mountain}고도<span class="aside" style="margin-left:auto">오른 높이 <b class="num">${g.gain.toLocaleString()}m</b> · 최고 ${g.top}m</span></h3>${svg}`; })()}</div>` : restRoute(d, r)}
       <div class="card s4"><h3>${I.heart}심박 구간 <span class="aside">걷는 동안 어느 강도로 걸었나</span></h3>${hrZones(r)}</div>
     </div></section>

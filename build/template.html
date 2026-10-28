@@ -103,6 +103,7 @@ mark.warn{background:var(--amber-bg);color:var(--amber);font-weight:800;padding:
 .srcb.demo{color:var(--amber);background:var(--amber-bg)}
 .is-demo .stat,.is-demo .card{border-style:dashed}
 .unit{font-size:14px;font-weight:700}
+.card.hcbox{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;text-align:left;gap:14px;padding:10px 16px;margin-bottom:13px;font-size:15px}.hcbox>*{margin:0}.hcbox .lab{font-weight:800}.hcbox .linkbtn{margin-left:auto}
 .recstrip{width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;text-align:left}
 .recstrip.is-demo{border-style:dashed}
 .recstrip .ic{color:var(--danger)}
@@ -702,8 +703,18 @@ function restExtra(d){
   return h ? `<div class="restx">${h}</div>` : '';
 }
 /* 실제 기록: 지금은 이 폰에 저장(직접 입력), 나중에 Supabase·워치 연동으로 자동 채움 */
-let REC = {}; try { REC = JSON.parse(localStorage.getItem('tk-rec') || '{}'); } catch(e){ REC = {}; }
-function saveRec(){ try { localStorage.setItem('tk-rec', JSON.stringify(REC)); } catch(e){} }
+/* MAN: 직접 입력(이 폰), SREC: 삼성 헬스(Supabase에서 받아옴), REC: 둘을 합친 것(직접 입력이 우선) */
+let MAN = {}; try { MAN = JSON.parse(localStorage.getItem('tk-rec') || '{}'); } catch(e){ MAN = {}; }
+let SREC = {}, HCLAST = null; try { const c = JSON.parse(localStorage.getItem('tk-hc') || 'null'); if (c) { SREC = c.rec || {}; HCLAST = c; } } catch(e){}
+let REC = {};
+function mergeRec(){
+  REC = {};
+  Object.entries(SREC).forEach(([n, r]) => REC[n] = { ...r });
+  Object.entries(MAN).forEach(([n, r]) => { const o = {}; Object.entries(r).forEach(([k, v]) => { if (v != null && v !== '') o[k] = v; });
+    REC[n] = SREC[n] ? { ...SREC[n], ...o, source: 'mixed' } : { ...r }; });
+}
+mergeRec();
+function saveRec(){ try { localStorage.setItem('tk-rec', JSON.stringify(MAN)); } catch(e){} mergeRec(); }
 const walkedActual = n => Object.entries(REC).filter(([k]) => +k < n).reduce((s, [, r]) => s + (+r.km || 0), 0);
 let recEdit = false;
 /* ── 삼성 헬스 기록 (Health Connect → 사이트) ──
@@ -731,7 +742,46 @@ function sampleRec(d){
     series, hourly, source: 'samsung', synced: '21:00', demo: true };
 }
 const recOf = d => REC[d.n] ? REC[d.n] : (DEMO() && todayN() < d.n + 1 ? null : null) || (DEMO() ? sampleRec(d) : null);
-const hm = m => Math.floor(m / 60) + ':' + String(Math.round(m % 60)).padStart(2, '0');
+const hm = m => m == null || m === '' ? '—' : Math.floor(m / 60) + ':' + String(Math.round(m % 60)).padStart(2, '0');
+const nv = x => x == null || x === '' ? '—' : x;
+
+/* ── 삼성 헬스 자동 연동: HC Webhook → Supabase → 여기 ──
+   읽기 열쇠는 이 폰에만 저장. 처음 한 번 '사이트주소/#k=열쇠' 로 열면 기억함 */
+const HC_URL = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/hc-read';
+let HCKEY = ''; try { HCKEY = localStorage.getItem('tk-hckey') || ''; } catch(e){}
+(function(){ const m = location.hash.match(/[#&]k=([\w-]+)/); if (m) { HCKEY = m[1]; try { localStorage.setItem('tk-hckey', HCKEY); } catch(e){} history.replaceState(null, '', location.pathname); } })();
+const isoDay = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+let HCSTATE = HCKEY ? 'wait' : 'off';
+async function loadHC(){
+  if (!HCKEY || !navigator.onLine) return;
+  const now = new Date(), start = dateOf(1), end = dateOf(DATA.days.length);
+  const from = isoDay(now < start ? new Date(now.getTime() - 864e5) : start), to = isoDay(end > now ? end : now);
+  try {
+    const res = await fetch(`${HC_URL}?from=${from}&to=${to}`, { headers: { 'x-read-key': HCKEY }, cache: 'no-store' });
+    if (res.status === 401) { HCSTATE = 'badkey'; return renderRec(); }
+    if (!res.ok) throw 0;
+    const j = await res.json(), rec = {}, byDate = j.days || {};
+    DATA.days.forEach(d => { const s = byDate[isoDay(dateOf(d.n))]; if (!s || !(s.steps || s.km || s.min)) return;
+      rec[d.n] = { km: s.km || s.exKm || 0, steps: s.steps || 0, hr: s.hr ?? null, hrMax: s.hrMax ?? null, hrRest: s.hrRest ?? null,
+        min: s.min ?? null, kcal: s.kcal ?? s.kcalActive ?? null, sleepMin: s.sleepMin ?? null, weight: s.weight ?? null,
+        series: s.series || [], hourly: s.hourly || {}, source: 'samsung', synced: s.synced || '' }; });
+    SREC = rec; HCSTATE = 'ok';
+    HCLAST = { rec, last: j.last, today: byDate[isoDay(now)] || null, at: Date.now() };
+    try { localStorage.setItem('tk-hc', JSON.stringify(HCLAST)); } catch(e){}
+    mergeRec(); renderAllViews();
+  } catch(e){ HCSTATE = 'err'; renderRec(); }
+}
+function hcBox(){
+  if (HCSTATE === 'off' && !HCLAST) return '';
+  const last = HCLAST && HCLAST.last ? new Date(HCLAST.last.received_at) : null;
+  const ago = last ? Math.round((Date.now() - last) / 36e5) : null;
+  const t = HCLAST && HCLAST.today;
+  const st = HCSTATE === 'badkey' ? '<mark class="warn">열쇠가 맞지 않음</mark>' : HCSTATE === 'err' ? '<span class="muted">지금은 불러오지 못함 · 저장된 기록 표시</span>'
+    : last ? `<b style="color:${ago > 30 ? 'var(--amber)' : 'var(--see)'}">${ago > 30 ? '하루 넘게 안 들어옴' : '연결됨'}</b>` : '<span class="muted">아직 받은 데이터 없음</span>';
+  return `<div class="card hcbox"><span class="lab">${Is.heart}삼성 헬스 연동</span><span>${st}</span>
+    <span class="small">마지막 수신 ${last ? `${last.getMonth() + 1}/${last.getDate()} ${String(last.getHours()).padStart(2, '0')}:${String(last.getMinutes()).padStart(2, '0')}` : '—'}${t ? ` · 오늘 ${Number(t.steps || 0).toLocaleString()}보 · ${(+(t.km || 0)).toFixed(1)}km` : ''}</span>
+    <button class="linkbtn" id="hcRefresh">지금 새로 받기</button></div>`;
+}
 
 /* 심박 그래프 (선) */
 function hrChart(r){
@@ -763,7 +813,7 @@ function stepChart(r){
 function recordSection(d){
   const r = recOf(d);
   const badge = r && r.demo ? '<span class="srcb demo">예시 데이터 · 출발 후 삼성 헬스 기록으로 바뀜</span>'
-    : r && r.source === 'samsung' ? `<span class="srcb">${Is.heart}삼성 헬스 · ${esc(r.synced || '')} 동기화</span>` : r ? '<span class="srcb">직접 입력</span>' : '';
+    : r && r.source === 'samsung' ? `<span class="srcb">${Is.heart}삼성 헬스 · ${esc(r.synced || '')} 동기화</span>` : r && r.source === 'mixed' ? `<span class="srcb">${Is.heart}삼성 헬스 + 직접 고침</span>` : r ? '<span class="srcb">직접 입력</span>' : '';
   const head = `<div class="sh row"><h2>${I.heart}오늘의 기록</h2><span style="display:flex;gap:8px;align-items:center">${badge}<button class="linkbtn" id="recEditBtn">${REC[d.n] ? '기록 고치기' : '직접 입력'}</button></span></div>`;
   if (recEdit) {
     const v = k => REC[d.n] && REC[d.n][k] != null ? REC[d.n][k] : '';
@@ -774,7 +824,7 @@ function recordSection(d){
       <label>최고 심박 <span>bpm</span><input id="rf-hrmax" type="number" inputmode="numeric" value="${v('hrMax')}"></label>
       <label>걸은 시간 <span>분</span><input id="rf-min" type="number" inputmode="numeric" value="${v('min')}"></label>
       <label>칼로리 <span>kcal</span><input id="rf-kcal" type="number" inputmode="numeric" value="${v('kcal')}"></label>
-      <div class="recbtns"><button type="submit" class="btn primary">저장</button><button type="button" class="btn" id="rf-cancel">취소</button>${REC[d.n] ? '<button type="button" class="btn" id="rf-del">기록 지우기</button>' : ''}</div>
+      <div class="recbtns"><button type="submit" class="btn primary">저장</button><button type="button" class="btn" id="rf-cancel">취소</button>${MAN[d.n] ? `<button type="button" class="btn" id="rf-del">${SREC[d.n] ? '고친 값 지우기' : '기록 지우기'}</button>` : ''}</div>
     </form></section>`;
   }
   if (!r) return `<section>${head}<div class="card recempty">${Is.foot}<span>아직 기록이 없습니다. 삼성 헬스에서 '걷기' 운동을 기록하면 밤에 자동으로 들어옵니다.</span></div></section>`;
@@ -786,8 +836,8 @@ function recordSection(d){
     <div class="stat"><span class="lab">${Is.foot}실제 걸은 거리</span><span class="big first">${(+r.km).toFixed(1)}km</span>
       ${pct != null ? `<span class="small">계획 ${d.km}km의 <b style="color:${pct >= 100 ? 'var(--see)' : 'var(--amber)'}">${pct}%</b></span><span class="gauge" style="height:6px"><i style="width:${Math.min(pct, 100)}%;background:${pct >= 100 ? 'var(--see)' : 'var(--accent)'}"></i></span>` : '<span class="small">쉬는 날 산책</span>'}</div>
     <div class="stat"><span class="lab">${Is.steps}걸음 수</span><span class="ringrow">${ring}<span><span class="big">${Number(r.steps).toLocaleString()}</span><span class="small" style="display:block">목표 2만 보의 ${Math.round(r.steps / goal * 100)}%</span></span></span></div>
-    <div class="stat"><span class="lab">${Is.heart}평균 심박</span><span class="big">${r.hr}<small class="unit"> bpm</small></span><span class="small">최고 ${r.hrMax} · 안정 시 ${r.hrRest || '—'}</span></div>
-    <div class="stat"><span class="lab">${Is.clock}걸은 시간</span><span class="big">${hm(r.min)}</span><span class="small">${pace ? '1km당 ' + Math.floor(pace) + '분 ' + String(Math.round((pace % 1) * 60)).padStart(2, '0') + '초' : ''} · ${Number(r.kcal).toLocaleString()}kcal</span></div>
+    <div class="stat"><span class="lab">${Is.heart}평균 심박</span><span class="big">${nv(r.hr)}<small class="unit"> bpm</small></span><span class="small">최고 ${nv(r.hrMax)} · 안정 시 ${r.hrRest || '—'}</span></div>
+    <div class="stat"><span class="lab">${Is.clock}걸은 시간</span><span class="big">${hm(r.min)}</span><span class="small">${pace ? '1km당 ' + Math.floor(pace) + '분 ' + String(Math.round((pace % 1) * 60)).padStart(2, '0') + '초' : ''} · ${r.kcal ? Number(r.kcal).toLocaleString() + 'kcal' : ''}</span></div>
     <div class="card s2"><h3>${I.heart}걷는 동안 심박수</h3>${hrChart(r)}</div>
     <div class="card s2"><h3>${I.steps}시간대별 걸음 <span class="aside">오전 6시 ~ 오후 6시</span></h3>${stepChart(r)}</div>
     <div class="card s4 recov"><span class="lab">${Is.bed}회복 상태</span>
@@ -799,9 +849,9 @@ function bindRec(d){
   const eb = document.getElementById('recEditBtn'); if (eb) eb.onclick = () => { recEdit = !recEdit; renderRec(); };
   const f = document.getElementById('recForm'); if (!f) return;
   const num = id => { const x = document.getElementById(id).value; return x === '' ? null : +x; };
-  f.onsubmit = e => { e.preventDefault(); REC[d.n] = { km: num('rf-km'), steps: num('rf-steps'), hr: num('rf-hr'), hrMax: num('rf-hrmax'), min: num('rf-min'), kcal: num('rf-kcal') }; saveRec(); recEdit = false; renderHeader(); renderDay(); renderRec(); renderAll(); };
+  f.onsubmit = e => { e.preventDefault(); MAN[d.n] = { km: num('rf-km'), steps: num('rf-steps'), hr: num('rf-hr'), hrMax: num('rf-hrmax'), min: num('rf-min'), kcal: num('rf-kcal') }; saveRec(); recEdit = false; renderHeader(); renderDay(); renderRec(); renderAll(); };
   document.getElementById('rf-cancel').onclick = () => { recEdit = false; renderRec(); };
-  const del = document.getElementById('rf-del'); if (del) del.onclick = () => { delete REC[d.n]; saveRec(); recEdit = false; renderHeader(); renderDay(); renderRec(); renderAll(); };
+  const del = document.getElementById('rf-del'); if (del) del.onclick = () => { delete MAN[d.n]; saveRec(); recEdit = false; renderHeader(); renderDay(); renderRec(); renderAll(); };
 }
 function renderDay(){
   const d = eff(DATA.days[cur - 1]);
@@ -837,7 +887,7 @@ function renderDay(){
   /* 3. 오늘 기록 한 줄 요약 → 기록 탭 */
   { const r = recOf(d);
     h += `<button class="recstrip ${r && r.demo ? 'is-demo' : ''}" id="toRec">${I.heart}<b>오늘의 기록</b>
-      ${r ? `<span><b class="num">${(+r.km).toFixed(1)}km</b> · ${Number(r.steps).toLocaleString()}보 · 평균 ${r.hr}bpm · ${hm(r.min)}</span>${r.demo ? '<span class="srcb demo">예시</span>' : ''}` : '<span class="muted">아직 기록 없음</span>'}
+      ${r ? `<span><b class="num">${(+r.km).toFixed(1)}km</b> · ${Number(r.steps).toLocaleString()}보 · 평균 ${nv(r.hr)}bpm · ${hm(r.min)}</span>${r.demo ? '<span class="srcb demo">예시</span>' : ''}` : '<span class="muted">아직 기록 없음</span>'}
       <span class="go">기록 탭에서 자세히 ›</span></button>`; }
 
   /* 4. 지도 */
@@ -1309,8 +1359,9 @@ function renderAllViews(){ renderHeader(); renderDay(); renderRec(); renderAll()
 
 function renderRec(){
   const d = DATA.days[cur - 1];
-  $('#view-rec').innerHTML = arrivalCard(d) + recordSection(d) + todayExtras(d, recOf(d)) + journeyChart() + journeyExtras();
+  $('#view-rec').innerHTML = hcBox() + arrivalCard(d) + recordSection(d) + todayExtras(d, recOf(d)) + journeyChart() + journeyExtras();
   bindRec(d); bindExtras(d); bindArr(d);
+  const hr = document.getElementById('hcRefresh'); if (hr) hr.onclick = () => { hr.textContent = '받는 중…'; loadHC(); };
 }
 function renderAll(){
   const tn = Math.min(Math.max(todayN(), 1), DATA.days.length);
@@ -1586,6 +1637,9 @@ $('#fsBtn').onclick = async () => {
 document.addEventListener('fullscreenchange', () => $('#fsBtn').setAttribute('aria-pressed', !!document.fullscreenElement));
 $('#next').onclick = () => go(cur + 1);
 $('#todayBtn').onclick = () => go(Math.min(Math.max(todayN(), 1), DATA.days.length));
+/* 삼성 헬스: 열 때 + 화면으로 돌아올 때(30분 간격) 새로 받기 */
+setTimeout(loadHC, 300);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && (!HCLAST || Date.now() - (HCLAST.at || 0) > 18e5)) loadHC(); });
 
 /* 화면이 880px보다 좁은 곳(미리보기 등)에서는 통째로 축소해 고정 배치 유지 */
 function fit(){ const w = document.documentElement.clientWidth; $('#app').style.zoom = w < 880 ? (w / 880) : 1; }

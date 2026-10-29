@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#163f52">
+<title>도카이도 53개의 쉼표</title>
+<style>
+:root{--bg:#f4f5f1;--paper:#fff;--ink:#20343a;--muted:#687a7d;--line:#dce4df;--green:#236b59;--mint:#e4f0e9;--gold:#c68a38;--navy:#163f52}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;line-height:1.65}a{color:inherit;text-decoration:none}.wrap{max-width:1040px;margin:auto;padding:0 22px}.top{background:var(--navy);color:white;padding:20px 0}.brand{font-weight:800;letter-spacing:-.03em;font-size:20px}.brand small{display:block;font-weight:500;font-size:12px;letter-spacing:.08em;opacity:.75}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.nav a{font-size:13px;padding:7px 11px;border-radius:99px;border:1px solid #ffffff40;color:#e8f2ed}.nav a.active,.nav a:hover{background:white;color:var(--navy)}main{padding-top:28px;padding-bottom:48px}.eyebrow{font-size:12px;font-weight:800;color:var(--green);letter-spacing:.12em}.hero{background:linear-gradient(130deg,#e3eee5,#fdfbf4);border:1px solid var(--line);border-radius:24px;padding:clamp(24px,5vw,48px);margin-bottom:20px}.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.2;letter-spacing:-.05em;margin:8px 0 14px;max-width:700px}.hero p{color:var(--muted);max-width:650px;margin:0}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:12px;font-weight:750;font-size:14px;background:var(--green);color:white}.btn.secondary{background:white;color:var(--green);border:1px solid var(--line)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px;min-height:145px}.card .icon{font-size:23px}.card h2{font-size:17px;margin:10px 0 4px;letter-spacing:-.03em}.card p{font-size:13px;color:var(--muted);margin:0}.section-title{font-size:18px;margin:28px 0 12px;letter-spacing:-.03em}.notice{padding:14px 16px;border-radius:14px;background:#fff8e9;border:1px solid #f0dfb9;color:#725729;font-size:13px;margin-top:18px}.footer{font-size:12px;color:var(--muted);padding:18px 0 32px;border-top:1px solid var(--line)}@media(max-width:650px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:0 15px}.hero{border-radius:18px}.card{padding:15px}}@media(max-width:400px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/">도카이도 53개의 쉼표<small>東海道五十三次 · WALK, NOTICE, REMEMBER</small></a><nav class="nav" id="nav"></nav></div></header>
+<main class="wrap" id="content"></main>
+<footer class="wrap footer">도카이도 여행 프로젝트 · 신규 화면 개발 미리보기</footer>
+<script>
+const pages={
+  "/":{eyebrow:"TOKAIDO JOURNEY",title:"천천히 걸으며 만나는 도카이도",desc:"에도와 교토를 잇던 길을 따라, 오늘의 일정과 이동 경로, 여행 기록을 한곳에서 확인하세요.",cards:[["📅","오늘의 여정","오늘 걸을 구간과 주요 일정을 확인합니다.","/today"],["🧭","여행 계획","여행 전체 계획과 준비 항목을 정리합니다.","/plan"],["✍️","여행 기록","날짜별 메모와 걸은 기록을 모읍니다.","/records"],["🗺️","전체 일정","구간별 여정과 이동 계획을 살펴봅니다.","/itinerary"],["📍","지도와 경로","여정에 필요한 지도와 경로 정보를 확인합니다.","/map"],["🚉","역·장소 안내","이동 거점과 방문 장소 정보를 모읍니다.","/stations"],["🗣️","여행 일본어","여행 중 바로 쓸 수 있는 일본어 표현을 익힙니다.","/japanese"],["📖","여행 가이드","준비부터 현지 이동까지 참고 정보를 확인합니다.","/guide"]]},
+  "/today":{eyebrow:"TODAY",title:"오늘의 여정",desc:"오늘 일정, 이동 구간, 방문할 곳을 한 화면에서 확인하는 페이지입니다.",cards:[["🕘","오늘 일정","시간대별 일정을 확인합니다.","/itinerary"],["🚶","걷기와 이동","걷기·열차 이동 계획을 모읍니다.","/map"],["✍️","오늘 기록","오늘의 메모를 남길 기록 페이지로 이동합니다.","/records"]]},
+  "/plan":{eyebrow:"TRIP PLAN",title:"여행 계획",desc:"여행 준비와 전체 계획을 정리하는 공간입니다.",cards:[["🧳","출발 전 준비","준비물과 사전 확인 항목을 관리합니다.","/guide"],["📅","일정 살펴보기","전체 일정과 날짜별 계획을 확인합니다.","/itinerary"]]},
+  "/records":{eyebrow:"TRAVEL JOURNAL",title:"여행 기록",desc:"걷고 보고 느낀 것을 날짜별로 남기는 공간입니다.",cards:[["📆","날짜별 기록","날짜별 기록을 모아봅니다.","/today"],["🗺️","경로 다시 보기","이동 경로 페이지로 이동합니다.","/map"]]},
+  "/itinerary":{eyebrow:"ITINERARY",title:"전체 일정",desc:"도카이도 여행의 날짜별 일정과 이동 흐름을 살펴봅니다.",cards:[["📅","오늘의 일정","오늘의 상세 일정 페이지로 이동합니다.","/today"],["🚉","역과 장소","이동 거점 정보를 확인합니다.","/stations"]]},
+  "/map":{eyebrow:"MAP & ROUTE",title:"지도와 경로",desc:"여정의 경로와 이동 정보를 확인하는 공간입니다.",cards:[["🚉","역·장소","주요 역과 방문 장소를 확인합니다.","/stations"],["📅","전체 일정","일정 흐름으로 돌아갑니다.","/itinerary"]]},
+  "/stations":{eyebrow:"STATIONS & PLACES",title:"역·장소 안내",desc:"이동 중 참고할 역과 주요 장소 정보를 모읍니다.",cards:[["🗺️","지도와 경로","장소 간 이동 정보를 확인합니다.","/map"],["🗣️","여행 일본어","역에서 쓸 표현을 확인합니다.","/japanese"]]},
+  "/japanese":{eyebrow:"TRAVEL JAPANESE",title:"여행 일본어",desc:"교통, 숙소, 식사 등 현지에서 활용할 일본어 표현을 모읍니다.",cards:[["🚉","교통 표현","역과 이동 상황에서 쓸 표현을 확인합니다.","/stations"],["📖","여행 가이드","여행 전 참고 정보를 확인합니다.","/guide"]]},
+  "/guide":{eyebrow:"TRAVEL GUIDE",title:"여행 가이드",desc:"출발 전 준비와 여행 중 알아두면 좋은 정보를 정리합니다.",cards:[["🧳","여행 계획","준비 항목과 전체 계획으로 이동합니다.","/plan"],["🗣️","여행 일본어","현지에서 쓸 표현을 확인합니다.","/japanese"]]}
+};
+const links=[["홈","/"],["오늘","/today"],["계획","/plan"],["기록","/records"],["전체 일정","/itinerary"],["지도","/map"],["역·장소","/stations"],["일본어","/japanese"],["가이드","/guide"]];
+const path=location.pathname.replace(/\/$/,"")||"/";const page=pages[path]||pages["/"];
+document.title=page.title+" | 도카이도 53개의 쉼표";
+document.getElementById("nav").innerHTML=links.map(([label,url])=>'<a href="'+url+'" class="'+(path===url?'active':'')+'">'+label+'</a>').join("");
+document.getElementById("content").innerHTML='<section class="hero"><div class="eyebrow">'+page.eyebrow+'</div><h1>'+page.title+'</h1><p>'+page.desc+'</p><div class="actions"><a class="btn" href="/today">오늘의 여정 보기</a><a class="btn secondary" href="/old_home">기존 사이트 열기 ↗</a></div></section><h2 class="section-title">여행 메뉴</h2><section class="grid">'+page.cards.map(([icon,title,desc,url])=>'<a class="card" href="'+url+'"><div class="icon">'+icon+'</div><h2>'+title+' ↗</h2><p>'+desc+'</p></a>').join("")+'</section><div class="notice"><strong>개발 미리보기</strong><br>현재는 신규 페이지 경로와 기본 화면을 구성한 1차 작업입니다. 기존 일정 데이터, 기록 저장, 지도 및 삼성 헬스 연동 기능은 아직 기존 화면과 연결하지 않았습니다. 이 단계에서는 기존 사이트를 유지하며 다음 작업에서 기능을 단계적으로 연결합니다.</div>';
+</script>
+</body></html>

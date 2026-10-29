@@ -144,11 +144,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DATA_JSON = json.dumps(data, ensure_ascii=False)
 
-# ── 새 메인/오늘의 여정 화면 (/, /today) ──────────────────────────────
+# ── 새 디자인 화면 (/, /today, /records, /plan, /map, /japanese, /guide) ──
 main_tpl = open(os.path.join(HERE, 'template_main.html'), encoding='utf-8').read()
 main_html = main_tpl.replace('/*__DATA__*/null', DATA_JSON)
-open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(main_html)
-open(os.path.join(ROOT, 'today.html'), 'w', encoding='utf-8').write(main_html)
+NEW_TABS = {
+    'index': 'today', 'today': 'today', 'records': 'record', 'plan': 'schedule',
+    'map': 'map', 'japanese': 'lang', 'guide': 'info',
+}
+for name, tab in NEW_TABS.items():
+    html = main_html.replace("let TAB = 'today';", f"let TAB = '{tab}';")
+    open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)
 
 # ── 예전 화면 (옛 디자인 그대로, 탭만 다르게 열림) ──────────────────────
 old_tpl = open(os.path.join(HERE, 'template.html'), encoding='utf-8').read()
@@ -162,4 +167,4 @@ for name, tab in OLD_TABS.items():
     open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)
 
 print('days', len(days), 'tips', len(tips), 'ja', len(ja), 'routes', sum(1 for d in days if d['route']))
-print('wrote index.html, today.html (new design) +', len(OLD_TABS), 'old_*.html (old design)')
+print('wrote', ', '.join(NEW_TABS) + '.html (new design, 6 tabs)', '+', len(OLD_TABS), 'old_*.html (old design)')

@@ -195,10 +195,12 @@ mark.warn{background:var(--amber-bg);color:var(--amber);font-weight:800;padding:
 .wtarrow{font-size:20px;color:var(--ink-faint);padding-bottom:10px}
 .wtres{grid-column:1/-1;display:flex;align-items:baseline;gap:10px}.wtres b{font-size:26px}
 .wtbox .btn{grid-column:1/-1}
-.badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.badge2{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:10px;background:var(--sub);color:var(--ink-faint);text-align:center;opacity:.55}
+.badges{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.badge2{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:10px;background:var(--sub);color:var(--ink-faint);text-align:center;opacity:.55}
 .badge2.on{opacity:1;background:var(--accent-bg);color:var(--accent-ink)}
-.badge2 b{font-size:13px}.badge2 small{font-size:11px}
+.badge2.secret{opacity:.7}
+.badge2.secret b{letter-spacing:.04em}
+.badge2 b{font-size:12.5px}.badge2 small{font-size:10.5px;line-height:1.3}
 .stamps{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:8px}
 .stamp{aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;text-align:center;border:2px solid var(--line);color:var(--ink-faint)}
 .stamp b{font-size:14px}.stamp em{font-style:normal;font-size:10.5px;font-weight:700;word-break:keep-all}.stamp small{font-size:9px}
@@ -1348,7 +1350,6 @@ function journeyExtras(){
   const days = DATA.days.filter(d => d.n <= upto);
   const recs = days.map(d => [d, REC[d.n] || (demo ? sampleRec(d) : null)]).filter(([, r]) => r);
   const sleep = recs.filter(([, r]) => r.sleepMin).map(([d, r]) => [d.n, +(r.sleepMin / 60).toFixed(1)]);
-  const rest = recs.filter(([, r]) => r.hrRest).map(([d, r]) => [d.n, r.hrRest]);
   const wt = demo ? days.map(d => [d.n, +(-0.12 * d.n + (rnd(d.n * 5) - .5) * .5).toFixed(1)]) : Object.entries(NOTE).filter(([, n]) => n.wDelta != null).map(([k, n]) => [+k, n.wDelta]);
   /* 도장판 */
   const sp = stationPlan();
@@ -1358,9 +1359,32 @@ function journeyExtras(){
   /* 배지 */
   let cum = 0; const cumBy = {}; DATA.days.forEach(d => { const r = REC[d.n] || (demo && d.n <= upto ? sampleRec(d) : null); cum += r ? +r.km || 0 : 0; cumBy[d.n] = cum; });
   const tot = cumBy[upto] || 0;
-  const BADGES = [['첫 걸음', '걷기 시작한 날', upto >= 3, I.foot], ['하코네 고개', '가장 높은 846m 넘기', upto >= 6, I.mountain], ['가장 긴 날', '26.3km 완주', upto >= 7, I.flag],
-    ['100km', '누적 100km', tot >= 100, I.foot], ['200km', '누적 200km', tot >= 200, I.foot], ['300km', '누적 300km', tot >= 300, I.foot],
-    ['스즈카 고개', '두 번째 고개', upto >= 22, I.mountain], ['교토 완주', '산조오하시 도착', upto >= 25, I.torii], ['새해 첫날', '아리마 온천에서', upto >= 29, I.onsen]];
+  /* 연속 걷기 스트릭: bestAll = 날짜가 끊기지 않고 실제로 걸은 최대 연속 일수, bestWalk = 쉬는 날은 빼고(건너뛰고) 걷기로 계획된 날만 연속으로 완주한 최대 일수 */
+  let streakAll = 0, bestAll = 0, streakWalk = 0, bestWalk = 0;
+  DATA.days.forEach(d => { if (d.n > upto) return;
+    const r = REC[d.n] || (demo ? sampleRec(d) : null), walked = !!(r && (+r.km || 0) > 0);
+    streakAll = walked ? streakAll + 1 : 0; bestAll = Math.max(bestAll, streakAll);
+    if (d.km > 0) { streakWalk = walked ? streakWalk + 1 : 0; bestWalk = Math.max(bestWalk, streakWalk); } });
+  const dayLongest = recs.some(([, r]) => (+r.km || 0) >= 20);
+  const onsenDay = DATA.days.some(d => d.n <= upto && /하코네|오키쓰|아리마/.test(d.stay || ''));
+  const coastDone = sp[12] && sp[16] && sp[12].day <= upto && sp[12].walk && sp[16].day <= upto && sp[16].walk;
+  const BADGES = [
+    ['첫 걸음', '걷기 시작한 날', upto >= 3, I.foot],
+    ['하코네 고개', '가장 높은 846m 넘기', upto >= 6, I.mountain],
+    ['가장 긴 날', '26.3km 완주', upto >= 7, I.flag],
+    ['50km 돌파', '이제 감이 좀 잡히는데?', tot >= 50, I.foot],
+    ['100km', '누적 100km', tot >= 100, I.foot],
+    ['200km', '누적 200km', tot >= 200, I.foot],
+    ['300km', '누적 300km', tot >= 300, I.foot],
+    ['하프 마라톤의 날', '하루에 20km 이상을 걸은 날', dayLongest, I.flag],
+    ['스즈카 고개', '두 번째 고개', upto >= 22, I.mountain],
+    ['교토 완주', '산조오하시 도착', upto >= 25, I.torii],
+    ['새해 첫날', '아리마 온천에서', upto >= 29, I.onsen],
+    ['일주일 순례자', '비가 오나 눈이 오나 7일간 멈추지 않은 발걸음', bestAll >= 7, I.foot, true],
+    ['개근상', '습관이 된 걷기', bestWalk >= 10, I.flag, true],
+    ['해안선 마스터', '바다를 옆에 끼고 걸은 날 (누마즈~유이 해안길 완료)', coastDone, I.mountain, true],
+    ['온천 힐링', '하코네/오키쓰/아리마 온천에서 물집 잡힌 발을 녹인 날', onsenDay, I.onsen, true]
+  ];
   /* 지출 합계 */
   const spTot = { tr: 0, stay: 0, food: 0, etc: 0 }, spYen = { tr: 0, stay: 0, food: 0, etc: 0 };
   days.forEach(d => { if (!(NOTE[d.n] && NOTE[d.n].spend) && !demo) return; const { sp } = spendOf(d);
@@ -1369,10 +1393,9 @@ function journeyExtras(){
   const spSum = Object.values(spTot).reduce((a, b) => a + b, 0), spMax = Math.max(...Object.values(spTot), 1);
   return `<section class="${demo ? 'is-demo' : ''}"><div class="sh row"><h2>${I.bed}회복 추이</h2>${demo ? `<span class="srcb demo">예시 · ${DEMO_UNTIL}일차까지</span>` : ''}</div><div class="grid">
       <div class="card s2"><h3>${I.bed}수면 시간</h3>${trendChart(sleep, 5, 9, 'h', 'tr-sleep', '날짜별 수면 시간')}</div>
-      <div class="card s2"><h3>${I.heart}안정 시 심박 <span class="aside">낮을수록 회복</span></h3>${trendChart(rest, 50, 70, '', 'tr-rest', '날짜별 안정 시 심박')}</div>
       <div class="card s2"><h3>${I.foot}체중 변화 <span class="aside">체중계 있을 때만</span><button type="button" class="linkbtn" id="wtAdd" style="margin-left:auto">${wtEdit ? '닫기' : '체중 입력'}</button></h3>${weightBox()}</div>
-      <div class="card s2"><h3>${I.flag}기념 배지 <span class="aside">${BADGES.filter(b => b[2]).length} / ${BADGES.length}</span></h3>
-        <div class="badges">${BADGES.map(([t, s, on, ic]) => `<span class="badge2 ${on ? 'on' : ''}">${ic}<b>${t}</b><small>${on ? s : '아직'}</small></span>`).join('')}</div></div>
+      <div class="card s4"><h3>${I.flag}기념 배지 <span class="aside">${BADGES.filter(b => b[2]).length} / ${BADGES.length}</span></h3>
+        <div class="badges">${BADGES.map(([t, s, on, ic, secret]) => { const hide = secret && !on; return `<span class="badge2 ${on ? 'on' : ''} ${secret ? 'secret' : ''}">${hide ? '❓' : ic}<b>${hide ? '???' : t}</b><small>${on ? s : hide ? '비밀 배지' : '아직'}</small></span>`; }).join('')}</div></div>
     </div></section>
     <section class="${demo ? 'is-demo' : ''}"><div class="sh row"><h2>${I.torii}53역참 도장판</h2><span class="small">걸어서 ${walked}곳 · 기차로 ${STATIONS.filter((_, i) => sp[i + 1].day <= upto && !sp[i + 1].walk).length}곳 · 남은 ${STATIONS.filter((_, i) => sp[i + 1].day > upto).length}곳</span></div>
       <div class="card"><div class="stamps">${stamps}</div>

@@ -1,0 +1,68 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/old_home",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/old_today",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/old_plan",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/old_records",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/old_itinerary",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/old_japanese",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/old_guide",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/today",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/plan",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/records",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/itinerary",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/map",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/stations",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/japanese",
+      "destination": "/new-site.html"
+    },
+    {
+      "source": "/guide",
+      "destination": "/new-site.html"
+    }
+  ]
+}

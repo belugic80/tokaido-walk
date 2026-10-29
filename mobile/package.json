@@ -1,0 +1,7 @@
+{
+  "name":"tokaido-walk-mobile","private":true,"version":"0.1.0",
+  "description":"Capacitor Android wrapper for the Tokaido walking itinerary",
+  "scripts":{"copy:web":"node scripts/copy-web-assets.mjs","build":"npm run copy:web && esbuild src/tracker.js --bundle --format=iife --platform=browser --target=es2020 --outfile=www/tracker.js","cap:add:android":"cap add android","cap:sync":"npm run build && cap sync android","android":"npm run cap:sync && cap open android"},
+  "dependencies":{"@capacitor/android":"^7.6.9","@capacitor/core":"^7.6.9","@capacitor-community/background-geolocation":"^1.2.25"},
+  "devDependencies":{"@capacitor/cli":"^7.6.9","esbuild":"^0.25.12"}
+}

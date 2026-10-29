@@ -139,6 +139,27 @@ data = {
     'title': title_ws.cell(1, 1).value, 'sub': title_ws.cell(2, 1).value, 'rate': rate,
     'days': days, 'tips': tips, 'ja': ja,
 }
-tpl = open(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'template.html'), encoding='utf-8').read()
-open(OUT, 'w', encoding='utf-8').write(tpl.replace('/*__DATA__*/null', json.dumps(data, ensure_ascii=False)))
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+DATA_JSON = json.dumps(data, ensure_ascii=False)
+
+# ── 새 메인/오늘의 여정 화면 (/, /today) ──────────────────────────────
+main_tpl = open(os.path.join(HERE, 'template_main.html'), encoding='utf-8').read()
+main_html = main_tpl.replace('/*__DATA__*/null', DATA_JSON)
+open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(main_html)
+open(os.path.join(ROOT, 'today.html'), 'w', encoding='utf-8').write(main_html)
+
+# ── 예전 화면 (옛 디자인 그대로, 탭만 다르게 열림) ──────────────────────
+old_tpl = open(os.path.join(HERE, 'template.html'), encoding='utf-8').read()
+old_html = old_tpl.replace('/*__DATA__*/null', DATA_JSON)
+OLD_TABS = {
+    'old_home': 'day', 'old_today': 'day', 'old_plan': 'all', 'old_records': 'rec',
+    'old_itinerary': 'all', 'old_japanese': 'ja', 'old_guide': 'tips',
+}
+for name, tab in OLD_TABS.items():
+    html = old_html.replace('</body>', f'<script>setTab("{tab}");</script>\n</body>')
+    open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)
+
 print('days', len(days), 'tips', len(tips), 'ja', len(ja), 'routes', sum(1 for d in days if d['route']))
+print('wrote index.html, today.html (new design) +', len(OLD_TABS), 'old_*.html (old design)')

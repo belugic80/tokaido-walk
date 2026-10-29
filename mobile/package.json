@@ -1,0 +1,19 @@
+{
+  "name": "tokaido-walk-mobile",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Capacitor Android wrapper for the Tokaido walking itinerary",
+  "scripts": {
+    "copy:web": "node scripts/copy-web-assets.mjs",
+    "build": "npm run copy:web",
+    "cap:sync": "npm run build && cap sync",
+    "android": "npm run cap:sync && cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}

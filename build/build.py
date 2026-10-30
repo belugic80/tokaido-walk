@@ -405,6 +405,7 @@ dc=dc.replace(_A,'color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</di
 # ---- 저장(유실 방지): 입력값을 이 기기에 자동 저장, 사진은 IndexedDB ----
 PERSIST_KEYS = ['smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
 _P = [
+ ("heroImg: (this.props.heroImg && !/^assets\\//.test(this.props.heroImg)) ? this.props.heroImg : 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop',", "heroImg: 'assets/dayhero/' + view + '.jpg',"),
  ("amenOn: {}, pop: -1 };", "amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };"),
  ("componentDidUpdate() { try {", "componentDidUpdate() { try { const _d = {}; " + repr(PERSIST_KEYS) + ".forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try {"),
  ("dayNote: this.state.dayNote || '', onDayNote: e => this.setState({ dayNote: e.target.value, dayNoteSaved: false })", "dayNote: (this.state.dayNotes || {})[view] || '', onDayNote: e => { const v_ = e.target.value; this.setState(s_ => ({ dayNotes: Object.assign({}, s_.dayNotes || {}, { [view]: v_ }), dayNoteSaved: false })); }"),

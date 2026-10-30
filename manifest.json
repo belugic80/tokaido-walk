@@ -1,7 +1,7 @@
 {
   "name": "도카이도 53개의 쉼표",
   "short_name": "도카이도",
-  "start_url": "/",
+  "start_url": "/", "id": "/", "orientation": "portrait",
   "display": "fullscreen",
   "background_color": "#f3f4f7",
   "theme_color": "#1a5ead",

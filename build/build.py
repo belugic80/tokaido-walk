@@ -200,7 +200,7 @@ for a_, b_ in BIGGER:
     dc = dc.replace(a_, b_)
 # 여행 정보 탭: 눈이 좋지 않은 사용자를 위해 전체를 크게 (사용자 요청)
 INFO_OLD = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px">'
-INFO_NEW = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px;zoom:1.3">'
+INFO_NEW = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px;zoom:1.4">'
 assert dc.count(INFO_OLD) == 1
 dc = dc.replace(INFO_OLD, INFO_NEW)
 SC_OLD = '<div style="flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))'
@@ -310,10 +310,14 @@ dc = dc.replace(N_OLD, '<div style="position:fixed;left:calc(50% - 46px);bottom:
 HS_OLD = 'data-screen-label="Today hero" style="position:relative;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 16px 40px rgba(15,42,74,.16)"'
 assert dc.count(HS_OLD) == 1
 dc = dc.replace(HS_OLD, 'data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"')
-# 비상 연락처는 번호가 잘리지 않도록 2열로
+# 비상 연락처: 한 줄 4칸 유지 + 글자 키움
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
-dc = dc.replace(EM_OLD, EM_OLD.replace('repeat(4,minmax(0,1fr))', 'repeat(2,minmax(0,1fr))'))
+dc = dc.replace(EM_OLD, EM_OLD)
+# 번호가 길면 잘리지 않고 줄바꿈되게 (한 줄 4칸 유지)
+NUM_OLD = "font:700 20px 'DM Sans',sans-serif;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+assert dc.count(NUM_OLD) == 1, 'num'
+dc = dc.replace(NUM_OLD, "font:700 21px 'DM Sans',sans-serif;letter-spacing:-.03em;white-space:normal;overflow-wrap:break-word;line-height:1.2")
 # 전체 화면 버튼 (주소창 숨기기) — 예전 사이트에 있던 기능
 FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:4px;bottom:4px;opacity:.85;z-index:2000;width:38px;height:38px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
 <script>(function () {
@@ -373,7 +377,7 @@ dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:cen
 assert k == 1
 # 휴대폰에서는 디자인 폭(1000px) 그대로 화면에 맞춰 축소해서 보이게 함
 assert dc.count('<meta name="viewport" content="width=device-width, initial-scale=1">') == 1
-dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes">')
+dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

@@ -698,6 +698,25 @@ dc = dc.replace('>기준 7h<', '>기준 8h<').replace('>7h 이상 {{ c.over }}�
 # ---- 여행 정보: 지금 날씨 / 이번 주 날씨를 두 줄로 ----
 _rep('<div style="flex:none;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:12px">\n<div data-screen-label="Weather now"', '<div style="flex:none;display:grid;grid-template-columns:minmax(0,1fr);gap:12px">\n<div data-screen-label="Weather now"')
 
+
+# ---- 기록 배지: 정사각형 + 설명 요약(잘리지 않게) ----
+for _o, _n in [
+ ("'이제 감이 좀 잡히는데?'", "'감이 잡히기 시작'"),
+ ("['하프 마라톤의 날', '하루에 20km 이상을 걸은 날'", "['하프 마라톤', '하루 20km 이상'"),
+ ("'비가 오나 눈이 오나 7일간 멈추지 않은 발걸음'", "'7일 연속 걷기'"),
+ ("'휴식일 제외 연속 10일, 습관이 된 걷기'", "'10일 연속 걷기'"),
+ ("'바다를 옆에 끼고 걸은 날 (누마즈~유이 해안길 완료)'", "'누마즈~유이 해안길'"),
+ ("'하코네·오키쓰·아리마 온천에서 물집 잡힌 발을 녹인 날'", "'온천에서 발 풀기'"),
+ ("'길 위에서 맞은 1월 1일'", "'길 위의 1월 1일'"),
+ ("'마지막 큰 고개를 넘은 날'", "'마지막 큰 고개'"),
+ ("'시크릿 배지 · 달성하면 열려요'", "'달성하면 열려요'"),
+]:
+    assert dc.count(_o) >= 1, _o
+    dc = dc.replace(_o, _n)
+_rep('<div title="{{ g.s }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;border-radius:14px;padding:10px 6px;', '<div title="{{ g.s }}" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;border-radius:16px;padding:8px 6px;')
+_rep('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:700;line-height:1.25;color:{{ g.c }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f11,11px);line-height:1.3;color:{{ g.sc }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ g.s }}</div>',
+     '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:800;line-height:1.25;color:{{ g.c }};word-break:keep-all;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f12,12px);line-height:1.3;color:{{ g.sc }};word-break:keep-all;max-width:100%">{{ g.s }}</div>')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

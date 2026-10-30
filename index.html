@@ -406,7 +406,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">ACHIEVEMENT · 기념 배지</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">모은 배지 {{ badgeCount }} / 15</div></div></div>
 <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px">
-<sc-for list="{{ badges }}" as="g" hint-placeholder-count="15"><div title="{{ g.s }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;border-radius:14px;padding:10px 6px;background:{{ g.bg }};border:1px solid {{ g.border }};min-width:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:700;line-height:1.25;color:{{ g.c }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f11,11px);line-height:1.3;color:{{ g.sc }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ g.s }}</div></div></sc-for>
+<sc-for list="{{ badges }}" as="g" hint-placeholder-count="15"><div title="{{ g.s }}" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;border-radius:16px;padding:8px 6px;background:{{ g.bg }};border:1px solid {{ g.border }};min-width:0"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:800;line-height:1.25;color:{{ g.c }};word-break:keep-all;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f12,12px);line-height:1.3;color:{{ g.sc }};word-break:keep-all;max-width:100%">{{ g.s }}</div></div></sc-for>
 </div>
 </div>
 </div>
@@ -1274,17 +1274,17 @@ class Component extends DCLogic {
       ['100km', '누적 100km', IC_FOOT, cumNow >= 100, false],
       ['200km', '누적 200km', IC_FOOT, cumNow >= 200, false],
       ['300km', '누적 300km', IC_FOOT, cumNow >= 300, false],
-      ['50km 돌파', '이제 감이 좀 잡히는데?', IC_FOOT, cumNow >= 50, false],
-      ['하프 마라톤의 날', '하루에 20km 이상을 걸은 날', IC_FLAG, bigDay, false],
-      ['일주일 순례자', '비가 오나 눈이 오나 7일간 멈추지 않은 발걸음', IC_MOUNT, today >= 7, false],
-      ['개근상', '휴식일 제외 연속 10일, 습관이 된 걷기', IC_FOOT, today >= 10, false],
-      ['해안선 마스터', '바다를 옆에 끼고 걸은 날 (누마즈~유이 해안길 완료)', IC_WAVE, cumNow >= stKm('유이'), false],
-      ['온천 힐링', '하코네·오키쓰·아리마 온천에서 물집 잡힌 발을 녹인 날', IC_BATH, cumNow >= stKm('하코네'), false],
-      ['스즈카 고개', '마지막 큰 고개를 넘은 날', IC_MOUNT, cumNow >= 413.7, true],
-      ['새해 첫날', '길 위에서 맞은 1월 1일', IC_FLAG, today >= 29, true],
+      ['50km 돌파', '감이 잡히기 시작', IC_FOOT, cumNow >= 50, false],
+      ['하프 마라톤', '하루 20km 이상', IC_FLAG, bigDay, false],
+      ['일주일 순례자', '7일 연속 걷기', IC_MOUNT, today >= 7, false],
+      ['개근상', '10일 연속 걷기', IC_FOOT, today >= 10, false],
+      ['해안선 마스터', '누마즈~유이 해안길', IC_WAVE, cumNow >= stKm('유이'), false],
+      ['온천 힐링', '온천에서 발 풀기', IC_BATH, cumNow >= stKm('하코네'), false],
+      ['스즈카 고개', '마지막 큰 고개', IC_MOUNT, cumNow >= 413.7, true],
+      ['새해 첫날', '길 위의 1월 1일', IC_FLAG, today >= 29, true],
       ['교토 완주', '산조오하시 도착', IC_FLAG, cumNow >= 487.7, true]
     ];
-    const badges = BG.map(([t, s, icon, ok, secret]) => { const hide = secret && !ok; return { t: hide ? '???' : t, s: hide ? '시크릿 배지 · 달성하면 열려요' : ok ? s : s, icon: hide ? Q : icon, bg: ok ? '#FFF6E5' : '#F1F1F7', border: ok ? '#F2D49B' : '#E8E7EF', ic: ok ? '#B7791F' : hide ? '#85859A' : '#D5D3E0', c: ok ? '#8A5A12' : hide ? '#555568' : '#A6A6B5', sc: ok ? '#555568' : '#A6A6B5', op: ok ? 1 : .85 }; });
+    const badges = BG.map(([t, s, icon, ok, secret]) => { const hide = secret && !ok; return { t: hide ? '???' : t, s: hide ? '달성하면 열려요' : ok ? s : s, icon: hide ? Q : icon, bg: ok ? '#FFF6E5' : '#F1F1F7', border: ok ? '#F2D49B' : '#E8E7EF', ic: ok ? '#B7791F' : hide ? '#85859A' : '#D5D3E0', c: ok ? '#8A5A12' : hide ? '#555568' : '#A6A6B5', sc: ok ? '#555568' : '#A6A6B5', op: ok ? 1 : .85 }; });
     const jrKm = Math.round(dayData(today).startKm + tW);
     const jr = { km: jrKm, pct: Math.min(100, jrKm / 487.7 * 100).toFixed(1),
       stats: [{ label: '지난 역참', value: Math.min(53, ST.filter(s => s.i <= 52 && s.km <= jrKm + .01).length), unit: '/ 53' }, { label: '걸은 날', value: today, unit: '/ 31일' }, { label: '남은 거리', value: Math.max(0, Math.round(487.7 - jrKm)), unit: 'km' }],

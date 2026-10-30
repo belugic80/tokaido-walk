@@ -309,7 +309,7 @@ dc = dc.replace(N_OLD, '<div style="position:fixed;left:calc(50% - 46px);bottom:
 # 오늘 탭: 위쪽 사진(히어로)은 고정, 아래 지도부터 스크롤 (사용자 요청)
 HS_OLD = 'data-screen-label="Today hero" style="position:relative;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 16px 40px rgba(15,42,74,.16)"'
 assert dc.count(HS_OLD) == 1
-dc = dc.replace(HS_OLD, 'data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"')
+dc = dc.replace(HS_OLD, 'data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:330px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"')
 # 비상 연락처: 한 줄 4칸 유지 + 글자 키움
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
@@ -433,7 +433,7 @@ for _o,_n,_c in [('style="height:46px;padding:0 16px;border:0;border-radius:13px
     dc=dc.replace(_o,_n)
 _HB='background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)">'
 assert dc.count(_HB)==1
-dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;inset:-24px;background:url({{ heroImg }}) center/cover;filter:blur(22px) brightness(.62) saturate(1.2)"></div><div style="position:absolute;inset:0;background:url({{ heroImg }}) 66% center/contain no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,30,.92) 0%,rgba(8,14,30,.78) 34%,rgba(8,14,30,.25) 62%,rgba(8,14,30,0) 80%)"></div>')
+dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;inset:-24px;background:url({{ heroImg }}) center/cover;filter:blur(22px) brightness(.62) saturate(1.2)"></div><div style="position:absolute;inset:0;background:url({{ heroImg }}) 50% 38%/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,30,.9) 0%,rgba(8,14,30,.72) 38%,rgba(8,14,30,.28) 66%,rgba(8,14,30,.05) 85%)"></div>')
 # ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
 def _bump(n):
     n = float(n)

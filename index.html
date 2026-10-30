@@ -468,7 +468,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px 16px">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A;color:#4E27C5">이동 방식</span><span style="font-size:var(--f13,13px);color:#555568;white-space:nowrap"><b style="color:#15803D;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">걷기 {{ mg.walkKm }}km</b> · <b style="color:#0E6F86;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">교통 {{ mg.trKm }}km</b></span></div>
 <div style="display:flex;height:8px;border-radius:99px;overflow:hidden;background:#F1F1F7;margin-top:8px"><div style="width:{{ mg.walkP }}%;background:#18A96B"></div><div style="flex:1;background:repeating-linear-gradient(135deg,#0891B2 0 4px,#36A9C6 4px 8px)"></div></div>
-<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#F1F1F7;border-radius:13px;margin-top:10px"><sc-for list="{{ mg.modes }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.pick }}" style="height:48px;border:0;border-radius:10px;background:{{ o.bg }};color:{{ o.color }};box-shadow:{{ o.shadow }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit"><span style="font-size:var(--f13,13px);font-weight:700">{{ o.label }}</span><span style="font-size:var(--f11,11px);opacity:.8">{{ o.sub }}</span></button></sc-for></div>
+<div style="margin-top:10px;font-size:var(--f14,14px);font-weight:800;color:#0E6F86">{{ mg.trSummary }}</div><div style="font-size:var(--f12,12px);font-weight:700;color:#555568;margin-top:12px">수단</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#F1F1F7;border-radius:13px;margin-top:6px"><sc-for list="{{ mg.modes }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.pick }}" style="height:48px;border:0;border-radius:10px;background:{{ o.bg }};color:{{ o.color }};box-shadow:{{ o.shadow }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit"><span style="font-size:var(--f13,13px);font-weight:700">{{ o.label }}</span><span style="font-size:var(--f11,11px);opacity:.8">{{ o.sub }}</span></button></sc-for></div><div style="font-size:var(--f12,12px);font-weight:700;color:#555568;margin-top:12px">어디서 타나요</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"><sc-for list="{{ mg.boards }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.pick }}" style="padding:7px 12px;border-radius:12px;border:1.5px solid {{ o.border }};background:{{ o.bg }};color:{{ o.color }};cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.25"><span style="font-size:var(--f13,13px);font-weight:700">{{ o.label }}</span><span style="font-size:var(--f11,11px);opacity:.75">{{ o.sub }}</span></button></sc-for></div><div style="font-size:var(--f12,12px);font-weight:700;color:#555568;margin-top:12px">어디서 내리나요</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"><sc-for list="{{ mg.alights }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.pick }}" style="padding:7px 12px;border-radius:12px;border:1.5px solid {{ o.border }};background:{{ o.bg }};color:{{ o.color }};cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.25"><span style="font-size:var(--f13,13px);font-weight:700">{{ o.label }}</span><span style="font-size:var(--f11,11px);opacity:.75">{{ o.sub }}</span></button></sc-for></div><button onClick="{{ mg.trClear }}" style="margin-top:12px;height:40px;padding:0 14px;border-radius:12px;border:1px solid #E5DBFF;background:#fff;color:#3E1FA0;font-size:var(--f13,13px);font-weight:700;cursor:pointer;opacity:{{ mg.trClearOp }}">교통 안 타기 (전부 걷기)</button>
 </div>
 
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:18px;flex:1;display:flex;flex-direction:column">
@@ -738,7 +738,8 @@ const ST = [
 ].map(([ko, jp, km, la, ln], i) => ({ ko, jp, km, ll: [la, ln], i }));
 const PLAN = [null,[0,2],[2,4],[4,6],[6,8],[8,9],[9,11],[11,13],[13,15],[15,17],[17,19],[19,22],[22,25],[25,27],[27,28],[28,30],[30,32],[32,34],[34,37],[37,38],[38,40],[40,41],[41,42],[42,44],[44,46],[46,48],[48,49],[49,51],[51,52],[52,53],[53,55],[55,56]];
 const PLAN0 = PLAN.map(x => x && x.slice());
-function applyPlan(M) { M = M || {}; const E = [0]; for (let d = 1; d <= 31; d++) { const prev = E[d - 1]; E.push(M.rest && M.rest[d] ? prev : Math.max(prev, (M.ends && M.ends[d]) ?? Math.max(PLAN0[d][1], prev))); } for (let d = 1; d <= 31; d++) PLAN[d] = [E[d - 1], E[d]]; }
+const TRN = {};
+function applyPlan(M) { M = M || {}; const E = [0]; for (let d = 1; d <= 31; d++) { const prev = E[d - 1]; E.push(M.rest && M.rest[d] ? prev : Math.max(prev, (M.ends && M.ends[d]) ?? Math.max(PLAN0[d][1], prev))); } for (let d = 1; d <= 31; d++) { PLAN[d] = [E[d - 1], E[d]]; const t = M.mode && M.mode[d]; TRN[d] = t && typeof t === 'object' && t.a >= E[d - 1] && t.b <= E[d] && t.a < t.b ? t : null; } }
 
 const SAYO = { ko: '사요노나카야마', jp: '小夜の中山', km: 203.3, ll: [34.7934, 138.0700] };
 const ROUTE12 = [[34.8372,138.1795],[34.8335,138.1690],[34.8278,138.1597],[34.8240,138.1420],[34.8206,138.1277],[34.8165,138.1170],[34.8099,138.1058],[34.8040,138.0960],[34.7990,138.0887],[34.7955,138.0790],[34.7934,138.0700],[34.7905,138.0600],[34.7880,138.0510],[34.7800,138.0330],[34.7700,138.0150]];
@@ -766,13 +767,14 @@ function dayData(d) {
   const first = rel[0], last = rel[rel.length - 1];
   const route = o12 ? ROUTE12 : rel.map(s => s.ll);
   const stopIdx = o12 ? [0, 4, 10, 12, 14] : rel.map((_, i) => i);
-  const hrs = Math.max(1, Math.round(dist * MIN_PER_KM / 30) / 2);
+  const _t = TRN[d], trKm = _t ? +(ST[_t.b].km - ST[_t.a].km).toFixed(1) : 0, KL = { train: '기차', bus: '버스', taxi: '택시' };
+  const hrs = Math.max(1, Math.round(Math.max(0, dist - trKm) * MIN_PER_KM / 30) / 2);
   const ferry = d === 21 ? ' · 배로 건너는 날' : '';
   return {
-    d, stops: rel, dist, route, stopIdx, startKm: base, endKm: last.km,
+    d, stops: rel, dist, walkKm: Math.max(0, +(dist - trKm).toFixed(1)), trKm, route, stopIdx, startKm: base, endKm: last.km,
     title: dist === 0 ? `${first.ko.replace(/\(.*\)/, '')}에서 휴식` : `${first.ko.replace(/\(.*\)/, '')}에서 ${last.ko.replace(/\(.*\)/, '')}까지`,
     jpTitle: rel.map(s => s.jp).join(' → '),
-    summary: `${dist} km · 약 ${hrs}시간 · 지점 ${rel.length}곳${ferry}`,
+    summary: `${dist} km · 약 ${hrs}시간 · 지점 ${rel.length}곳${ferry}${_t ? ' · ' + (KL[_t.k] || '교통') + ' ' + ST[_t.a].ko.replace(/\(.*\)/, '') + '→' + ST[_t.b].ko.replace(/\(.*\)/, '') + ' ' + trKm + 'km' : ''}`,
     lodge: last.ko, lodgeJp: last.jp,
     lodgeNote: o12 ? '도착 지점 · 역 앞 료칸' : '도착 지점 근처',
     places: o12 ? PLACES12 : (PLACESX[d] || []).map((sp, i, arr) => {
@@ -1035,7 +1037,7 @@ class Component extends DCLogic {
     const pct = k => k / BAR_TOTAL * 100;
     const stationsDone = Math.min(53, ST.filter(s => s.i <= 52 && s.km <= posKmF + .01).length);
     const steps = Math.round(walked * 1340), mins = Math.round(walked * MIN_PER_KM);
-    const eta = START_MIN + dd.dist * MIN_PER_KM + 30;
+    const eta = START_MIN + dd.walkKm * MIN_PER_KM + 30;
     const dt = new Date(2026, 11, 3 + view);
     const dateLabel = `${dt.getMonth() + 1}/${dt.getDate()} (${'일월화수목금토'[dt.getDay()]})`;
     const seed = (view * 37) % 6;
@@ -1087,7 +1089,7 @@ class Component extends DCLogic {
         nameColor: passed ? '#A6A6B5' : '#20202A', descColor: passed ? '#A6A6B5' : '#555568',
         border: isNext ? accent : 'transparent', onClick: () => this.setState({ pop: i }) };
     });
-    const hrs = Math.max(1, Math.round(dd.dist * MIN_PER_KM / 30) / 2);
+    const hrs = Math.max(1, Math.round(dd.walkKm * MIN_PER_KM / 30) / 2);
     const heroPills = [{ icon: I.flag, label: '목표 거리', value: dd.dist + ' km' }, { icon: I.clock, label: '예상 소요', value: '약 ' + hrs + '시간' }, { icon: I.pin, label: '역참', value: dd.stops.filter(x => x.i != null).length + '곳' }];
     const rc = this.routeCache[view];
     const route = rc ? rc.pts : dd.route;
@@ -1168,7 +1170,7 @@ class Component extends DCLogic {
     }).filter(g => g.days.length);
     const [sdStatus, sdBadgeBg0, sdBadgeColor0] = statusOf(view);
     const cumKm = Math.round(dd.endKm);
-    const sdStats = [{ label: '거리', value: dd.dist + ' km' }, { label: '예상 시간', value: '약 ' + Math.max(1, Math.round(dd.dist * MIN_PER_KM / 30) / 2) + '시간' }, { label: '누적', value: cumKm + ' km' }].map(x => ({ ...x, color: '#20202A' }));
+    const sdStats = [{ label: '거리', value: dd.dist + ' km' }, { label: '예상 시간', value: '약 ' + Math.max(1, Math.round(dd.walkKm * MIN_PER_KM / 30) / 2) + '시간' }, { label: '누적', value: cumKm + ' km' }].map(x => ({ ...x, color: '#20202A' }));
     let aKm = null, aMin = null;
     if (view < today) { const f = 1 + (((view * 53) % 9) - 3) / 100; aKm = +(dd.dist * f).toFixed(1); aMin = Math.round(aKm * (MIN_PER_KM + ((view * 7) % 5) - 2)); }
     else if (view === today && walked > 0) { aKm = walked; aMin = Math.round(walked * MIN_PER_KM); }
@@ -1319,8 +1321,10 @@ class Component extends DCLogic {
     const lodgeOf = d => M.lodge[d] || {};
     const changed = d => M.ends[d] != null || M.rest[d] || M.mode[d];
     const MODE = { walk: ['전부 걷기', 1], mix: ['일부 교통', .5], train: ['교통 이동', 0] };
-    const modeD = d => M.mode[d] || 'walk';
-    const walkOf = d => +(kmOf(d) * MODE[modeD(d)][1]).toFixed(1), trOf = d => +(kmOf(d) - walkOf(d)).toFixed(1);
+    const trv = d => { const t = M.mode[d]; return t && typeof t === 'object' && t.a >= E[d - 1] && t.b <= E[d] && t.a < t.b ? t : null; };
+    const KIND = { train: ['🚆 기차', '기차'], bus: ['🚌 버스', '버스'], taxi: ['🚕 택시', '택시'] };
+    const modeD = d => trv(d) ? 'mix' : 'walk';
+    const trOf = d => { const t = trv(d); return t ? +(ST[t.b].km - ST[t.a].km).toFixed(1) : 0; }, walkOf = d => +(kmOf(d) - trOf(d)).toFixed(1);
     const mgDays = [];
     for (let d = 1; d <= 31; d++) {
       const km = kmOf(d), rest = M.rest[d] || km === 0, lg = lodgeOf(d), sel = d === mgD, tags = [];
@@ -1328,7 +1332,7 @@ class Component extends DCLogic {
       if (changed(d)) tags.push({ t: '변경됨', bg: '#FFF3D8', c: '#D58A16' });
       if (lg.st === 'ok') tags.push({ t: '숙소 확정', bg: '#E4F8EC', c: '#20A85A' });
       if (walkOf(d) > 30) tags.push({ t: '도보 30km 초과', bg: '#FFF3D8', c: '#B45309' });
-      if (!rest && modeD(d) !== 'walk') tags.push({ t: '🚆 ' + MODE[modeD(d)][0] + ' ' + trOf(d) + 'km', bg: '#E6F6FA', c: '#0E6F86' });
+      if (!rest && modeD(d) !== 'walk') tags.push({ t: KIND[trv(d).k || 'train'][0] + ' ' + nm(ST[trv(d).a]) + '→' + nm(ST[trv(d).b]) + ' ' + trOf(d) + 'km', bg: '#E6F6FA', c: '#0E6F86' });
       const wk = walkOf(d), over = !rest && wk > 30, past = d < today, isT = d === today, walkP = km ? Math.round(wk / km * 100) : 100;
       mgDays.push({ n: d, path: rest ? nm(ST[E[d]]) + ' 머무름' : nm(ST[E[d - 1]]) + ' → ' + nm(ST[E[d]]), km: rest ? '—' : wk + 'km', kmColor: over ? '#D58A16' : past ? '#A6A6B5' : '#20202A', tags, bg: sel ? '#F2F7FF' : '#FFFFFF', border: sel ? '#3979E8' : '#E8E7EF', numBg: sel ? 'linear-gradient(120deg,#3979E8 0%,#55A9F5 52%,#8AD8E8 100%)' : isT ? '#E4F0FF' : past ? '#F1F1F7' : '#EEE8FF', numColor: sel ? '#fff' : isT ? '#2175D0' : past ? '#A6A6B5' : '#7544ED', barPct: rest ? 0 : Math.min(100, Math.round(km / 40 * 100)), barBg: over ? '#F2C66A' : rest ? 'transparent' : past ? '#B8E5CC' : '#AD8BFF', colH: rest ? 6 : Math.max(8, Math.round(km / 40 * 100)), walkP, trP: 100 - walkP, colBg: sel ? 'linear-gradient(180deg,#55A9F5,#3979E8)' : rest ? '#C9D8FA' : over ? 'linear-gradient(180deg,#F2C66A,#D58A16)' : past ? '#B8E5CC' : 'linear-gradient(180deg,#B48AF8,#7544ED)', colLab: isT ? '오늘' : (d % 5 === 0 || d === 1 ? String(d) : ''), colLabC: isT ? '#2175D0' : '#85859A', colLabW: isT ? 800 : 500, pick: () => this.setState({ mgDay: d }) });
     }
@@ -1347,7 +1351,12 @@ class Component extends DCLogic {
       km: mRest ? '0' : mkm, kmColor: mkm > 30 ? accent : '#20202A', hrs: Math.round(mkm * MIN_PER_KM / 30) / 2,
       warn: mRest ? '휴식일' : walkOf(mgD) > 30 ? '무리한 거리예요' : walkOf(mgD) < 10 ? '여유 있는 날' : '적당한 거리',
       walkKm: mRest ? 0 : walkOf(mgD), trKm: mRest ? 0 : trOf(mgD), walkHrs: Math.round(walkOf(mgD) * MIN_PER_KM / 30) / 2, walkP: mkm ? Math.round(walkOf(mgD) / mkm * 100) : 100,
-      modes: Object.keys(MODE).map(k => { const on = !mRest && modeD(mgD) === k; return { label: MODE[k][0], sub: k === 'walk' ? '도보 100%' : k === 'mix' ? '절반 교통' : '기차·버스', bg: on ? '#FFFFFF' : 'transparent', color: on ? (k === 'walk' ? '#15803D' : '#0E6F86') : '#85859A', shadow: on ? '0 2px 8px rgba(15,42,74,.08)' : 'none', pick: () => setM(m => { if (k === 'walk') delete m.mode[mgD]; else m.mode[mgD] = k; delete m.rest[mgD]; }) }; }),
+      modes: Object.keys(KIND).map(k => { const t = trv(mgD), on = !mRest && t && (t.k || 'train') === k; return { label: KIND[k][0], sub: on ? '선택됨' : '', bg: on ? '#FFFFFF' : 'transparent', color: on ? '#0E6F86' : '#85859A', shadow: on ? '0 2px 8px rgba(15,42,74,.08)' : 'none', pick: () => setM(m => { const c = m.mode[mgD]; m.mode[mgD] = (c && typeof c === 'object') ? { a: c.a, b: c.b, k } : { a: si, b: ei, k }; delete m.rest[mgD]; }) }; }),
+      boards: mRest ? [] : (() => { const o = []; for (let k = si; k < ei; k++) { const t = trv(mgD), on = t && t.a === k; o.push({ label: nm(ST[k]), sub: (+(ST[k].km - ST[si].km).toFixed(1)) + 'km', bg: on ? '#E6F6FA' : '#FFFFFF', border: on ? '#0E8DA8' : '#E8E7EF', color: on ? '#0E6F86' : '#20202A', pick: () => setM(m => { const c = m.mode[mgD], ok = c && typeof c === 'object'; m.mode[mgD] = { a: k, b: ok && c.b > k && c.b <= ei ? c.b : ei, k: ok ? (c.k || 'train') : 'train' }; delete m.rest[mgD]; }) }); } return o; })(),
+      alights: mRest ? [] : (() => { const o = [], t0 = trv(mgD); for (let k = (t0 ? t0.a : si) + 1; k <= ei; k++) { const on = t0 && t0.b === k; o.push({ label: nm(ST[k]), sub: (+(ST[k].km - ST[si].km).toFixed(1)) + 'km', bg: on ? '#E6F6FA' : '#FFFFFF', border: on ? '#0E8DA8' : '#E8E7EF', color: on ? '#0E6F86' : '#20202A', pick: () => setM(m => { const c = m.mode[mgD], ok = c && typeof c === 'object'; m.mode[mgD] = { a: ok && c.a < k && c.a >= si ? c.a : si, b: k, k: ok ? (c.k || 'train') : 'train' }; delete m.rest[mgD]; }) }); } return o; })(),
+      trSummary: (() => { const t = trv(mgD); return t ? KIND[t.k || 'train'][1] + ' · ' + nm(ST[t.a]) + ' → ' + nm(ST[t.b]) + ' · ' + trOf(mgD) + 'km' : '교통 없이 전부 걸어요'; })(),
+      trClear: () => setM(m => { delete m.mode[mgD]; }),
+      trClearOp: trv(mgD) ? 1 : .4,
       warnBg: mRest ? '#EAF0FF' : walkOf(mgD) > 30 ? '#FFF3D8' : mkm < 10 ? '#EAF0FF' : '#E4F8EC', warnColor: mRest ? '#4F82E8' : walkOf(mgD) > 30 ? '#B45309' : mkm < 10 ? '#1D4ED8' : '#15803D', warnIcon: mRest ? '☾' : walkOf(mgD) > 30 ? '!' : '✓', nChanged, changedBadge: nChanged ? 'inline-flex' : 'none', isToday: mgD === today, statusTag: mgD === today ? '오늘' : mgD < today ? '지난 날' : '예정', statusBg: mgD === today ? '#E4F0FF' : mgD < today ? '#F1F1F7' : '#F1ECFF', statusC: mgD === today ? '#2175D0' : mgD < today ? '#85859A' : '#4E27C5', lodgeStLabel: lg.st === 'ok' ? '예약 확정' : lg.st === 'cand' ? '후보' : '미정', lodgeStBg: lg.st === 'ok' ? '#E4F8EC' : lg.st === 'cand' ? '#FFF3D8' : '#F1F1F7', lodgeStC: lg.st === 'ok' ? '#15803D' : lg.st === 'cand' ? '#B45309' : '#85859A', okCount: Object.values(M.lodge).filter(x => x && x.st === 'ok').length + 2,
       startName: nm(ST[si]), endName: nm(ST[ei]),
       ends: endOpts.map((k, j) => { const on = !mRest && k === ei, dk = ST[k].km - ST[si].km, ov = dk > 30; return { name: nm(ST[k]), jp: ST[k].jp, idx: j + 1, km: dk.toFixed(1), bg: on ? '#F2F7FF' : '#FFFFFF', color: '#20202A', border: on ? '#3979E8' : '#E8E7EF', dotBg: on ? '#2585F5' : ov ? '#FFF3D8' : '#EEE8FF', dotC: on ? '#fff' : ov ? '#B45309' : '#7544ED', kmC: on ? '#2175D0' : ov ? '#B45309' : '#555568', note: on ? '선택됨' : ov ? '30km 초과' : '', noteC: on ? '#2175D0' : '#B45309', op: 1, pick: () => setM(m => { m.ends[mgD] = k; delete m.rest[mgD]; }) }; }),

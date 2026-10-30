@@ -831,6 +831,41 @@ _rep("places: d === 12 ? PLACES12 :", "places: o12 ? PLACES12 :")
 
 _rep("    title: `${first.ko.replace(/\\(.*\\)/, '')}에서 ${last.ko.replace(/\\(.*\\)/, '')}까지`,", "    title: dist === 0 ? `${first.ko.replace(/\\(.*\\)/, '')}에서 휴식` : `${first.ko.replace(/\\(.*\\)/, '')}에서 ${last.ko.replace(/\\(.*\\)/, '')}까지`,")
 
+
+# ---- 일정 관리: 교통 구간(탑승역→하차역, 수단) 선택 ----
+_rep("const modeD = d => M.mode[d] || 'walk';", "const trv = d => { const t = M.mode[d]; return t && typeof t === 'object' && t.a >= E[d - 1] && t.b <= E[d] && t.a < t.b ? t : null; };\n    const KIND = { train: ['🚆 기차', '기차'], bus: ['🚌 버스', '버스'], taxi: ['🚕 택시', '택시'] };\n    const modeD = d => trv(d) ? 'mix' : 'walk';")
+_rep("const walkOf = d => +(kmOf(d) * MODE[modeD(d)][1]).toFixed(1), trOf = d => +(kmOf(d) - walkOf(d)).toFixed(1);", "const trOf = d => { const t = trv(d); return t ? +(ST[t.b].km - ST[t.a].km).toFixed(1) : 0; }, walkOf = d => +(kmOf(d) - trOf(d)).toFixed(1);")
+_rep("tags.push({ t: '🚆 ' + MODE[modeD(d)][0] + ' ' + trOf(d) + 'km'", "tags.push({ t: KIND[trv(d).k || 'train'][0] + ' ' + nm(ST[trv(d).a]) + '→' + nm(ST[trv(d).b]) + ' ' + trOf(d) + 'km'")
+_i = dc.index("      modes: Object.keys(MODE).map(k =>")
+_j = dc.index("\n", _i)
+dc = dc[:_i] + r"""      modes: Object.keys(KIND).map(k => { const t = trv(mgD), on = !mRest && t && (t.k || 'train') === k; return { label: KIND[k][0], sub: on ? '선택됨' : '', bg: on ? '#FFFFFF' : 'transparent', color: on ? '#0E6F86' : '#85859A', shadow: on ? '0 2px 8px rgba(15,42,74,.08)' : 'none', pick: () => setM(m => { const c = m.mode[mgD]; m.mode[mgD] = (c && typeof c === 'object') ? { a: c.a, b: c.b, k } : { a: si, b: ei, k }; delete m.rest[mgD]; }) }; }),
+      boards: mRest ? [] : (() => { const o = []; for (let k = si; k < ei; k++) { const t = trv(mgD), on = t && t.a === k; o.push({ label: nm(ST[k]), sub: (+(ST[k].km - ST[si].km).toFixed(1)) + 'km', bg: on ? '#E6F6FA' : '#FFFFFF', border: on ? '#0E8DA8' : '#E8E7EF', color: on ? '#0E6F86' : '#20202A', pick: () => setM(m => { const c = m.mode[mgD], ok = c && typeof c === 'object'; m.mode[mgD] = { a: k, b: ok && c.b > k && c.b <= ei ? c.b : ei, k: ok ? (c.k || 'train') : 'train' }; delete m.rest[mgD]; }) }); } return o; })(),
+      alights: mRest ? [] : (() => { const o = [], t0 = trv(mgD); for (let k = (t0 ? t0.a : si) + 1; k <= ei; k++) { const on = t0 && t0.b === k; o.push({ label: nm(ST[k]), sub: (+(ST[k].km - ST[si].km).toFixed(1)) + 'km', bg: on ? '#E6F6FA' : '#FFFFFF', border: on ? '#0E8DA8' : '#E8E7EF', color: on ? '#0E6F86' : '#20202A', pick: () => setM(m => { const c = m.mode[mgD], ok = c && typeof c === 'object'; m.mode[mgD] = { a: ok && c.a < k && c.a >= si ? c.a : si, b: k, k: ok ? (c.k || 'train') : 'train' }; delete m.rest[mgD]; }) }); } return o; })(),
+      trSummary: (() => { const t = trv(mgD); return t ? KIND[t.k || 'train'][1] + ' · ' + nm(ST[t.a]) + ' → ' + nm(ST[t.b]) + ' · ' + trOf(mgD) + 'km' : '교통 없이 전부 걸어요'; })(),
+      trClear: () => setM(m => { delete m.mode[mgD]; }),
+      trClearOp: trv(mgD) ? 1 : .4,""" + dc[_j:]
+# template: replace 3-button grid
+_tp = dc.index('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#F1F1F7;border-radius:13px;margin-top:10px"><sc-for list="{{ mg.modes }}"')
+_te = dc.index('</sc-for></div>', _tp) + len('</sc-for></div>')
+chip = lambda lst: '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"><sc-for list="{{ mg.%s }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.pick }}" style="padding:7px 12px;border-radius:12px;border:1.5px solid {{ o.border }};background:{{ o.bg }};color:{{ o.color }};cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.25"><span style="font-size:var(--f13,13px);font-weight:700">{{ o.label }}</span><span style="font-size:var(--f11,11px);opacity:.75">{{ o.sub }}</span></button></sc-for></div>' % lst
+lab = lambda t: '<div style="font-size:var(--f12,12px);font-weight:700;color:#555568;margin-top:12px">%s</div>' % t
+new_t = ('<div style="margin-top:10px;font-size:var(--f14,14px);font-weight:800;color:#0E6F86">{{ mg.trSummary }}</div>'
+ + lab('수단') + '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#F1F1F7;border-radius:13px;margin-top:6px"><sc-for list="{{ mg.modes }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.pick }}" style="height:48px;border:0;border-radius:10px;background:{{ o.bg }};color:{{ o.color }};box-shadow:{{ o.shadow }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit"><span style="font-size:var(--f13,13px);font-weight:700">{{ o.label }}</span><span style="font-size:var(--f11,11px);opacity:.8">{{ o.sub }}</span></button></sc-for></div>'
+ + lab('어디서 타나요') + chip('boards') + lab('어디서 내리나요') + chip('alights')
+ + '<button onClick="{{ mg.trClear }}" style="margin-top:12px;height:40px;padding:0 14px;border-radius:12px;border:1px solid #E5DBFF;background:#fff;color:#3E1FA0;font-size:var(--f13,13px);font-weight:700;cursor:pointer;opacity:{{ mg.trClearOp }}">교통 안 타기 (전부 걷기)</button>')
+dc = dc[:_tp] + new_t + dc[_te:]
+# 오늘/전체 여정에 교통 구간 반영: dayData
+_rep("function applyPlan(M) { M = M || {};", "const TRN = {};\nfunction applyPlan(M) { M = M || {};")
+_rep("for (let d = 1; d <= 31; d++) PLAN[d] = [E[d - 1], E[d]]; }", "for (let d = 1; d <= 31; d++) { PLAN[d] = [E[d - 1], E[d]]; const t = M.mode && M.mode[d]; TRN[d] = t && typeof t === 'object' && t.a >= E[d - 1] && t.b <= E[d] && t.a < t.b ? t : null; } }")
+_rep("  const hrs = Math.max(1, Math.round(dist * MIN_PER_KM / 30) / 2);", "  const _t = TRN[d], trKm = _t ? +(ST[_t.b].km - ST[_t.a].km).toFixed(1) : 0, KL = { train: '기차', bus: '버스', taxi: '택시' };\n  const hrs = Math.max(1, Math.round(Math.max(0, dist - trKm) * MIN_PER_KM / 30) / 2);")
+_rep("summary: `${dist} km · 약 ${hrs}시간 · 지점 ${rel.length}곳${ferry}`,", "summary: `${dist} km · 약 ${hrs}시간 · 지점 ${rel.length}곳${ferry}${_t ? ' · ' + (KL[_t.k] || '교통') + ' ' + ST[_t.a].ko.replace(/\\(.*\\)/, '') + '→' + ST[_t.b].ko.replace(/\\(.*\\)/, '') + ' ' + trKm + 'km' : ''}`,")
+
+
+_rep("    d, stops: rel, dist, route, stopIdx, startKm: base, endKm: last.km,", "    d, stops: rel, dist, walkKm: Math.max(0, +(dist - trKm).toFixed(1)), trKm, route, stopIdx, startKm: base, endKm: last.km,")
+_rep("const eta = START_MIN + dd.dist * MIN_PER_KM + 30;", "const eta = START_MIN + dd.walkKm * MIN_PER_KM + 30;")
+_rep("const hrs = Math.max(1, Math.round(dd.dist * MIN_PER_KM / 30) / 2);", "const hrs = Math.max(1, Math.round(dd.walkKm * MIN_PER_KM / 30) / 2);")
+_rep("value: '약 ' + Math.max(1, Math.round(dd.dist * MIN_PER_KM / 30) / 2) + '시간' }", "value: '약 ' + Math.max(1, Math.round(dd.walkKm * MIN_PER_KM / 30) / 2) + '시간' }")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

@@ -419,6 +419,9 @@ dc=dc.replace(_T,'<span style="display:none;height:20px;padding:0 8px;')
 _N='<b style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap">{{ s.name }}</b>'
 assert dc.count(_N)==1
 dc=dc.replace(_N,'<b style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap;flex:none">{{ s.name }}</b>')
+_L='{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}</small>'
+assert dc.count(_L)==1
+dc=dc.replace(_L,'<span style="display:block">{{ c.label }}</span><span style="display:block">{{ c.sub1 }}</span><span style="display:block">{{ c.sub2 }}</span></small>')
 # ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
 def _bump(n):
     n = float(n)

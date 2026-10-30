@@ -40,6 +40,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="position:absolute;left:8px;bottom:8px;z-index:500;display:flex;gap:10px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.94);font-size:16px;color:#555568;pointer-events:none;white-space:nowrap"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#2585F5;border:2px solid #fff;box-shadow:0 0 0 1px #2585F5"></span>{{ pop.meLabel }}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #2585F5;box-sizing:border-box"></span>이 장소</span></div></div>
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:12px;border-top:1px solid #F1F5F9">
 <a href="{{ pop.dir }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:20px;font-weight:700;color:#5B32D6;padding:14px 6px">구글 지도로 길찾기 ›</a>
+<div style="display:flex;align-items:center;gap:10px"><button onClick="{{ popPrev }}" style="height:68px;min-width:104px;padding:0 18px;border-radius:20px;border:1.5px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font:700 20px 'Noto Sans KR',sans-serif;cursor:pointer;opacity:{{ popPrevOp }};white-space:nowrap">‹ 이전</button><span style="font:700 20px 'DM Sans',sans-serif;color:#555568;min-width:64px;text-align:center">{{ popPos }}</span><button onClick="{{ popNext }}" style="height:68px;min-width:104px;padding:0 18px;border-radius:20px;border:1.5px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font:700 20px 'Noto Sans KR',sans-serif;cursor:pointer;opacity:{{ popNextOp }};white-space:nowrap">다음 ›</button></div>
 <button onClick="{{ closePop }}" aria-label="팝업 닫기" style="width:68px;height:68px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(103,61,230,.4);flex:none" style-hover="transform:scale(1.08)" style-active="transform:scale(.92)">✕</button>
 </div>
 </div>
@@ -901,9 +902,9 @@ class Component extends DCLogic {
       const pm = L.map(pel, { zoomControl: false, scrollWheelZoom: false, attributionControl: false, zoomSnap: 0.25 });
       if (this._pop) pm.fitBounds(L.latLngBounds([this._pop.me, this._pop.ll]), { padding: [36, 36], maxZoom: 16 }); else pm.setView([34.8, 138.1], 13);
       L.tileLayer(GSI, { maxZoom: 18 }).addTo(pm);
-      this.popMap = pm; this.popR = L.svg({ padding: 0.5 }).addTo(pm); this.drawPop();
+      this._popN = this._pop && this._pop.n; this.popMap = pm; this.popR = L.svg({ padding: 0.5 }).addTo(pm); this.drawPop();
       setTimeout(() => { if (this.popMap === pm) { pm.invalidateSize(); this.drawPop(); } }, 220);
-    } else if (!pel && this.popMap) { try { this.popMap.remove(); } catch (e) {} this.popMap = null; this.popEl = null; }
+    } else if (pel && this.popMap && this._pop && this._popN !== this._pop.n) { this._popN = this._pop.n; this.drawPop(); } else if (!pel && this.popMap) { try { this.popMap.remove(); } catch (e) {} this.popMap = null; this.popEl = null; }
   }
   drawMain() {
     const m = this._m, L = this.mapL; if (!m || !this.map || !L) return;
@@ -1463,7 +1464,7 @@ class Component extends DCLogic {
       reset: () => this.setState({ stage: 0 }),
       fitRoute: () => this.fit(), locate: () => this.locate(), lodgeFly: () => { if (this.map) this.map.flyTo(dd.stops[n - 1].ll, 16, { duration: .6 }); },
       mapRef: this.mapRef, popMapRef: this.popMapRef, heroPills, amenChips, amenNote, gmapsDir, routeNote,
-      popOpen: !!pp, pop, closePop: () => this.setState({ pop: -1 }), stopProp: e => e.stopPropagation(),
+      popOpen: !!pp, pop, closePop: () => this.setState({ pop: -1 }), popPrev: () => this.setState(s => ({ pop: Math.max(0, s.pop - 1) })), popNext: () => this.setState(s => ({ pop: Math.min(dd.places.length - 1, s.pop + 1) })), popPrevOp: pi > 0 ? 1 : .3, popNextOp: pi < dd.places.length - 1 ? 1 : .3, popPos: (pi + 1) + ' / ' + dd.places.length, stopProp: e => e.stopPropagation(),
       mapSrc, filters, showLodge: () => this.setMode('lodge'), lodgeBtnBg: mapMode === 'lodge' ? '#172B3D' : BRAND,
       lodgeLabel: isPast ? '숙박 완료' : ((lodgeOf(view).st === 'ok') || (lodgeOk && isToday)) ? '예약 확정' : '후보',
       lodgeColor: ((lodgeOf(view).st === 'ok') || (lodgeOk && isToday)) ? '#fff' : '#3E1FA0', lodgeBg: ((lodgeOk && isToday) || lodgeOf(view).st === 'ok') ? ink : '#EDEDF4',

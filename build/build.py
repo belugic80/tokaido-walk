@@ -657,6 +657,15 @@ dc = dc[:_pa] + _pp + dc[_pb:]
 _rep('<span style="display:flex;align-items:baseline;gap:6px"><span style="font-size:var(--f15,15px);font-weight:700;color:{{ e.kmC }}', '<span style="display:flex;align-items:baseline;gap:2px 6px;flex-wrap:wrap"><span style="font-size:var(--f15,15px);font-weight:700;color:{{ e.kmC }}')
 _rep('background:rgba(15,23,42,.42);backdrop-filter:blur(2.5px);-webkit-backdrop-filter:blur(2.5px)', 'background:rgba(15,23,42,.30);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)')
 
+
+# ---- 장소 팝업: 하단에 이전/다음 버튼 ----
+_nb = lambda lab, fn, op: '<button onClick="{{ %s }}" style="height:68px;min-width:104px;padding:0 18px;border-radius:20px;border:1.5px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font:700 20px \'Noto Sans KR\',sans-serif;cursor:pointer;opacity:{{ %s }};white-space:nowrap">%s</button>' % (fn, op, lab)
+_rep('구글 지도로 길찾기 ›</a>\n<button onClick="{{ closePop }}"',
+     '구글 지도로 길찾기 ›</a>\n<div style="display:flex;align-items:center;gap:10px">' + _nb('‹ 이전', 'popPrev', 'popPrevOp') + '<span style="font:700 20px \'DM Sans\',sans-serif;color:#555568;min-width:64px;text-align:center">{{ popPos }}</span>' + _nb('다음 ›', 'popNext', 'popNextOp') + '</div>\n<button onClick="{{ closePop }}"')
+_rep("closePop: () => this.setState({ pop: -1 }),", "closePop: () => this.setState({ pop: -1 }), popPrev: () => this.setState(s => ({ pop: Math.max(0, s.pop - 1) })), popNext: () => this.setState(s => ({ pop: Math.min(dd.places.length - 1, s.pop + 1) })), popPrevOp: pi > 0 ? 1 : .3, popNextOp: pi < dd.places.length - 1 ? 1 : .3, popPos: (pi + 1) + ' / ' + dd.places.length,")
+_rep("this.popMap = pm; this.popR = L.svg({ padding: 0.5 }).addTo(pm); this.drawPop();", "this._popN = this._pop && this._pop.n; this.popMap = pm; this.popR = L.svg({ padding: 0.5 }).addTo(pm); this.drawPop();")
+_rep("} else if (!pel && this.popMap) {", "} else if (pel && this.popMap && this._pop && this._popN !== this._pop.n) { this._popN = this._pop.n; this.drawPop(); } else if (!pel && this.popMap) {")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

@@ -531,7 +531,7 @@ _rep('["숫자","私は1980年生まれの47歳です。"', '["사교","私は19
 # ---- 오늘 지나는 곳 사진: 외부(Unsplash) 대신 앱에 들어있는 사진으로 (로딩 실패 방지) ----
 _pm = re.search(r"const PHOTOS = \[.*?\];", dc)
 assert _pm
-dc = dc[:_pm.start()] + "const PHOTOS = ['assets/dayhero/3.jpg', 'assets/dayhero/7.jpg', 'assets/dayhero/12.jpg', 'assets/dayhero/26.jpg'];" + dc[_pm.end():]
+dc = dc[:_pm.start()] + "const PHOTOS = ['assets/hero/12.jpg', 'assets/hero/7.jpg', 'assets/hero/16.jpg', 'assets/hero/26.jpg'];" + dc[_pm.end():]
 _rep("credit: 'Photo on Unsplash', creditHref: 'https://unsplash.com/photos/' + PHOTOS[i % PHOTOS.length].split('photo-')[1].split('?')[0],", "credit: '', creditHref: '',")
 
 
@@ -651,6 +651,11 @@ for _o, _n in [
     assert _pp.count(_o) == 1, _o
     _pp = _pp.replace(_o, _n)
 dc = dc[:_pa] + _pp + dc[_pb:]
+
+
+# ---- 일정 관리: 도착지 버튼에서 거리/안내가 겹치던 것 ----
+_rep('<span style="display:flex;align-items:baseline;gap:6px"><span style="font-size:var(--f15,15px);font-weight:700;color:{{ e.kmC }}', '<span style="display:flex;align-items:baseline;gap:2px 6px;flex-wrap:wrap"><span style="font-size:var(--f15,15px);font-weight:700;color:{{ e.kmC }}')
+_rep('background:rgba(15,23,42,.42);backdrop-filter:blur(2.5px);-webkit-backdrop-filter:blur(2.5px)', 'background:rgba(15,23,42,.30);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)')
 
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh

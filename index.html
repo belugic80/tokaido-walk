@@ -636,7 +636,7 @@
 <button onClick="{{ prevPhrase }}" aria-label="이전 문장" style="position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px);left:-8px">‹</button>
 <button onClick="{{ nextPhrase }}" aria-label="다음 문장" style="position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px);right:-8px">›</button>
 <div style="font:700 42px/1.4 'Noto Serif JP',serif;word-break:normal;overflow-wrap:anywhere;text-wrap:balance">{{ sp.jp }}</div>
-<div style="font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;text-wrap:balance">{{ sp.read }}</div>
+<div style="font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;text-wrap:balance">{{ sp.read }}</div>
 <div style="font-size:24px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;opacity:.9">{{ sp.ko }}</div>
 </div>
 </div>
@@ -1493,13 +1493,13 @@ class Component extends DCLogic {
     if (t.length < 3) return;
     var ov = document.createElement('div');
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', '보여주기 카드');
-    ov.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;padding:40px 32px;box-sizing:border-box;overflow:auto';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#0F2A5C;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;padding:40px 32px;box-sizing:border-box;overflow:auto';
     var mk = function (txt, css) { var d = document.createElement('div'); d.textContent = txt; d.style.cssText = css; ov.appendChild(d); };
     mk(t[0].textContent, "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere");
     mk(t[1].textContent, 'font-size:clamp(30px,6vw,52px);font-weight:800;line-height:1.35;color:#CDBBFF');
     mk(t[2].textContent, 'font-size:clamp(24px,4.6vw,38px);font-weight:600;opacity:.92;padding-top:24px;border-top:1px solid rgba(255,255,255,.25);min-width:60%');
     var c = document.createElement('button'); c.type = 'button'; c.textContent = '닫기';
-    c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
+    c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#0F2A5C;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
     var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
     c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
     ov.appendChild(c); document.body.appendChild(ov); goFs();
@@ -1512,7 +1512,7 @@ class Component extends DCLogic {
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-show]'); if (!b) return;
     var it = SHOW.filter(function (x) { return x[0] === b.getAttribute('data-show'); })[0]; if (!it) return;
-    var ov = el('div', 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px;padding:40px 32px;box-sizing:border-box;overflow:auto');
+    var ov = el('div', 'position:fixed;inset:0;z-index:5000;background:#0F2A5C;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px;padding:40px 32px;box-sizing:border-box;overflow:auto');
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', it[1]);
     ov.appendChild(el('div', "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere", it[2]));
     if (it[0] === 'hotel' || it[0] === 'checkin') {
@@ -1523,13 +1523,13 @@ class Component extends DCLogic {
       if (h.ko) box.appendChild(el('div', 'font-size:clamp(22px,4vw,32px);opacity:.9', h.ko));
       var ad = h.addr || h.town; if (ad) box.appendChild(el('div', "font:500 clamp(20px,3.6vw,28px)/1.4 'Noto Serif JP',serif;opacity:.9", ad));
       var q = encodeURIComponent((h.ja || h.en || h.ko || '') + ' ' + (h.town || ''));
-      var a = el('a', 'margin-top:6px;display:inline-flex;align-items:center;height:56px;padding:0 28px;border-radius:999px;background:#673DE6;color:#fff;font-size:22px;font-weight:800;text-decoration:none', '지도로 보여주기');
+      var a = el('a', 'margin-top:6px;display:inline-flex;align-items:center;height:56px;padding:0 28px;border-radius:999px;background:#3979E8;color:#fff;font-size:22px;font-weight:800;text-decoration:none', '지도로 보여주기');
       a.href = 'https://www.google.com/maps/search/?api=1&query=' + (h.ll || q); a.target = '_blank'; a.rel = 'noopener'; box.appendChild(a);
       ov.appendChild(box);
     }
     ov.appendChild(el('div', 'font-size:clamp(26px,5vw,44px);font-weight:700;opacity:.92', it[1]));
     var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
-    var c = el('button', 'margin-top:8px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer', '닫기');
+    var c = el('button', 'margin-top:8px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#0F2A5C;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer', '닫기');
     c.type = 'button'; c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
     ov.appendChild(c); document.body.appendChild(ov);
     try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (er) {}

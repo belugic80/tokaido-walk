@@ -188,7 +188,7 @@ for a_, b_ in RESTORE:
 # 일본어 탭 글자 키우기 (사용자 요청)
 BIGGER = [
     ("font:700 34px/1.4 'Noto Serif JP',serif;word-break:normal;", "font:700 42px/1.4 'Noto Serif JP',serif;word-break:normal;"),
-    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;", "font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;"),
+    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;", "font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;"),
     ("font-size:18px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;", "font-size:24px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;"),
     ("height:44px;padding:0 13px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:12.5px;", "height:48px;padding:0 16px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:16px;"),
     ('<div style="padding:12px 14px;border-radius:14px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }}" style-hover="background:#FFFFFF"><div style="font-size:15px;font-weight:700;line-height:1.45;color:#20202A">{{ p.ko }}</div><div style="font-size:15px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px">{{ p.read }}</div></div>'.replace('<div style="padding','<div onClick="{{ p.open }}" style="padding'),

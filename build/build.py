@@ -413,6 +413,32 @@ for a_, b_ in _P:
     assert dc.count(a_) == 1, a_
     dc = dc.replace(a_, b_)
 dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}header{gap:8px!important;padding-left:16px!important;padding-right:12px!important}header>div:nth-child(3)>span:last-child{display:none}header>*{flex-shrink:1;min-width:0}nav[data-screen-label="Action rail"]>div{overflow-y:auto;scrollbar-width:none}@media (max-height:860px){nav[data-screen-label="Action rail"]>div{zoom:.74;padding-top:6px!important;padding-bottom:6px!important}}@media (max-height:700px){nav[data-screen-label="Action rail"]>div{zoom:.6}}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style>' + open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'slotstore.html'),encoding='utf-8').read() + '<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">')
+_T='<span style="display:{{ s.tagDisplay }};height:20px;padding:0 8px;'
+assert dc.count(_T)==1
+dc=dc.replace(_T,'<span style="display:none;height:20px;padding:0 8px;')
+_N='<b style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap">{{ s.name }}</b>'
+assert dc.count(_N)==1
+dc=dc.replace(_N,'<b style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap;flex:none">{{ s.name }}</b>')
+# ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
+def _bump(n):
+    n = float(n)
+    return 16 if n <= 12 else 17 if n <= 13 else 18 if n <= 15 else 19 if n <= 17 else n
+_i0 = dc.index('<sc-if value="{{ tabToday }}"'); _i1 = dc.index('<sc-if value="{{ tabJourney }}"')
+_sec = dc[_i0:_i1]
+_sizes = set()
+def _fs(m):
+    n = float(m.group(1)); b = _bump(n)
+    if b == n: return m.group(0)
+    _sizes.add(n); return 'font-size:var(--f%g,%gpx)' % (n, n)
+def _fh(m):
+    n = float(m.group(2)); b = _bump(n)
+    if b == n: return m.group(0)
+    _sizes.add(n); return 'font:%s var(--f%g,%gpx)' % (m.group(1), n, n)
+_sec = re.sub(r'font-size:(\d+(?:\.\d+)?)px', _fs, _sec)
+_sec = re.sub(r'font:(\d+) (\d+(?:\.\d+)?)px', _fh, _sec)
+_css = '@media (orientation:portrait){:root{' + ''.join('--f%g:%gpx;' % (n, _bump(n)) for n in sorted(_sizes)) + '}}'
+dc = dc.replace('<link rel="manifest"', '<style>' + _css + '</style><link rel="manifest"', 1)
+dc = dc[:_i0] + _sec + dc[_i1:]
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

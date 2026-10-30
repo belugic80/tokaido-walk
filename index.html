@@ -9,7 +9,7 @@ function put(v){return open().then(function(db){return new Promise(function(res,
 window.omelette=window.omelette||{};window.omelette.writeFile=function(n,c){mem=c;try{localStorage.setItem('tk-slots-bak-ts',String(Date.now()))}catch(e){}return put(c)};
 var of=window.fetch;window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf(F)>=0){return get().then(function(v){return v?new Response(v,{status:200,headers:{'Content-Type':'application/json'}}):new Response('',{status:404})})}return of.apply(this,arguments)};
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-})();</script><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">
+})();</script><style>@media (orientation:portrait){:root{--f11:16px;--f12:16px;--f13:17px;--f14:18px;--f15:18px;--f16:19px;}}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -65,34 +65,31 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </button>
 </header>
 
-<div style="position:relative;flex:1;min-height:0;display:flex">
-<main style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;padding-top:8px">
-
-<sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;flex:1;min-heig<sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:4px 20px 92px 24px;display:flex;flex-direction:column;gap:12px">
 <div data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)">
 <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.42) 0%,rgba(15,23,42,0) 34%,rgba(15,23,42,.18) 52%,rgba(15,23,42,.86) 100%)"></div>
 <div style="position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(115,67,235,.32),transparent 36%)"></div>
 <div style="position:absolute;left:20px;right:20px;top:18px;display:flex;justify-content:space-between;align-items:center;gap:10px">
-<span style="height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 12px 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap">TODAY'S JOURNEY · DAY {{ view }}</span>
+<span style="height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap">TODAY'S JOURNEY · DAY {{ view }}</span>
 <div style="position:fixed;left:calc(50% - 46px);bottom:12px;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;padding:8px;border-radius:24px;background:rgba(24,43,61,.94);box-shadow:0 10px 28px rgba(15,42,74,.35)">
-<sc-if value="{{ notToday }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goToday }}" style="height:46px;padding:0 16px;border:0;border-radius:13px;background:#FFFFFF;color:#4E27C5;font-size:13px;font-weight:700;cursor:pointer">오늘로</button></sc-if>
+<sc-if value="{{ notToday }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goToday }}" style="height:46px;padding:0 16px;border:0;border-radius:13px;background:#FFFFFF;color:#4E27C5;font-size:var(--f13,13px);font-weight:700;cursor:pointer">오늘로</button></sc-if>
 <button onClick="{{ prevDay }}" style="width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:{{ prevOp }}">‹</button>
-<div style="height:46px;padding:0 14px;border-radius:15px;background:rgba(255,255,255,.94);display:flex;align-items:center;gap:8px;white-space:nowrap"><span style="font-size:14px;font-weight:700;color:#20202A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ dateLabel }}</span><span style="font-size:12px;font-weight:700;color:{{ tagColor }};background:{{ tagBg }};border-radius:999px;padding:3px 9px">{{ tagLabel }}</span></div>
+<div style="height:46px;padding:0 14px;border-radius:15px;background:rgba(255,255,255,.94);display:flex;align-items:center;gap:8px;white-space:nowrap"><span style="font-size:var(--f14,14px);font-weight:700;color:#20202A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ dateLabel }}</span><span style="font-size:var(--f12,12px);font-weight:700;color:{{ tagColor }};background:{{ tagBg }};border-radius:999px;padding:3px 9px">{{ tagLabel }}</span></div>
 <button onClick="{{ nextDayFn }}" style="width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:{{ nextOp }}">›</button>
 </div>
 </div>
 <div style="position:absolute;left:26px;right:26px;bottom:22px;color:#fff;display:flex;justify-content:space-between;align-items:flex-end;gap:20px">
 <div style="min-width:0">
-<div style="font:500 13px 'Noto Serif JP',serif;letter-spacing:.08em;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 8px rgba(15,23,42,.5)">{{ dd.jpTitle }}</div>
+<div style="font:500 var(--f13,13px) 'Noto Serif JP',serif;letter-spacing:.08em;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 8px rgba(15,23,42,.5)">{{ dd.jpTitle }}</div>
 <div style="font-size:36px;font-weight:800;line-height:1.15;letter-spacing:-.04em;margin-top:6px;white-space:nowrap;text-shadow:0 2px 14px rgba(15,23,42,.45)">{{ dd.title }}</div>
 <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-<sc-for list="{{ heroPills }}" as="hp" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:7px;height:36px;padding:0 13px 0 11px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ hp.icon }}"></path></svg><span style="font-size:12px;opacity:.85">{{ hp.label }}</span><span style="font-size:15px;font-weight:700;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ hp.value }}</span></div></sc-for>
+<sc-for list="{{ heroPills }}" as="hp" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:7px;height:36px;padding:0 13px 0 11px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ hp.icon }}"></path></svg><span style="font-size:var(--f12,12px);opacity:.85">{{ hp.label }}</span><span style="font-size:var(--f15,15px);font-weight:700;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ hp.value }}</span></div></sc-for>
 </div>
 </div>
 <div style="flex:none;width:118px;height:118px;border-radius:50%;background:conic-gradient(from -90deg,#18A96B 0%,#6ED6B0 {{ ringPct }}%,rgba(255,255,255,.22) {{ ringPct }}% 100%);display:grid;place-items:center;position:relative">
 <div style="position:absolute;inset:11px;border-radius:50%;background:rgba(15,23,42,.62);backdrop-filter:blur(6px)"></div>
-<div style="position:relative;text-align:center"><b style="display:block;font:700 26px/1 'DM Sans',sans-serif;letter-spacing:-.03em">{{ ringPct }}%</b><small style="font-size:12px;opacity:.8">오늘 진행</small></div>
+<div style="position:relative;text-align:center"><b style="display:block;font:700 26px/1 'DM Sans',sans-serif;letter-spacing:-.03em">{{ ringPct }}%</b><small style="font-size:var(--f12,12px);opacity:.8">오늘 진행</small></div>
 </div>
 </div>
 </div>
@@ -100,18 +97,18 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px;display:flex;flex-direction:column;min-width:0">
 <div data-h0="430" style="position:relative;height:430px;border-radius:16px;overflow:hidden;background:#F3F6FA">
 <div ref="{{ mapRef }}" style="position:absolute;inset:0"></div>
-<div style="position:absolute;left:12px;right:12px;top:12px;z-index:500;display:flex;justify-content:space-between;gap:8px;pointer-events:none"><span style="background:rgba(255,255,255,.94);color:#20354A;border:1px solid #DDE7F0;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;box-shadow:0 3px 12px rgba(27,54,80,.08);white-space:nowrap">TOKYO → KYOTO · GRAND WALK</span><span style="background:rgba(255,255,255,.94);color:#20354A;border:1px solid #DDE7F0;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;box-shadow:0 3px 12px rgba(27,54,80,.08);white-space:nowrap;background:#182B3D;color:#fff;border-color:#182B3D">{{ stationsDone }} / 53 역참</span></div>
+<div style="position:absolute;left:12px;right:12px;top:12px;z-index:500;display:flex;justify-content:space-between;gap:8px;pointer-events:none"><span style="background:rgba(255,255,255,.94);color:#20354A;border:1px solid #DDE7F0;border-radius:999px;padding:8px 12px;font-size:var(--f12,12px);font-weight:700;box-shadow:0 3px 12px rgba(27,54,80,.08);white-space:nowrap">TOKYO → KYOTO · GRAND WALK</span><span style="background:rgba(255,255,255,.94);color:#20354A;border:1px solid #DDE7F0;border-radius:999px;padding:8px 12px;font-size:var(--f12,12px);font-weight:700;box-shadow:0 3px 12px rgba(27,54,80,.08);white-space:nowrap;background:#182B3D;color:#fff;border-color:#182B3D">{{ stationsDone }} / 53 역참</span></div>
 <div style="position:absolute;left:12px;top:56px;right:70px;z-index:500;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none">
-<sc-for list="{{ amenChips }}" as="a" hint-placeholder-count="4"><button onClick="{{ a.onClick }}" style="pointer-events:auto;height:34px;padding:0 12px 0 6px;border-radius:999px;border:1px solid #DDE7F0;background:{{ a.bg }};color:{{ a.color }};font-size:12px;font-weight:700;cursor:{{ a.cursor }};white-space:nowrap;display:flex;align-items:center;gap:6px;box-shadow:0 3px 12px rgba(27,54,80,.08)"><span style="width:22px;height:22px;border-radius:50%;background:{{ a.gBg }};color:{{ a.gColor }};font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">{{ a.glyph }}</span>{{ a.label }}<span style="font-weight:800;opacity:.7;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ a.count }}</span></button></sc-for>
+<sc-for list="{{ amenChips }}" as="a" hint-placeholder-count="4"><button onClick="{{ a.onClick }}" style="pointer-events:auto;height:34px;padding:0 12px 0 6px;border-radius:999px;border:1px solid #DDE7F0;background:{{ a.bg }};color:{{ a.color }};font-size:var(--f12,12px);font-weight:700;cursor:{{ a.cursor }};white-space:nowrap;display:flex;align-items:center;gap:6px;box-shadow:0 3px 12px rgba(27,54,80,.08)"><span style="width:22px;height:22px;border-radius:50%;background:{{ a.gBg }};color:{{ a.gColor }};font-size:var(--f11,11px);font-weight:800;display:flex;align-items:center;justify-content:center">{{ a.glyph }}</span>{{ a.label }}<span style="font-weight:800;opacity:.7;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ a.count }}</span></button></sc-for>
 </div>
 <div style="position:absolute;right:12px;bottom:12px;z-index:500;display:grid;gap:9px">
 <button onClick="{{ lodgeFly }}" title="숙소 위치" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#DC6B42" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-5h4v5"></path></svg></button>
 <button onClick="{{ fitRoute }}" title="전체 경로" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#23374A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg></button>
 <button onClick="{{ locate }}" title="현재 위치" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;background:linear-gradient(120deg,#3979E8 0%,#55A9F5 52%,#8AD8E8 100%);box-shadow:0 7px 18px rgba(71,127,227,.27)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"></circle><circle cx="12" cy="12" r="2.2" fill="#fff"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg></button>
 </div>
-<div style="position:absolute;left:12px;bottom:12px;z-index:500;background:rgba(255,255,255,.94);border:1px solid #DDE7F0;border-radius:11px;padding:7px 10px;font-size:12px;color:#20354A;pointer-events:none;white-space:nowrap">{{ amenNote }}</div>
+<div style="position:absolute;left:12px;bottom:12px;z-index:500;background:rgba(255,255,255,.94);border:1px solid #DDE7F0;border-radius:11px;padding:7px 10px;font-size:var(--f12,12px);color:#20354A;pointer-events:none;white-space:nowrap">{{ amenNote }}</div>
 </div>
-<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:#555568">
+<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:var(--f12,12px);color:#555568">
 <span style="display:flex;align-items:center;gap:8px"><span style="width:28px;border-top:4px solid #18A96B;border-radius:8px"></span>지나온 길 · 실제 GPS 기록</span>
 <span style="display:flex;align-items:center;gap:8px"><span style="width:28px;border-top:4px solid #2585F5;border-radius:8px"></span>앞으로 갈 길 · 다음 거점부터 목적지</span>
 <span style="flex:1"></span><span style="color:#85859A">{{ routeNote }}</span>
@@ -120,26 +117,26 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px;display:flex;flex-direction:column;min-width:0">
-<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:700;color:#20202A">오늘의 경유지 · Itinerary</span><span style="font-size:12px;color:#85859A">{{ dd.dist }} km</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:var(--f16,16px);font-weight:700;color:#20202A">오늘의 경유지 · Itinerary</span><span style="font-size:var(--f12,12px);color:#85859A">{{ dd.dist }} km</span></div>
 <div style="display:grid;gap:7px;margin-top:12px">
 <sc-for list="{{ stops }}" as="s" hint-placeholder-count="5">
 <a href="{{ s.href }}" target="_blank" rel="noopener" style="display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border-radius:13px;color:#20202A;background:{{ s.rowBg }};border:1px solid #E8E7EF;box-shadow:inset 0 0 0 1px {{ s.rowBorder }}" style-hover="background:#F7F7FB">
-<span style="width:28px;height:28px;border-radius:50%;background:{{ s.dotBg }};border:2px solid {{ s.dotBorder }};color:{{ s.dotColor }};font-size:12px;font-weight:800;display:grid;place-items:center;box-sizing:border-box;animation:{{ s.anim }}">{{ s.dot }}</span>
-<div style="min-width:0"><div style="display:flex;align-items:center;gap:6px;min-width:0"><b style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap">{{ s.name }}</b><span style="font:500 12px 'Noto Serif JP',serif;color:{{ s.jpColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.jp }}</span></div><div style="display:{{ s.subDisplay }};font-size:12px;color:#85859A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.sub }}</div></div>
-<span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="display:{{ s.tagDisplay }};height:20px;padding:0 8px;border-radius:999px;background:#E4F0FF;color:#2175D0;font-size:12px;font-weight:800;align-items:center">다음</span><span style="font-size:12px;font-weight:700;color:{{ s.metaColor }};font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ s.meta }}</span></span>
+<span style="width:28px;height:28px;border-radius:50%;background:{{ s.dotBg }};border:2px solid {{ s.dotBorder }};color:{{ s.dotColor }};font-size:var(--f12,12px);font-weight:800;display:grid;place-items:center;box-sizing:border-box;animation:{{ s.anim }}">{{ s.dot }}</span>
+<div style="min-width:0"><div style="display:flex;align-items:center;gap:6px;min-width:0"><b style="font-size:var(--f14,14px);font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap;flex:none">{{ s.name }}</b><span style="font:500 var(--f12,12px) 'Noto Serif JP',serif;color:{{ s.jpColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.jp }}</span></div><div style="display:{{ s.subDisplay }};font-size:var(--f12,12px);color:#85859A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.sub }}</div></div>
+<span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="display:none;height:20px;padding:0 8px;border-radius:999px;background:#E4F0FF;color:#2175D0;font-size:var(--f12,12px);font-weight:800;align-items:center">다음</span><span style="font-size:var(--f12,12px);font-weight:700;color:{{ s.metaColor }};font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ s.meta }}</span></span>
 </a>
 </sc-for>
 </div>
 <div style="flex:1;min-height:12px"></div>
 <div style="padding:14px;border-radius:16px;background:linear-gradient(115deg,#F0EBFF,#EAF3FF)">
-<div style="font:700 12px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">PROGRESS · 전체 종주</div>
-<div style="display:flex;align-items:baseline;gap:6px;margin-top:6px"><span style="font-size:24px;font-weight:700;letter-spacing:-.03em;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ posKm }}</span><span style="font-size:13px;color:#555568">/ 488 km</span></div>
+<div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">PROGRESS · 전체 종주</div>
+<div style="display:flex;align-items:baseline;gap:6px;margin-top:6px"><span style="font-size:24px;font-weight:700;letter-spacing:-.03em;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ posKm }}</span><span style="font-size:var(--f13,13px);color:#555568">/ 488 km</span></div>
 <div style="position:relative;height:8px;border-radius:99px;background:#E5DBFF;overflow:hidden;margin-top:10px"><div style="position:absolute;left:0;top:0;bottom:0;width:{{ prevPct }}%;background:#18A96B"></div><div style="position:absolute;top:0;bottom:0;left:{{ prevPct }}%;width:{{ todayPct }}%;background:#2585F5"></div></div>
-<div style="display:flex;justify-content:space-between;font-size:12px;color:#85859A;margin-top:6px"><span>品川 시나가와</span><span>京都 산조오하시</span></div>
+<div style="display:flex;justify-content:space-between;font-size:var(--f12,12px);color:#85859A;margin-top:6px"><span>品川 시나가와</span><span>京都 산조오하시</span></div>
 </div>
 <div style="display:flex;gap:8px;margin-top:12px">
 <sc-if value="{{ canReset }}" hint-placeholder-val="{{ false }}"><button onClick="{{ reset }}" title="되돌리기" style="width:52px;height:52px;flex:none;font-size:18px;border:1px solid #E5DBFF;border-radius:13px;background:#F1ECFF;color:#3E1FA0;font-weight:700;cursor:pointer">↺</button></sc-if>
-<button onClick="{{ advance }}" style="flex:1;height:52px;border:0;border-radius:13px;background:{{ ctaBg }};color:{{ ctaColor }};font-size:15px;font-weight:700;cursor:{{ ctaCursor }};white-space:nowrap;box-shadow:{{ ctaShadow }}" style-active="transform:scale(.98)">{{ ctaLabel }}</button>
+<button onClick="{{ advance }}" style="flex:1;height:52px;border:0;border-radius:13px;background:{{ ctaBg }};color:{{ ctaColor }};font-size:var(--f15,15px);font-weight:700;cursor:{{ ctaCursor }};white-space:nowrap;box-shadow:{{ ctaShadow }}" style-active="transform:scale(.98)">{{ ctaLabel }}</button>
 </div>
 </div>
 </div>
@@ -148,7 +145,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <sc-for list="{{ stats }}" as="c" hint-placeholder-count="4">
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:16px;min-height:0;padding:20px 8px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;position:relative;overflow:hidden">
 <b style="font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.025em;color:{{ c.color }};white-space:nowrap;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ c.value }}<span style="font-size:19px;font-weight:600;margin-left:3px">{{ c.unit }}</span></b>
-<small style="font-size:16px;line-height:1.3;color:#6B6B80">{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}</small>
+<small style="font-size:var(--f16,16px);line-height:1.3;color:#6B6B80">{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}</small>
 <div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:#F1F1F7"><div style="height:100%;width:{{ c.pct }}%;background:{{ c.bar }}"></div></div>
 </div>
 </sc-for>
@@ -156,17 +153,17 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ hasPlaces }}" hint-placeholder-val="{{ true }}">
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:18px 20px;flex:none">
-<div style="display:flex;align-items:center;gap:14px"><div><div style="font:700 12px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">SPOTS ON TODAY'S ROUTE</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px">오늘 지나는 곳</div></div><span style="flex:1"></span>
-<span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#555568"><span style="width:10px;height:10px;border-radius:50%;background:#18A96B"></span>지나온 곳</span><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#555568"><span style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #2585F5;box-sizing:border-box"></span>앞으로 갈 곳</span>
+<div style="display:flex;align-items:center;gap:14px"><div><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">SPOTS ON TODAY'S ROUTE</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">오늘 지나는 곳</div></div><span style="flex:1"></span>
+<span style="display:flex;align-items:center;gap:6px;font-size:var(--f12,12px);color:#555568"><span style="width:10px;height:10px;border-radius:50%;background:#18A96B"></span>지나온 곳</span><span style="display:flex;align-items:center;gap:6px;font-size:var(--f12,12px);color:#555568"><span style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #2585F5;box-sizing:border-box"></span>앞으로 갈 곳</span>
 <sc-if value="{{ morePlaces }}" hint-placeholder-val="{{ false }}"><button onClick="{{ placesPrev }}" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;width:44px;height:44px">‹</button><button onClick="{{ placesNext }}" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;width:44px;height:44px">›</button></sc-if>
 </div>
 <div ref="{{ placesRef }}" style="display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;margin:6px -10px -10px;padding:8px 10px 18px">
 <sc-for list="{{ places }}" as="p" hint-placeholder-count="4">
 <div onClick="{{ p.onClick }}" style="flex:none;width:calc((100% - 36px) / 4);scroll-snap-align:start;cursor:pointer;min-width:0;border-radius:18px;padding:8px;border:1px solid #E8E7EF;box-shadow:inset 0 0 0 1.5px {{ p.border }},0 10px 24px rgba(15,42,74,.10),0 2px 6px rgba(15,42,74,.05);background:#FFFFFF;transition:transform .2s ease,box-shadow .2s ease" style-hover="transform:translateY(-3px);box-shadow:0 16px 32px rgba(15,42,74,.16)">
 <div style="position:relative;height:110px;border-radius:12px;overflow:hidden;background:#F1F1F7;box-shadow:0 6px 14px rgba(15,42,74,.18)"><div style="position:absolute;inset:0;filter:{{ p.filter }};opacity:{{ p.op }}"><image-slot id="{{ p.slotId }}" src="{{ p.src }}" credit="{{ p.credit }}" credit-href="{{ p.creditHref }}" shape="rounded" radius="12" placeholder="{{ p.ph }}"></image-slot></div>
-<span style="position:absolute;left:8px;top:8px;z-index:2;pointer-events:none;height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.92);color:{{ p.badgeBg }};font-size:12px;font-weight:700;display:flex;align-items:center;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.12)">⌖ {{ p.badge }}</span></div>
-<div style="font-size:14px;font-weight:700;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ p.nameColor }};text-align:center">{{ p.n }}. {{ p.name }}</div>
-<div style="font-size:12px;color:{{ p.descColor }};margin-top:2px;line-height:1.45;text-align:center">{{ p.desc }}</div>
+<span style="position:absolute;left:8px;top:8px;z-index:2;pointer-events:none;height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.92);color:{{ p.badgeBg }};font-size:var(--f12,12px);font-weight:700;display:flex;align-items:center;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.12)">⌖ {{ p.badge }}</span></div>
+<div style="font-size:var(--f14,14px);font-weight:700;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ p.nameColor }};text-align:center">{{ p.n }}. {{ p.name }}</div>
+<div style="font-size:var(--f12,12px);color:{{ p.descColor }};margin-top:2px;line-height:1.45;text-align:center">{{ p.desc }}</div>
 </div>
 </sc-for>
 </div>
@@ -176,12 +173,19 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
 <div onClick="{{ toggleLodge }}" style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px;cursor:pointer;display:flex;gap:14px;align-items:center" style-hover="box-shadow:0 12px 32px rgba(15,42,74,.08)">
 <div style="width:46px;height:46px;flex:none;border-radius:15px;background:#FFEDE5;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#DC6B42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-5h4v5"></path></svg></div>
-<div style="flex:1;min-width:0"><div style="font:700 12px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">TONIGHT · 숙소</div><div style="font-size:15px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dd.lodge }} <span style="font:500 12px 'Noto Serif JP',serif;color:#85859A">{{ dd.lodgeJp }}</span></div><div style="font-size:12px;color:#85859A;white-space:nowrap">{{ dd.lodgeNote }}</div></div>
-<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none"><span style="font-size:12px;font-weight:700;color:{{ lodgeColor }};background:{{ lodgeBg }};border-radius:999px;padding:5px 10px;white-space:nowrap">{{ lodgeLabel }}</span><button onClick="{{ openAgoda }}" style="height:32px;padding:0 12px;border-radius:10px;border:1px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit">아고다 숙소 찾기 ↗</button></div>
+<div style="flex:1;min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">TONIGHT · 숙소</div><div style="font-size:var(--f15,15px);font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dd.lodge }} <span style="font:500 var(--f12,12px) 'Noto Serif JP',serif;color:#85859A">{{ dd.lodgeJp }}</span></div><div style="font-size:var(--f12,12px);color:#85859A;white-space:nowrap">{{ dd.lodgeNote }}</div></div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none"><span style="font-size:var(--f12,12px);font-weight:700;color:{{ lodgeColor }};background:{{ lodgeBg }};border-radius:999px;padding:5px 10px;white-space:nowrap">{{ lodgeLabel }}</span><button onClick="{{ openAgoda }}" style="height:32px;padding:0 12px;border-radius:10px;border:1px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font-size:var(--f12,12px);font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit">아고다 숙소 찾기 ↗</button></div>
 </div>
 <div onClick="{{ nextDayFn }}" style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer" style-hover="box-shadow:0 12px 32px rgba(15,42,74,.08)">
-<div style="width:46px;height:46px;flex:none;border-radius:15px;background:#EAF0FF;display:grid;place-items:center;color:#4F82E8;font:800 16px 'DM Sans',sans-serif">{{ tomorrow.n }}</div>
-<div style="flex:1;min-width:0"><div style="font:700 12px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">TOMORROW · 내일 걷는 날</div><div style="font-size:15px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tomorrow.path }}</div><div style="font-size:12px;color:#85859A;white-space:nowrap"><b style="color:#2585F5;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ tomorrow.dist }} km</b> · 08:00 출발</div></div>
+<div style="width:46px;height:46px;flex:none;border-radius:15px;background:#EAF0FF;display:grid;place-items:center;color:#4F82E8;font:800 var(--f16,16px) 'DM Sans',sans-serif">{{ tomorrow.n }}</div>
+<div style="flex:1;min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">TOMORROW · 내일 걷는 날</div><div style="font-size:var(--f15,15px);font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tomorrow.path }}</div><div style="font-size:var(--f12,12px);color:#85859A;white-space:nowrap"><b style="color:#2585F5;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ tomorrow.dist }} km</b> · 08:00 출발</div></div>
+<span style="font-size:22px;color:#85859A">›</span>
+</div>
+</div>
+</div>
+</sc-if>
+
+st }} km</b> · 08:00 출발</div></div>
 <span style="font-size:22px;color:#85859A">›</span>
 </div>
 </div>

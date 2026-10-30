@@ -288,6 +288,13 @@ dc = dc.replace(G_OLD, 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:rep
 M_OLD = '<div style="position:relative;height:430px;border-radius:16px;overflow:hidden;background:#F3F6FA">\n<div ref="{{ mapRef }}"'
 assert dc.count(M_OLD) == 1
 dc = dc.replace(M_OLD, M_OLD.replace('<div style="position:relative;height:430px', '<div data-h0="430" style="position:relative;height:430px'))
+# 기록 탭: 사진과 한 줄 기록의 사진은 3장
+P_OLD = 'dayPhotos: [1, 2, 3, 4].map('
+assert dc.count(P_OLD) == 1
+dc = dc.replace(P_OLD, 'dayPhotos: [1, 2, 3].map(')
+P_GRID = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px"><sc-for list="{{ dayPhotos }}"'
+assert dc.count(P_GRID) == 1
+dc = dc.replace(P_GRID, P_GRID.replace('repeat(4,', 'repeat(3,'))
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1

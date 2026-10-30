@@ -305,7 +305,7 @@ dc = dc.replace('font-size:20px;font-weight:700;line-height:1.45;color:#673DE6;m
 # 오늘 탭: 날짜 이동 버튼(오늘로·‹·날짜·›)을 화면 아래쪽으로 내려 엄지가 닿게 (사용자 요청)
 N_OLD = '<div style="display:flex;align-items:center;gap:6px">\n<sc-if value="{{ notToday }}"'
 assert dc.count(N_OLD) == 1
-dc = dc.replace(N_OLD, '<div style="position:fixed;left:calc(50% - 46px);bottom:12px;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;padding:8px;border-radius:24px;background:rgba(24,43,61,.94);box-shadow:0 10px 28px rgba(15,42,74,.35)">\n<sc-if value="{{ notToday }}"')
+dc = dc.replace(N_OLD, '<div style="position:fixed;left:calc(50% - 46px);bottom:2px;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;padding:8px;border-radius:24px;background:rgba(24,43,61,.94);box-shadow:0 10px 28px rgba(15,42,74,.35)">\n<sc-if value="{{ notToday }}"')
 # 오늘 탭: 위쪽 사진(히어로)은 고정, 아래 지도부터 스크롤 (사용자 요청)
 HS_OLD = 'data-screen-label="Today hero" style="position:relative;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 16px 40px rgba(15,42,74,.16)"'
 assert dc.count(HS_OLD) == 1
@@ -395,7 +395,7 @@ for _o,_n in [("padding:12px 10px;display:flex;flex-direction:column;align-items
  ("<small style=\"font-size:12px;line-height:1.35;color:#85859A\">{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}","<small style=\"font-size:16px;line-height:1.3;color:#6B6B80\">{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}")]:
     assert dc.count(_o)==1,_o[:40]
     dc=dc.replace(_o,_n)
-dc=dc.replace('padding:4px 20px 120px 24px;','padding:4px 20px 92px 24px;')
+dc=dc.replace('padding:4px 20px 120px 24px;','padding:4px 20px 100px 24px;')
 _G='grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr));gap:10px'
 assert dc.count(_G)==1
 dc=dc.replace(_G,'grid-template-columns:minmax(0,2.3fr) repeat(3,minmax(0,.8fr));gap:10px')

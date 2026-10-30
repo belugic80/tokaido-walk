@@ -438,7 +438,7 @@ dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 
 def _bump(n):
     n = float(n)
     return 16 if n <= 12 else 17 if n <= 13 else 18 if n <= 15 else 19 if n <= 17 else n
-_i0 = dc.index('<sc-if value="{{ tabToday }}"'); _i1 = dc.index('<sc-if value="{{ tabJourney }}"')
+_i0 = dc.index('<sc-if value="{{ tabToday }}"'); _i1 = dc.index('</main>')
 _sec = dc[_i0:_i1]
 _sizes = set()
 def _fs(m):
@@ -479,6 +479,13 @@ _rep("unit: '보', color: '#20202A', sub1: '목표 2만 보', sub2: Math.min(100
 _i=dc.index("unit: '', color: '#20202A', sub1: '남은 예상'"); _j=dc.index("bar: ink, top: ink", _i)
 dc=dc[:_i]+dc[_i:_j].replace("color: '#20202A'","color: '#D9602F'")+"bar: '#D9602F', top: '#D9602F'"+dc[_j+len("bar: ink, top: ink"):]
 
+
+# ---- 세로 확대 시 좁은 곳 보정 ----
+_rep("font-size:var(--f11,11px);color:#85859A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums\">{{ d.date }}", "font-size:12px;color:#85859A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em\">{{ d.date }}")
+_rep("<div style=\"font:700 var(--f14,14px) 'DM Sans',sans-serif;white-space:nowrap\">{{ d.hi }}°", "<div style=\"font:700 15px 'DM Sans',sans-serif;white-space:nowrap;letter-spacing:-.04em\">{{ d.hi }}°")
+_rep("padding:0 14px;font:600 var(--f14,14px) 'Noto Sans KR',sans-serif;color:#20202A;outline:none;min-width:0;box-sizing:border-box;font-family:'DM Sans',sans-serif\"></input></label>\n", "padding:0 8px;font:600 14px 'Noto Sans KR',sans-serif;color:#20202A;outline:none;min-width:0;box-sizing:border-box;font-family:'DM Sans',sans-serif\"></input></label>\n", 0) if False else None
+
+dc = re.sub(r'(type="time" value="\{\{ mg\.lodgeIn \}\}"[^>]*?)padding:0 14px;font:600 var\(--f14,14px\)', r'\1padding:0 6px;font:600 14px', dc)
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

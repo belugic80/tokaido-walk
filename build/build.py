@@ -694,6 +694,10 @@ _rep("'기준 7시간 대비'", "'기준 8시간 대비'")
 dc = dc.replace('>기준 7시간 대비 · Galaxy Watch9<', '>기준 8시간 대비 · Galaxy Watch9<')
 dc = dc.replace('>기준 7h<', '>기준 8h<').replace('>7h 이상 {{ c.over }}일<', '>8h 이상 {{ c.over }}일<').replace('>7h 미만 {{ c.under }}일<', '>8h 미만 {{ c.under }}일<')
 
+
+# ---- 여행 정보: 지금 날씨 / 이번 주 날씨를 두 줄로 ----
+_rep('<div style="flex:none;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:12px">\n<div data-screen-label="Weather now"', '<div style="flex:none;display:grid;grid-template-columns:minmax(0,1fr);gap:12px">\n<div data-screen-label="Weather now"')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

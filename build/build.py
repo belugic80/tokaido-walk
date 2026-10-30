@@ -492,6 +492,16 @@ _rep("grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-
 _rep("position:relative;aspect-ratio:1;border-radius:18px;border:1px solid {{ st.cardBorder }}", "position:relative;aspect-ratio:3/4;border-radius:18px;border:1px solid {{ st.cardBorder }}")
 _rep('<div style="width:54px;height:54px;border-radius:50%;border:2.5px {{ st.borderStyle }} {{ st.ring }}', '<div style="width:66px;height:66px;flex:none;border-radius:50%;border:3px {{ st.borderStyle }} {{ st.ring }}')
 
+
+
+# ---- 여행 정보: 세로에서는 확대(zoom) 없이 홈 규칙만 적용 ----
+_rep("gap:12px;zoom:1.4", "gap:12px;zoom:var(--iz,1.4)")
+dc = dc.replace('<link rel="manifest"', '<style>@media (orientation:portrait){:root{--iz:1}}</style><link rel="manifest"', 1)
+# ---- 일본어: 보여주기 카드(파란 버튼 묶음) 삭제 ----
+_m = re.search(r'<div style="grid-column:1/-1;background:linear-gradient\(135deg,#E8F1FF 0%,#F4F8FF 100%\);border:1px solid #CFE0FB[^\n]*\n', dc)
+assert _m
+dc = dc[:_m.start()] + dc[_m.end():]
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

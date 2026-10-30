@@ -285,12 +285,15 @@ SC_JS = """<script>(function () {
 G_OLD = 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:96px 96px;gap:8px'
 assert dc.count(G_OLD) == 1
 dc = dc.replace(G_OLD, 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:repeat(2,max(96px,calc((100dvh - GAPPX)/2)));gap:8px'.replace('GAPPX', '540px'))
+M_OLD = '<div style="position:relative;height:430px;border-radius:16px;overflow:hidden;background:#F3F6FA">\n<div ref="{{ mapRef }}"'
+assert dc.count(M_OLD) == 1
+dc = dc.replace(M_OLD, M_OLD.replace('<div style="position:relative;height:430px', '<div data-h0="430" style="position:relative;height:430px'))
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
 dc = dc.replace(EM_OLD, EM_OLD.replace('repeat(4,minmax(0,1fr))', 'repeat(2,minmax(0,1fr))'))
 # 전체 화면 버튼 (주소창 숨기기) — 예전 사이트에 있던 기능
-FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:10px;bottom:10px;z-index:2000;width:44px;height:44px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
+FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:4px;bottom:4px;opacity:.85;z-index:2000;width:38px;height:38px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
 <script>(function () {
   var fsBtn = document.getElementById('fsBtn');
   var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
@@ -316,8 +319,30 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
   });
 })();</script>
 """
+FIT_JS = """<script>(function () {
+  /* 오늘 탭: 지도 높이를 늘려서, 첫 화면이 통계 카드 줄(걸은 거리~걸은 시간)에서 딱 끝나게 맞춤 */
+  var busy = false;
+  function fit() {
+    if (busy) return; busy = true;
+    try {
+      var lc = document.querySelector('.leaflet-container'); if (!lc) return;
+      var box = lc.parentElement; if (!box || !/430px/.test(box.getAttribute('data-h0') || box.style.height || '')) { if (!box || !box.getAttribute('data-h0')) return; }
+      var row = box.parentElement; while (row && getComputedStyle(row).display !== 'grid' && row.parentElement) row = row.parentElement;
+      var stats = row && row.nextElementSibling; if (!stats) return;
+      var scroller = row.parentElement, frame = document.querySelector('[data-screen-label="Fold8 unfolded"]');
+      if (!scroller || !frame || scroller.scrollTop > 1) return;
+      var bottom = stats.getBoundingClientRect().bottom, target = frame.getBoundingClientRect().bottom - 14;
+      var cur = box.getBoundingClientRect().height, h = Math.max(430, Math.round(cur + (target - bottom)));
+      if (Math.abs(h - cur) > 2) { box.style.height = h + 'px'; setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 30); }
+    } finally { busy = false; }
+  }
+  var t; var sched = function () { clearTimeout(t); t = setTimeout(fit, 120); };
+  new MutationObserver(sched).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('resize', sched); window.addEventListener('load', sched); setTimeout(fit, 1500);
+})();</script>
+"""
 assert dc.count('</body>') == 1
-dc = dc.replace('</body>', FS + SC_JS + '</body>')
+dc = dc.replace('</body>', FS + SC_JS + FIT_JS + '</body>')
 # 가짜 상태 표시줄(9:41·5G·배터리)과 카메라 점 제거
 dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 50px;font:600 12px system-ui;color:#20202A">\n<span>9:41</span>.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>\n', '', dc, count=1, flags=re.S)
 assert k == 1

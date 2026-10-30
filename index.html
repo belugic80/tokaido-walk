@@ -621,7 +621,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
 <div style="display:flex;justify-content:space-between;align-items:baseline"><div><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">PHOTO DIARY · 사진과 한 줄</div><div style="font-size:var(--f16,16px);font-weight:700;margin-top:3px">날짜별로 남긴 기록</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 탭에 올린 사진이 여기 나와요</span></div>
 <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px">
-<sc-for list="{{ diary }}" as="d" hint-placeholder-count="4"><div style="border:1px solid #E8E7EF;border-radius:18px;padding:10px;background:#FFFFFF;min-width:0;box-shadow:0 10px 24px rgba(15,42,74,.10),0 2px 6px rgba(15,42,74,.05)">
+<sc-for list="{{ diary }}" as="d" hint-placeholder-count="4"><div data-diary="{{ d.n }}" data-date="{{ d.date }}" data-km="{{ d.km }}" data-path="{{ d.path }}" data-note="{{ d.note }}" data-tag="{{ d.tag }}" style="cursor:pointer;border:1px solid #E8E7EF;border-radius:18px;padding:10px;background:#FFFFFF;min-width:0;box-shadow:0 10px 24px rgba(15,42,74,.10),0 2px 6px rgba(15,42,74,.05)">
 <div style="display:grid;grid-template-columns:2fr 1fr;grid-template-rows:64px 64px;gap:6px">
 <div style="grid-row:1 / span 2;position:relative;border-radius:12px;overflow:hidden;background:#F1F1F7"><image-slot class="ro" id="{{ d.p1 }}" src="{{ d.s1 }}" shape="rounded" radius="12" placeholder="사진"></image-slot></div>
 <div style="position:relative;border-radius:10px;overflow:hidden;background:#F1F1F7"><image-slot class="ro" id="{{ d.p2 }}" src="{{ d.s2 }}" shape="rounded" radius="10" placeholder="사진"></image-slot></div>
@@ -738,6 +738,7 @@ const ST = [
 const PLAN = [null,[0,2],[2,4],[4,6],[6,8],[8,9],[9,11],[11,13],[13,15],[15,17],[17,19],[19,22],[22,25],[25,27],[27,28],[28,30],[30,32],[32,34],[34,37],[37,38],[38,40],[40,41],[41,42],[42,44],[44,46],[46,48],[48,49],[49,51],[51,52],[52,53],[53,55],[55,56]];
 const SAYO = { ko: '사요노나카야마', jp: '小夜の中山', km: 203.3, ll: [34.7934, 138.0700] };
 const ROUTE12 = [[34.8372,138.1795],[34.8335,138.1690],[34.8278,138.1597],[34.8240,138.1420],[34.8206,138.1277],[34.8165,138.1170],[34.8099,138.1058],[34.8040,138.0960],[34.7990,138.0887],[34.7955,138.0790],[34.7934,138.0700],[34.7905,138.0600],[34.7880,138.0510],[34.7800,138.0330],[34.7700,138.0150]];
+const PLACESX = {"1": [["옛 시나가와주쿠 거리", "品川宿", ""], ["시나가와 신사", "品川神社", "도쿄 십사 중 하나, 경내에 작은 후지산(후지즈카)이 있음"], ["센가쿠지", "泉岳寺", "주신구라 47인 무사의 무덤이 있는 절"]], "2": [["니혼바시", "日本橋 (東京都中央区)", ""], ["아사쿠사 센소지", "浅草寺", ""], ["긴자", "銀座", ""], ["도쿄역 마루노우치 역사", "東京駅丸の内駅舎", "1914년 붉은 벽돌 역사, 복원된 돔 천장"], ["고쿄 가이엔", "皇居外苑", "황궁 앞 광장과 니주바시 다리"]], "3": [["오이소 소나무 가로수길", "大磯宿", ""], ["오다와라성", "小田原城", ""], ["시기타쓰안", "鴫立庵", "일본 3대 하이쿠 도장 중 하나 (오이소)"], ["옛 요시다 시게루 저택", "旧吉田茂邸", "전후 총리 요시다 시게루가 살던 오이소 저택"], ["오이소 해변", "大磯海水浴場", "일본 최초의 해수욕장으로 알려진 곳"], ["가마보코 거리", "小田原 かまぼこ通り", "옛 어시장 거리, 어묵·건어물 가게 30여 곳"]], "4": [["하코네 옛 돌길", "箱根旧街道", ""], ["아마자케차야", "甘酒茶屋", ""], ["삼나무 가로수길", "箱根旧街道杉並木", ""], ["하코네 관소", "箱根関所", ""], ["하코네 신사", "箱根神社", ""], ["하코네유모토 온천", "箱根湯本温泉", ""], ["소운지", "早雲寺", "호조 가문 5대의 무덤이 있는 하코네유모토의 절"], ["하코네 에키덴 박물관", "箱根駅伝ミュージアム", "아시노호수 앞, 정월 대학 역전 마라톤 기록관"], ["스즈히로 가마보코 마을", "鈴廣かまぼこ", "가자마쓰리, 어묵 박물관과 만들기 체험 (예약)"]], "5": [["아시노호수 유람선", "箱根海賊船", ""], ["아시노호수", "芦ノ湖", ""], ["온시하코네 공원", "恩賜箱根公園", ""], ["오와쿠다니", "大涌谷", "화산 증기가 솟는 골짜기, 로프웨이로 이동"], ["하코네 로프웨이", "箱根ロープウェイ", "아시노호수 도겐다이 ~ 오와쿠다니"]], "6": [["하코네 고개", "箱根峠", ""], ["야마나카성터", "山中城", ""], ["미시마 다이샤", "三嶋大社", ""], ["겐베가와", "源兵衛川", ""], ["미시마 스카이워크", "三島スカイウォーク", "길이 400m 보행 현수교, 후지산 전망 (옛길에서 조금 벗어남)"], ["라쿠주엔", "楽寿園", "미시마역 앞 용암 위 정원과 용천"], ["시라타키 공원", "白滝公園", "후지산 눈 녹은 물이 솟는 작은 공원"]], "7": [["센본마쓰바라", "千本松原", ""], ["누마즈항", "沼津港", ""], ["요시와라", "吉原宿", ""], ["쇼인지", "松蔭寺", "하라 출신 선승 하쿠인이 머문 절"], ["누마즈 고요테이 기념공원", "沼津御用邸記念公園", "옛 황실 별장 (누마즈항 남쪽, 선택)"], ["누마즈항 심해 수족관", "沼津港深海水族館", "실러캔스 표본 등 심해 생물 100여 종"]], "8": [["히다리 후지 신사", "左富士", ""], ["후지강 다리", "富士川橋", ""], ["유이 옛 거리", "由比宿", ""], ["삿타 고개", "薩埵峠", ""], ["히로시게 미술관", "静岡市東海道広重美術館", "유이 혼진 공원 안, 「도카이도 53역참」 판화 전시"]], "9": [["세이켄지", "清見寺", ""], ["오키쓰 옛 거리", "興津宿", ""], ["미호노마쓰바라", "三保の松原", ""], ["자교소", "興津坐漁荘", "정치가 사이온지 긴모치의 바닷가 별장 (복원)"], ["구노잔 도쇼구", "久能山東照宮", "도쿠가와 이에야스를 처음 모신 신사, 1,159계단 (선택)"]], "10": [["에지리 (시미즈)", "江尻宿", ""], ["구사나기 신사", "草薙神社", ""], ["슨푸성 공원", "駿府城", ""], ["시즈오카 센겐 신사", "静岡浅間神社", "이에야스가 성인식을 올린 신사, 화려한 칠 건물"]], "11": [["마리코 조지야", "丸子宿", ""], ["우쓰노야 고개", "宇津ノ谷峠", ""], ["오카베주쿠", "岡部宿", ""], ["메이지 터널", "宇津ノ谷隧道", "우쓰노야 고개의 붉은 벽돌 옛 터널"], ["아베강", "安倍川", "시즈오카를 떠나며 건너는 큰 강"]], "12": [["오이가와 가와고시 유적", "島田宿大井川川越遺跡", ""], ["오이강", "大井川", ""], ["시마다시 박물관", "島田市博物館", "가와고시 유적 옆, 강 건너기 문화 전시"], ["렌게지이케 공원", "蓮華寺池公園", "후지에다역 북쪽 연못 공원, 보트"]], "13": [["호라이교", "蓬萊橋", ""], ["가나야 돌길", "金谷宿", ""], ["마키노하라 차밭", "牧之原台地", ""], ["요나키이시", "夜泣き石", ""], ["가케가와성", "掛川城", ""], ["스와하라성터", "諏訪原城", "가나야 돌길 위 다케다 가문의 산성 터"], ["규엔지", "久延寺", "사요노나카야마 고개, 요나키이시 전설의 절"]], "14": [["마이사카 소나무 가로수길", "舞阪宿", ""], ["벤텐지마", "弁天島", ""], ["아라이 관소", "新居関", ""], ["하마나호", "浜名湖", ""], ["하마마쓰성", "浜松城", "이에야스가 29세부터 17년간 머문 \"출세의 성\""]], "15": [["간잔지 온천", "舘山寺温泉", ""], ["하마나호", "浜名湖", ""], ["하마마쓰 악기 박물관", "浜松市楽器博物館", "세계 악기 1,300여 점, 하마마쓰역 근처"], ["간잔지", "舘山寺", "하마나호 반도 끝의 절과 산책로"]], "16": [["시오미자카", "白須賀宿", ""], ["후타가와주쿠 본진", "二川宿本陣資料館", ""], ["요시다성", "吉田城 (三河国)", "도요하시 공원 안 성터와 망루"], ["도요하시 노면전차", "豊橋鉄道東田本線", "도시 안을 달리는 노면전차"]], "17": [["고유 소나무 가로수길", "御油の松並木", ""], ["아카사카 오하시야", "赤坂宿", ""]], "18": [["오카자키성", "岡崎城", ""], ["핫초 미소 공장", "八丁味噌", ""], ["호조지", "法蔵寺 (岡崎市)", "어린 이에야스가 공부했다는 절, 후지카와 근처"], ["후지카와주쿠", "藤川宿", "본진 자료관과 무라사키 보리밭이 있는 역참"], ["다이주지", "大樹寺", "도쿠가와 가문 보리사, 오카자키성이 일직선으로 보임"]], "19": [["아리마쓰 옛 거리", "有松", ""], ["오케하자마 전투지", "桶狭間古戦場伝説地", ""], ["아쓰타 신궁", "熱田神宮", ""], ["지류 신사", "知立神社", "지류주쿠의 오래된 신사와 다보탑"], ["나루미주쿠", "鳴海宿", "아리마쓰 서쪽의 옛 역참"], ["미야노와타시 공원", "宮の渡し公園", "도카이도 유일의 뱃길, 구와나로 건너던 나루터"]], "20": [["나고야성", "名古屋城", ""], ["구와나 시치리노와타시", "七里の渡し", ""], ["나바나노사토", "なばなの里", ""], ["나가시마 온천", "長島温泉", ""], ["로쿠카엔", "六華苑", "메이지 시대 양관과 일본식 정원"], ["규카 공원", "九華公園", "구와나성 터 공원"]], "21": [["세키주쿠 옛 거리", "関宿", ""], ["세키 지조인", "関地蔵院", ""], ["쇼노주쿠 자료관", "庄野宿資料館", "쇼노주쿠 옛 상가 건물 자료관"], ["가메야마성 다몬야구라", "亀山城多門櫓", "현에 남은 유일한 성 망루"]], "22": [["스즈카 고개", "鈴鹿峠", ""], ["쓰치야마주쿠", "土山宿", ""], ["쓰치야마 차밭", "土山茶", ""], ["후데스테야마", "筆捨山", "너무 아름다워 화가가 붓을 버렸다는 산"], ["다무라 신사", "田村神社 (甲賀市)", "쓰치야마의 오래된 신사, 액막이로 유명"]], "23": [["미나쿠치 옛 거리", "水口宿", ""], ["요코타 와타시", "横田渡", ""], ["구사쓰주쿠 본진", "草津宿本陣", ""], ["미나쿠치성", "水口城", "수로가 둘린 작은 평성, 망루 복원"], ["이시베주쿠", "石部宿", "교토를 떠난 여행자의 첫 숙박지"]], "24": [["세타 가라하시", "瀬田の唐橋", ""], ["오사카 고개", "逢坂関", ""], ["오고토 온천", "雄琴温泉", ""], ["이시야마데라", "石山寺", "무라사키 시키부가 겐지모노가타리를 구상했다는 절, 숙소 근처"]], "25": [["게아게 인클라인", "蹴上インクライン", ""], ["산조오하시", "三条大橋", ""], ["미이데라", "三井寺", "오쓰의 큰 절, 「미이의 저녁 종」"], ["비와호 수로", "琵琶湖疏水", "비와호 물을 교토로 끌어온 메이지 수로"]], "26": [["도게쓰교", "渡月橋", ""], ["대나무숲", "嵯峨野", ""], ["덴류지", "天龍寺", ""], ["긴카쿠지", "慈照寺", ""], ["철학의 길", "哲学の道", ""]], "27": [["기요미즈데라", "清水寺", ""], ["후시미이나리 신사", "伏見稲荷大社", ""], ["니시키 시장", "錦市場", ""]], "28": [["아리마 온천 거리", "有馬温泉", ""], ["킨노유", "金の湯", ""], ["다이코의 유도노칸", "太閤の湯殿館", "히데요시가 쓰던 목욕탕 유적"], ["긴노유", "銀の湯", "투명한 탄산천 \"은탕\""]], "29": [["아리마 온천", "有馬温泉", ""], ["첫 참배", "初詣", ""], ["온센지", "温泉寺 (神戸市)", "아리마 온천을 연 스님을 모신 절"], ["즈이호지 공원", "瑞宝寺公園", "히데요시가 사랑한 정원 터"]], "30": [["신세카이", "新世界 (大阪)", ""], ["쓰텐카쿠", "通天閣", ""], ["도톤보리", "道頓堀", ""], ["오사카성", "大阪城", ""], ["스파월드", "スパワールド", ""], ["구로몬 시장", "黒門市場", "\"오사카의 부엌\" 시장"]]};
 const PLACES12 = [
   { name: '오이강 가와고시', km: 0.8, ll: [34.8290, 138.1625], desc: '업혀서 강을 건너던 곳', q: '大井川川越遺跡', long: '에도 막부는 방어를 위해 오이강에 다리를 놓지 않았어요. 여행자는 강 인부의 어깨나 가마를 타고 강을 건넜고, 물이 불면 며칠씩 발이 묶였어요. 강변에 당시 대기소와 인부 숙소 건물이 복원되어 있어요.' },
   { name: '가나야자카 돌길', km: 4.4, ll: [34.8165, 138.1170], desc: '미끄러지지 않는 옛 돌길', q: '金谷坂の石畳', long: '가나야 역참에서 고개로 오르는 약 430m의 옛 돌길이에요. 1991년 주민들이 돌을 하나씩 다시 깔아 복원했어요. 미끄러지지 않는 돌이라는 이야기 때문에 수험생들이 찾아오기도 해요.' },
@@ -769,7 +770,13 @@ function dayData(d) {
     summary: `${dist} km · 약 ${hrs}시간 · 지점 ${rel.length}곳${ferry}`,
     lodge: last.ko, lodgeJp: last.jp,
     lodgeNote: d === 12 ? '도착 지점 · 역 앞 료칸' : '도착 지점 근처',
-    places: d === 12 ? PLACES12 : []
+    places: d === 12 ? PLACES12 : (PLACESX[d] || []).map((sp, i, arr) => {
+      const t = (i + 1) / (arr.length + 1), km = +(dist * t).toFixed(1);
+      let ll = rel[rel.length - 1].ll;
+      for (let k = 1; k < rel.length; k++) { if (km <= rel[k].rel || k === rel.length - 1) { const a0 = rel[k - 1], b0 = rel[k], f = b0.rel === a0.rel ? 0 : Math.min(1, Math.max(0, (km - a0.rel) / (b0.rel - a0.rel))); ll = [a0.ll[0] + (b0.ll[0] - a0.ll[0]) * f, a0.ll[1] + (b0.ll[1] - a0.ll[1]) * f]; break; } }
+      if (rel.length === 1) ll = rel[0].ll;
+      return { name: sp[0], km, ll, desc: sp[2] || sp[1], q: sp[1], long: sp[2] ? sp[2] + '. 오늘 코스 근처에서 들러볼 만한 곳이에요.' : sp[0] + '(' + sp[1] + ') — 오늘 코스 근처에서 들러볼 만한 곳이에요. 위치는 대략적이니 구글 지도로 정확한 길을 확인하세요.' };
+    })
   };
 }
 
@@ -1563,6 +1570,51 @@ class Component extends DCLogic {
   var t; var sched = function () { clearTimeout(t); t = setTimeout(fit, 120); };
   new MutationObserver(sched).observe(document.body, { childList: true, subtree: true });
   window.addEventListener('resize', sched); window.addEventListener('load', sched); setTimeout(fit, 1500);
+})();</script>
+<script>(function () {
+  var ov = null, list = [], idx = 0, pic = 0;
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function photosOf(card) {
+    var out = []; card.querySelectorAll('image-slot').forEach(function (s) {
+      var im = s.shadowRoot && s.shadowRoot.querySelector('img');
+      if (im && im.src && im.style.display !== 'none') out.push(im.src);
+    }); return out;
+  }
+  function collect() {
+    return Array.prototype.map.call(document.querySelectorAll('[data-diary]'), function (c) {
+      return { n: c.getAttribute('data-diary'), date: c.getAttribute('data-date'), km: c.getAttribute('data-km'), path: c.getAttribute('data-path'), note: c.getAttribute('data-note'), tag: c.getAttribute('data-tag'), pics: photosOf(c) };
+    });
+  }
+  function close() { if (ov) { ov.remove(); ov = null; document.removeEventListener('keydown', onKey); } }
+  function onKey(e) { if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') go(1); else if (e.key === 'ArrowRight') go(-1); }
+  function go(d) { var k = idx + d; if (k < 0 || k >= list.length) return; idx = k; pic = 0; render(); }
+  function render() {
+    var it = list[idx], has = it.pics.length > 0;
+    var arrow = function (side, dis, label) { return '<button data-go="' + (side === 'l' ? 1 : -1) + '" aria-label="' + label + '" style="position:fixed;z-index:3100;' + (side === 'l' ? 'left:12px' : 'right:12px') + ';top:calc(50% - 32px);width:56px;height:68px;border-radius:16px;border:1px solid #E5DBFF;background:#fff;box-shadow:0 8px 22px rgba(15,42,74,.25);font-size:26px;color:#3E1FA0;cursor:pointer;opacity:' + (dis ? .3 : 1) + '">' + (side === 'l' ? '‹' : '›') + '</button>'; };
+    var thumbs = it.pics.length > 1 ? '<div style="display:flex;gap:8px;margin-top:8px">' + it.pics.map(function (u, i) { return '<img data-pic="' + i + '" src="' + u + '" style="flex:1;min-width:0;height:72px;object-fit:cover;border-radius:12px;cursor:pointer;border:3px solid ' + (i === pic ? '#673DE6' : 'transparent') + '">'; }).join('') + '</div>' : '';
+    ov.innerHTML = '<div style="position:relative;width:min(640px,calc(100% - 150px));max-height:calc(100% - 60px);overflow:auto;background:#fff;border-radius:28px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.45)">' +
+      arrow('l', idx >= list.length - 1, '이전 날') + arrow('r', idx <= 0, '다음 날') +
+      '<div style="display:flex;align-items:center;gap:10px"><b style="font:800 18px \'DM Sans\',sans-serif;letter-spacing:.08em;color:#673DE6">DAY ' + esc(it.n) + '</b><span style="font-size:17px;color:#555568">' + esc(it.date) + ' · ' + esc(it.km) + 'km</span><span style="flex:1"></span><span style="font-size:15px;font-weight:700;padding:3px 12px;border-radius:999px;background:#E4F8EC;color:#15803D">' + esc(it.tag) + '</span><button data-close="1" aria-label="닫기" style="width:44px;height:44px;border-radius:50%;border:0;background:#F1F1F7;font-size:22px;cursor:pointer">×</button></div>' +
+      '<div style="font-size:22px;font-weight:800;margin:10px 0">' + esc(it.path) + '</div>' +
+      (has ? '<img src="' + it.pics[Math.min(pic, it.pics.length - 1)] + '" style="width:100%;height:auto;max-height:46dvh;object-fit:cover;border-radius:18px;display:block">' + thumbs
+           : '<div style="height:200px;border-radius:18px;background:#F1F1F7;display:grid;place-items:center;color:#85859A;font-size:17px;text-align:center;line-height:1.5">이 날은 올린 사진이 없어요<br>기록 탭에서 올리면 여기 나와요</div>') +
+      '<div style="font-size:19px;line-height:1.55;margin-top:14px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,#EEE9FF 0%,#F8F5FF 100%)">“' + esc(it.note) + '”</div>' +
+      '<div style="text-align:center;font-size:15px;color:#85859A;margin-top:10px">← 이전 날 · 다음 날 →</div></div>';
+  }
+  function open(card) {
+    list = collect(); idx = Math.max(0, list.findIndex(function (x) { return x.n === card.getAttribute('data-diary'); })); pic = 0;
+    ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+    ov.addEventListener('click', function (e) {
+      var t = e.target; if (t === ov || (t.closest && t.closest('[data-close]'))) return close();
+      var g = t.closest && t.closest('[data-go]'); if (g) return go(+g.getAttribute('data-go'));
+      var pc = t.closest && t.closest('[data-pic]'); if (pc) { pic = +pc.getAttribute('data-pic'); render(); }
+    });
+    var x0 = null; ov.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    ov.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60) go(dx < 0 ? -1 : 1); }, { passive: true });
+    document.body.appendChild(ov); document.addEventListener('keydown', onKey); render();
+  }
+  document.addEventListener('click', function (e) { if (ov) return; var c = e.target.closest && e.target.closest('[data-diary]'); if (c) open(c); });
 })();</script>
 </body>
 </html>

@@ -547,6 +547,78 @@ dc = dc.replace('<link rel="manifest"', '<style>image-slot.ro{pointer-events:non
 
 dc = dc.replace('사진 칸에 끌어다 놓으면 저장돼요', '기록 탭에 올린 사진이 여기 나와요')
 
+
+# ---- 한눈에 날짜별 기록: 카드를 누르면 그날의 사진·글이 팝업으로, 좌우로 다른 날 ----
+_rep('<sc-for list="{{ diary }}" as="d" hint-placeholder-count="4"><div style="border:1px solid #E8E7EF;',
+     '<sc-for list="{{ diary }}" as="d" hint-placeholder-count="4"><div data-diary="{{ d.n }}" data-date="{{ d.date }}" data-km="{{ d.km }}" data-path="{{ d.path }}" data-note="{{ d.note }}" data-tag="{{ d.tag }}" style="cursor:pointer;border:1px solid #E8E7EF;')
+DIARY_JS = r"""<script>(function () {
+  var ov = null, list = [], idx = 0, pic = 0;
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function photosOf(card) {
+    var out = []; card.querySelectorAll('image-slot').forEach(function (s) {
+      var im = s.shadowRoot && s.shadowRoot.querySelector('img');
+      if (im && im.src && im.style.display !== 'none') out.push(im.src);
+    }); return out;
+  }
+  function collect() {
+    return Array.prototype.map.call(document.querySelectorAll('[data-diary]'), function (c) {
+      return { n: c.getAttribute('data-diary'), date: c.getAttribute('data-date'), km: c.getAttribute('data-km'), path: c.getAttribute('data-path'), note: c.getAttribute('data-note'), tag: c.getAttribute('data-tag'), pics: photosOf(c) };
+    });
+  }
+  function close() { if (ov) { ov.remove(); ov = null; document.removeEventListener('keydown', onKey); } }
+  function onKey(e) { if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') go(1); else if (e.key === 'ArrowRight') go(-1); }
+  function go(d) { var k = idx + d; if (k < 0 || k >= list.length) return; idx = k; pic = 0; render(); }
+  function render() {
+    var it = list[idx], has = it.pics.length > 0;
+    var arrow = function (side, dis, label) { return '<button data-go="' + (side === 'l' ? 1 : -1) + '" aria-label="' + label + '" style="position:fixed;z-index:3100;' + (side === 'l' ? 'left:12px' : 'right:12px') + ';top:calc(50% - 32px);width:56px;height:68px;border-radius:16px;border:1px solid #E5DBFF;background:#fff;box-shadow:0 8px 22px rgba(15,42,74,.25);font-size:26px;color:#3E1FA0;cursor:pointer;opacity:' + (dis ? .3 : 1) + '">' + (side === 'l' ? '‹' : '›') + '</button>'; };
+    var thumbs = it.pics.length > 1 ? '<div style="display:flex;gap:8px;margin-top:8px">' + it.pics.map(function (u, i) { return '<img data-pic="' + i + '" src="' + u + '" style="flex:1;min-width:0;height:72px;object-fit:cover;border-radius:12px;cursor:pointer;border:3px solid ' + (i === pic ? '#673DE6' : 'transparent') + '">'; }).join('') + '</div>' : '';
+    ov.innerHTML = '<div style="position:relative;width:min(640px,calc(100% - 150px));max-height:calc(100% - 60px);overflow:auto;background:#fff;border-radius:28px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.45)">' +
+      arrow('l', idx >= list.length - 1, '이전 날') + arrow('r', idx <= 0, '다음 날') +
+      '<div style="display:flex;align-items:center;gap:10px"><b style="font:800 18px \'DM Sans\',sans-serif;letter-spacing:.08em;color:#673DE6">DAY ' + esc(it.n) + '</b><span style="font-size:17px;color:#555568">' + esc(it.date) + ' · ' + esc(it.km) + 'km</span><span style="flex:1"></span><span style="font-size:15px;font-weight:700;padding:3px 12px;border-radius:999px;background:#E4F8EC;color:#15803D">' + esc(it.tag) + '</span><button data-close="1" aria-label="닫기" style="width:44px;height:44px;border-radius:50%;border:0;background:#F1F1F7;font-size:22px;cursor:pointer">×</button></div>' +
+      '<div style="font-size:22px;font-weight:800;margin:10px 0">' + esc(it.path) + '</div>' +
+      (has ? '<img src="' + it.pics[Math.min(pic, it.pics.length - 1)] + '" style="width:100%;height:auto;max-height:46dvh;object-fit:cover;border-radius:18px;display:block">' + thumbs
+           : '<div style="height:200px;border-radius:18px;background:#F1F1F7;display:grid;place-items:center;color:#85859A;font-size:17px;text-align:center;line-height:1.5">이 날은 올린 사진이 없어요<br>기록 탭에서 올리면 여기 나와요</div>') +
+      '<div style="font-size:19px;line-height:1.55;margin-top:14px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,#EEE9FF 0%,#F8F5FF 100%)">“' + esc(it.note) + '”</div>' +
+      '<div style="text-align:center;font-size:15px;color:#85859A;margin-top:10px">← 이전 날 · 다음 날 →</div></div>';
+  }
+  function open(card) {
+    list = collect(); idx = Math.max(0, list.findIndex(function (x) { return x.n === card.getAttribute('data-diary'); })); pic = 0;
+    ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+    ov.addEventListener('click', function (e) {
+      var t = e.target; if (t === ov || (t.closest && t.closest('[data-close]'))) return close();
+      var g = t.closest && t.closest('[data-go]'); if (g) return go(+g.getAttribute('data-go'));
+      var pc = t.closest && t.closest('[data-pic]'); if (pc) { pic = +pc.getAttribute('data-pic'); render(); }
+    });
+    var x0 = null; ov.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    ov.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60) go(dx < 0 ? -1 : 1); }, { passive: true });
+    document.body.appendChild(ov); document.addEventListener('keydown', onKey); render();
+  }
+  document.addEventListener('click', function (e) { if (ov) return; var c = e.target.closest && e.target.closest('[data-diary]'); if (c) open(c); });
+})();</script>
+"""
+dc = dc.replace('</body>', DIARY_JS + '</body>')
+
+
+# ---- 오늘 지나는 곳: 12일차뿐 아니라 모든 날에 (일정표의 명소 목록 사용) ----
+_px = {}
+for _n in range(1, 32):
+    _seen = set(); _lst = []
+    for _t in list(PH.get(_n, {}).get('s', [])) + list(XT.get(_n, {}).get('s', [])):
+        if _t[0] in _seen: continue
+        _seen.add(_t[0]); _lst.append([_t[0], _t[1], _t[2] if len(_t) > 2 else ''])
+    if _lst: _px[_n] = _lst
+_rep("    places: d === 12 ? PLACES12 : []\n",
+"""    places: d === 12 ? PLACES12 : (PLACESX[d] || []).map((sp, i, arr) => {
+      const t = (i + 1) / (arr.length + 1), km = +(dist * t).toFixed(1);
+      let ll = rel[rel.length - 1].ll;
+      for (let k = 1; k < rel.length; k++) { if (km <= rel[k].rel || k === rel.length - 1) { const a0 = rel[k - 1], b0 = rel[k], f = b0.rel === a0.rel ? 0 : Math.min(1, Math.max(0, (km - a0.rel) / (b0.rel - a0.rel))); ll = [a0.ll[0] + (b0.ll[0] - a0.ll[0]) * f, a0.ll[1] + (b0.ll[1] - a0.ll[1]) * f]; break; } }
+      if (rel.length === 1) ll = rel[0].ll;
+      return { name: sp[0], km, ll, desc: sp[2] || sp[1], q: sp[1], long: sp[2] ? sp[2] + '. 오늘 코스 근처에서 들러볼 만한 곳이에요.' : sp[0] + '(' + sp[1] + ') — 오늘 코스 근처에서 들러볼 만한 곳이에요. 위치는 대략적이니 구글 지도로 정확한 길을 확인하세요.' };
+    })
+""")
+_rep("const PLACES12 = [", "const PLACESX = " + json.dumps(_px, ensure_ascii=False) + ";\nconst PLACES12 = [")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

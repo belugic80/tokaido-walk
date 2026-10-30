@@ -306,6 +306,10 @@ dc = dc.replace('font-size:20px;font-weight:700;line-height:1.45;color:#673DE6;m
 N_OLD = '<div style="display:flex;align-items:center;gap:6px">\n<sc-if value="{{ notToday }}"'
 assert dc.count(N_OLD) == 1
 dc = dc.replace(N_OLD, '<div style="position:fixed;left:calc(50% - 46px);bottom:12px;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;padding:8px;border-radius:24px;background:rgba(24,43,61,.94);box-shadow:0 10px 28px rgba(15,42,74,.35)">\n<sc-if value="{{ notToday }}"')
+# 오늘 탭: 위쪽 사진(히어로)은 고정, 아래 지도부터 스크롤 (사용자 요청)
+HS_OLD = 'data-screen-label="Today hero" style="position:relative;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 16px 40px rgba(15,42,74,.16)"'
+assert dc.count(HS_OLD) == 1
+dc = dc.replace(HS_OLD, 'data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"')
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
@@ -369,7 +373,7 @@ dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:cen
 assert k == 1
 # 휴대폰에서는 디자인 폭(1000px) 그대로 화면에 맞춰 축소해서 보이게 함
 assert dc.count('<meta name="viewport" content="width=device-width, initial-scale=1">') == 1
-dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes">')
+dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes">')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

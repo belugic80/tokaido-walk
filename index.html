@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1000, user-scalable=no"><style>html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -63,7 +63,7 @@
 
 <sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:4px 20px 20px 24px;display:flex;flex-direction:column;gap:12px">
-<div data-screen-label="Today hero" style="position:relative;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 16px 40px rgba(15,42,74,.16)">
+<div data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:280px;border-radius:28px;overflow:hidden;background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)">
 <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.42) 0%,rgba(15,23,42,0) 34%,rgba(15,23,42,.18) 52%,rgba(15,23,42,.86) 100%)"></div>
 <div style="position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(115,67,235,.32),transparent 36%)"></div>
 <div style="position:absolute;left:20px;right:20px;top:18px;display:flex;justify-content:space-between;align-items:center;gap:10px">

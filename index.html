@@ -39,7 +39,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="position:relative;height:260px;border-radius:20px;overflow:hidden;background:#F1F1F7"><div ref="{{ popMapRef }}" style="position:absolute;inset:0"></div>
 <div style="position:absolute;left:8px;bottom:8px;z-index:500;display:flex;gap:10px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.94);font-size:16px;color:#555568;pointer-events:none;white-space:nowrap"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#2585F5;border:2px solid #fff;box-shadow:0 0 0 1px #2585F5"></span>{{ pop.meLabel }}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #2585F5;box-sizing:border-box"></span>이 장소</span></div></div>
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:12px;border-top:1px solid #F1F5F9">
-<a href="{{ pop.dir }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:20px;font-weight:700;color:#5B32D6;padding:14px 6px">구글 지도로 길찾기 ›</a>
+<button onClick="{{ closePop }}" aria-label="팝업 닫기" style="width:68px;height:68px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(103,61,230,.4);flex:none">✕</button>
 <div style="display:flex;align-items:center;gap:10px"><button onClick="{{ popPrev }}" style="height:68px;min-width:104px;padding:0 18px;border-radius:20px;border:1.5px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font:700 20px 'Noto Sans KR',sans-serif;cursor:pointer;opacity:{{ popPrevOp }};white-space:nowrap">‹ 이전</button><span style="font:700 20px 'DM Sans',sans-serif;color:#555568;min-width:64px;text-align:center">{{ popPos }}</span><button onClick="{{ popNext }}" style="height:68px;min-width:104px;padding:0 18px;border-radius:20px;border:1.5px solid #E5DBFF;background:#F1ECFF;color:#3E1FA0;font:700 20px 'Noto Sans KR',sans-serif;cursor:pointer;opacity:{{ popNextOp }};white-space:nowrap">다음 ›</button></div>
 <button onClick="{{ closePop }}" aria-label="팝업 닫기" style="width:68px;height:68px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(103,61,230,.4);flex:none" style-hover="transform:scale(1.08)" style-active="transform:scale(.92)">✕</button>
 </div>
@@ -664,7 +664,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="flex:none;display:grid;grid-template-columns:minmax(0,1fr);gap:12px">
 <div data-screen-label="Weather now" style="position:relative;border-radius:24px;overflow:hidden;padding:18px 20px;color:#fff;background:linear-gradient(135deg,#356FE0 0%,#55A7EA 58%,#8DD9E7 100%);box-shadow:0 12px 32px rgba(53,111,224,.25)">
 <div style="position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),transparent 70%)"></div>
-<div style="position:relative;display:flex;justify-content:space-between;align-items:center"><span style="font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;opacity:.85">WEATHER · 지금</span><span style="height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:var(--f12,12px);font-weight:700;display:flex;align-items:center;white-space:nowrap;flex:none">예시 데이터</span></div>
+<div style="position:relative;display:flex;justify-content:space-between;align-items:center"><span style="font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;opacity:.85">WEATHER · 지금</span><span style="height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:var(--f12,12px);font-weight:700;display:flex;align-items:center;white-space:nowrap;flex:none">{{ wxw.badge }}</span></div>
 <div style="position:relative;display:flex;align-items:center;gap:14px;margin-top:12px">
 <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"></path></svg>
 <div><div style="font:700 52px/1 'DM Sans',sans-serif;letter-spacing:-.05em">{{ wxw.now }}°</div><div style="font-size:var(--f14,14px);font-weight:600;margin-top:4px;opacity:.92">{{ wxw.place }} 인근 · {{ wxw.cond }}</div></div>
@@ -676,7 +676,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;display:flex;flex-direction:column">
 <div style="display:flex;justify-content:space-between;align-items:baseline"><div><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">7-DAY FORECAST</div><div style="font-size:var(--f16,16px);font-weight:700;margin-top:3px">이번 주 걷기 날씨</div></div><span style="display:flex;align-items:center;gap:5px;font-size:var(--f12,12px);color:#555568"><span style="width:10px;height:10px;border-radius:3px;background:#4F82E8"></span>강수 확률</span></div>
 <div style="flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px">
-<sc-for list="{{ wxw.days }}" as="d" hint-placeholder-count="7"><div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;text-align:center;padding:10px 2px;border-radius:14px;background:{{ d.bg }};border:1px solid #E8E7EF"><div style="font-size:var(--f12,12px);font-weight:800;color:{{ d.c }}">{{ d.name }}</div><div style="font-size:12px;color:#85859A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em">{{ d.date }}</div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ d.ic }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ d.icon }}"></path></svg><div style="font:700 15px 'DM Sans',sans-serif;white-space:nowrap;letter-spacing:-.04em">{{ d.hi }}°<span style="color:#85859A;font-weight:500"> {{ d.lo }}°</span></div><div style="width:70%;height:5px;border-radius:9px;background:#EAF0FF;overflow:hidden"><div style="height:100%;width:{{ d.rain }}%;background:#4F82E8"></div></div><div style="font:700 var(--f12,12px) 'DM Sans',sans-serif;color:#4F82E8">{{ d.rain }}%</div></div></sc-for>
+<sc-for list="{{ wxw.days }}" as="d" hint-placeholder-count="7"><div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;text-align:center;padding:10px 2px;border-radius:14px;background:{{ d.bg }};border:1px solid #E8E7EF"><div style="font-size:var(--f12,12px);font-weight:800;color:{{ d.c }}">{{ d.name }}</div><div style="font-size:12px;color:#85859A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em">{{ d.date }}</div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ d.ic }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ d.icon }}"></path></svg><div style="font:800 25px 'DM Sans',sans-serif;white-space:nowrap;letter-spacing:-.03em">{{ d.hi }}°<span style="color:#85859A;font-weight:500;font-size:19px"> {{ d.lo }}°</span></div><div style="width:70%;height:5px;border-radius:9px;background:#EAF0FF;overflow:hidden"><div style="height:100%;width:{{ d.rain }}%;background:#4F82E8"></div></div><div style="font:700 var(--f12,12px) 'DM Sans',sans-serif;color:#4F82E8">{{ d.rain }}%</div></div></sc-for>
 </div>
 </div>
 </div>
@@ -875,8 +875,18 @@ class Component extends DCLogic {
   popMapRef = React.createRef();
   routeCache = {};
   amenCache = {};
-  componentDidMount() { this.loadFx(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
+  componentDidMount() { this.loadFx(); this.loadWx(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
   componentDidUpdate() { try { const _d = {}; ['smode', 'exp', 'body', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
+  loadWx() {
+    try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
+    const apply = (lat, lon, src) => {
+      const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&timezone=auto&forecast_days=7';
+      fetch(u).then(r => r.json()).then(j => { if (!j || !j.current || !j.daily || !j.daily.time) throw 0; const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.current.weather_code, d: j.daily }; this.setState({ wlive: w }); try { localStorage.setItem('tk-wx', JSON.stringify(w)); } catch (e) {} }).catch(() => {});
+    };
+    const fb = () => { const ll = this._wxLL || [34.97, 138.38]; apply(ll[0], ll[1], 'trip'); };
+    try { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => apply(p.coords.latitude, p.coords.longitude, 'gps'), fb, { timeout: 6000, maximumAge: 600000 }); else fb(); } catch (e) { fb(); }
+    clearTimeout(this._wxT); this._wxT = setTimeout(() => this.loadWx(), 30 * 6e4);
+  }
   loadFx() {
     fetch('https://open.er-api.com/v6/latest/JPY').then(r => r.json()).then(j => { const k = j && j.rates && j.rates.KRW; if (!k) throw 0; const d = new Date(); this.setState({ fxAuto: { r: +(k * 100).toFixed(2), t: (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }, fxErr: false }); }).catch(() => this.setState({ fxErr: true }));
   }
@@ -1024,7 +1034,7 @@ class Component extends DCLogic {
     const dt = new Date(2026, 11, 3 + view);
     const dateLabel = `${dt.getMonth() + 1}/${dt.getDate()} (${'일월화수목금토'[dt.getDay()]})`;
     const seed = (view * 37) % 6;
-    const wx = view === 12 ? { t: '6° / 14°', s: '맑음 · 일몰 16:48', sun: true } : { t: `${3 + (view * 7) % 5}° / ${11 + (view * 3) % 5}°`, s: `${WX[seed]} · 일몰 16:${String(40 + (view % 12)).padStart(2, '0')}`, sun: seed !== 3 && seed !== 5 };
+    let wx = view === 12 ? { t: '6° / 14°', s: '맑음 · 일몰 16:48', sun: true } : { t: `${3 + (view * 7) % 5}° / ${11 + (view * 3) % 5}°`, s: `${WX[seed]} · 일몰 16:${String(40 + (view % 12)).padStart(2, '0')}`, sun: seed !== 3 && seed !== 5 };
     const I = {
       pin: 'M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21zM12 7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z',
       flag: 'M5 21V4h11l-2 4 2 4H5',
@@ -1404,13 +1414,25 @@ class Component extends DCLogic {
     const tlV = this.state.tlV || 'a';
     const tlTabs = [['a', 'A 세로 흐름'], ['b', 'B 시간 막대']].map(([k, t]) => ({ t, bg: tlV === k ? ink : C0, color: tlV === k ? '#fff' : '#555568', pick: () => this.setState({ tlV: k }) }));
     const wxPlace = nm(tdd.stops[Math.max(0, Math.min(tst, tn) - (tst > 0 ? 1 : 0))]);
+    this._wxLL = tdd.stops[Math.max(0, Math.min(tst, tn) - (tst > 0 ? 1 : 0))].ll;
     const dno0 = 3 + today, WXK = [['맑음', 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5', '#673DE6'], ['구름', 'M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 .5 9z', '#555568'], ['비', 'M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 6a4.5 4.5 0 0 1 .5 9zM8 18l-1 3M12 18l-1 3M16 18l-1 3', '#4F82E8']];
     const sunAt = dn => { const r = 391 + (dn - 4) * .58, s = 1006 + (dn - 4) * .45; return [r, s]; };
     const wxDays = Array.from({ length: 7 }, (_, i) => { const dn = dno0 + i, dtx = new Date(2026, 11, dn), k = Math.floor(rnd(dn * 3 + 5) * 10) % 3, rain = k === 2 ? 50 + Math.round(rnd(dn) * 40) : k === 1 ? 10 + Math.round(rnd(dn) * 20) : Math.round(rnd(dn) * 10), kk = WXK[k];
       return { name: i === 0 ? '오늘' : i === 1 ? '내일' : '일월화수목금토'[dtx.getDay()], date: (dtx.getMonth() + 1) + '/' + dtx.getDate(), icon: kk[1], ic: kk[2], hi: 11 + Math.round(rnd(dn + 7) * 5), lo: 2 + Math.round(rnd(dn + 9) * 4), rain, bg: i === 0 ? '#F1ECFF' : '#F1F1F7', c: i === 0 ? '#4E27C5' : '#20202A' }; });
     const [sr, ss] = sunAt(dno0), fmtT = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.round(m) % 60).padStart(2, '0');
-    const wxw = { place: wxPlace, now: 9, cond: WXK[Math.floor(rnd(dno0 * 3 + 5) * 10) % 3][0], days: wxDays,
+    const wxw = { badge: '예시 데이터', place: wxPlace, now: 9, cond: WXK[Math.floor(rnd(dno0 * 3 + 5) * 10) % 3][0], days: wxDays,
       sun: [{ label: '일출', t: fmtT(sr), color: '#20202A' }, { label: '일몰', t: fmtT(ss), color: accent }] };
+    const WL = this.state.wlive;
+    if (WL && WL.d && WL.d.time && WL.d.time.length) {
+      const wcat = c => c <= 1 ? 0 : c <= 48 ? 1 : 2;
+      const wtxt = c => c === 0 ? '맑음' : c <= 2 ? '구름 조금' : c === 3 ? '흐림' : c <= 48 ? '안개' : c <= 57 ? '이슬비' : c <= 67 ? '비' : c <= 77 ? '눈' : c <= 82 ? '소나기' : c <= 86 ? '눈보라' : '뇌우';
+      wxw.days = WL.d.time.map((t, i) => { const [yy, mm, d2] = t.split('-').map(Number), dtx = new Date(yy, mm - 1, d2), kk = WXK[wcat(WL.d.weather_code[i])]; return { name: i === 0 ? '오늘' : i === 1 ? '내일' : '일월화수목금토'[dtx.getDay()], date: mm + '/' + d2, icon: kk[1], ic: kk[2], hi: Math.round(WL.d.temperature_2m_max[i]), lo: Math.round(WL.d.temperature_2m_min[i]), rain: Math.round(WL.d.precipitation_probability_max[i] || 0), bg: i === 0 ? '#F1ECFF' : '#F1F1F7', c: i === 0 ? '#4E27C5' : '#20202A' }; });
+      wxw.now = Math.round(WL.now); wxw.cond = wtxt(WL.code); wxw.place = WL.src === 'gps' ? '내 위치' : wxPlace;
+      const sr0 = (WL.d.sunrise[0] || '').slice(11, 16), ss0 = (WL.d.sunset[0] || '').slice(11, 16);
+      wxw.sun = [{ label: '일출', t: sr0, color: '#20202A' }, { label: '일몰', t: ss0, color: accent }];
+      wxw.badge = '실시간 · ' + (WL.src === 'gps' ? '내 위치' : '코스 기준');
+      wx = { t: Math.round(WL.d.temperature_2m_min[0]) + '° / ' + Math.round(WL.d.temperature_2m_max[0]) + '°', s: wtxt(WL.code) + ' · 일몰 ' + ss0, sun: WL.code <= 2 };
+    }
     const PASTN = ['첫날이라 설렜다. 발걸음이 가벼웠다.', '비가 와서 힘들었지만 차 한잔에 풀렸다.', '다리가 무거웠다. 일찍 쉬기로 했다.', '후지산이 보여서 한참 서 있었다.', '오늘은 말없이 걸었다. 그것도 좋았다.', '숙소 밥이 맛있었다. 내일도 한 걸음씩.'];
     const pb = Math.max(1, Math.min(3, this.state.pastBack || 1)), pd = Math.max(1, today - pb), pdt = new Date(2026, 11, 3 + pd);
     const past = { label: ['어제', '그제', '3일 전'][pb - 1], date: pd + '일차 · ' + (pdt.getMonth() + 1) + '/' + pdt.getDate(), text: PASTN[(pd * 5) % PASTN.length] };

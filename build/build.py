@@ -717,6 +717,46 @@ _rep('<div title="{{ g.s }}" style="display:flex;flex-direction:column;align-ite
 _rep('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:700;line-height:1.25;color:{{ g.c }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f11,11px);line-height:1.3;color:{{ g.sc }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ g.s }}</div>',
      '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:800;line-height:1.25;color:{{ g.c }};word-break:keep-all;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f12,12px);line-height:1.3;color:{{ g.sc }};word-break:keep-all;max-width:100%">{{ g.s }}</div>')
 
+
+# ---- 이번 주 날씨: 기온 크게 ----
+_rep("<div style=\"font:700 15px 'DM Sans',sans-serif;white-space:nowrap;letter-spacing:-.04em\">{{ d.hi }}°<span style=\"color:#85859A;font-weight:500\"> {{ d.lo }}°</span>", "<div style=\"font:800 25px 'DM Sans',sans-serif;white-space:nowrap;letter-spacing:-.03em\">{{ d.hi }}°<span style=\"color:#85859A;font-weight:500;font-size:19px\"> {{ d.lo }}°</span>")
+
+
+# ---- 날씨: Open-Meteo(무료·키 없음)로 내 위치 실시간 날씨 자동 불러오기 ----
+_rep("componentDidMount() { this.loadFx();", "componentDidMount() { this.loadFx(); this.loadWx();")
+_rep("  loadFx() {\n", """  loadWx() {
+    try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
+    const apply = (lat, lon, src) => {
+      const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&timezone=auto&forecast_days=7';
+      fetch(u).then(r => r.json()).then(j => { if (!j || !j.current || !j.daily || !j.daily.time) throw 0; const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.current.weather_code, d: j.daily }; this.setState({ wlive: w }); try { localStorage.setItem('tk-wx', JSON.stringify(w)); } catch (e) {} }).catch(() => {});
+    };
+    const fb = () => { const ll = this._wxLL || [34.97, 138.38]; apply(ll[0], ll[1], 'trip'); };
+    try { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => apply(p.coords.latitude, p.coords.longitude, 'gps'), fb, { timeout: 6000, maximumAge: 600000 }); else fb(); } catch (e) { fb(); }
+    clearTimeout(this._wxT); this._wxT = setTimeout(() => this.loadWx(), 30 * 6e4);
+  }
+  loadFx() {
+""")
+_rep("    const wx = view === 12 ?", "    let wx = view === 12 ?")
+_rep("    const wxPlace = nm(tdd.stops[Math.max(0, Math.min(tst, tn) - (tst > 0 ? 1 : 0))]);", "    const wxPlace = nm(tdd.stops[Math.max(0, Math.min(tst, tn) - (tst > 0 ? 1 : 0))]);\n    this._wxLL = tdd.stops[Math.max(0, Math.min(tst, tn) - (tst > 0 ? 1 : 0))].ll;")
+_rep("const wxw = { place: wxPlace, now: 9,", "const wxw = { badge: '예시 데이터', place: wxPlace, now: 9,")
+_rep("{ label: '일몰', t: fmtT(ss), color: accent }] };", """{ label: '일몰', t: fmtT(ss), color: accent }] };
+    const WL = this.state.wlive;
+    if (WL && WL.d && WL.d.time && WL.d.time.length) {
+      const wcat = c => c <= 1 ? 0 : c <= 48 ? 1 : 2;
+      const wtxt = c => c === 0 ? '맑음' : c <= 2 ? '구름 조금' : c === 3 ? '흐림' : c <= 48 ? '안개' : c <= 57 ? '이슬비' : c <= 67 ? '비' : c <= 77 ? '눈' : c <= 82 ? '소나기' : c <= 86 ? '눈보라' : '뇌우';
+      wxw.days = WL.d.time.map((t, i) => { const [yy, mm, d2] = t.split('-').map(Number), dtx = new Date(yy, mm - 1, d2), kk = WXK[wcat(WL.d.weather_code[i])]; return { name: i === 0 ? '오늘' : i === 1 ? '내일' : '일월화수목금토'[dtx.getDay()], date: mm + '/' + d2, icon: kk[1], ic: kk[2], hi: Math.round(WL.d.temperature_2m_max[i]), lo: Math.round(WL.d.temperature_2m_min[i]), rain: Math.round(WL.d.precipitation_probability_max[i] || 0), bg: i === 0 ? '#F1ECFF' : '#F1F1F7', c: i === 0 ? '#4E27C5' : '#20202A' }; });
+      wxw.now = Math.round(WL.now); wxw.cond = wtxt(WL.code); wxw.place = WL.src === 'gps' ? '내 위치' : wxPlace;
+      const sr0 = (WL.d.sunrise[0] || '').slice(11, 16), ss0 = (WL.d.sunset[0] || '').slice(11, 16);
+      wxw.sun = [{ label: '일출', t: sr0, color: '#20202A' }, { label: '일몰', t: ss0, color: accent }];
+      wxw.badge = '실시간 · ' + (WL.src === 'gps' ? '내 위치' : '코스 기준');
+      wx = { t: Math.round(WL.d.temperature_2m_min[0]) + '° / ' + Math.round(WL.d.temperature_2m_max[0]) + '°', s: wtxt(WL.code) + ' · 일몰 ' + ss0, sun: WL.code <= 2 };
+    }""")
+_rep("opacity:.85\">WEATHER · 지금</span><span style=\"height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:var(--f12,12px);font-weight:700;display:flex;align-items:center;white-space:nowrap;flex:none\">예시 데이터</span>", "opacity:.85\">WEATHER · 지금</span><span style=\"height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:var(--f12,12px);font-weight:700;display:flex;align-items:center;white-space:nowrap;flex:none\">{{ wxw.badge }}</span>")
+
+
+_cb = '<button onClick="{{ closePop }}" aria-label="팝업 닫기" style="width:68px;height:68px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(103,61,230,.4);flex:none">✕</button>'
+_rep('<a href="{{ pop.dir }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:20px;font-weight:700;color:#5B32D6;padding:14px 6px">구글 지도로 길찾기 ›</a>\n', _cb + '\n')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

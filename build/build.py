@@ -527,6 +527,17 @@ assert _n0 > 0 and '["참배"' not in dc
 # ---- 일본어: 1980년생 47살 문장을 사교로 이동 ----
 _rep('["숫자","私は1980年生まれの47歳です。"', '["사교","私は1980年生まれの47歳です。"')
 
+
+# ---- 오늘 지나는 곳 사진: 외부(Unsplash) 대신 앱에 들어있는 사진으로 (로딩 실패 방지) ----
+_pm = re.search(r"const PHOTOS = \[.*?\];", dc)
+assert _pm
+dc = dc[:_pm.start()] + "const PHOTOS = ['assets/dayhero/3.jpg', 'assets/dayhero/7.jpg', 'assets/dayhero/12.jpg', 'assets/dayhero/26.jpg'];" + dc[_pm.end():]
+_rep("credit: 'Photo on Unsplash', creditHref: 'https://unsplash.com/photos/' + PHOTOS[i % PHOTOS.length].split('photo-')[1].split('?')[0],", "credit: '', creditHref: '',")
+
+
+# ---- 전체 여정: 웨이포인트 간격 넓힘 ----
+_rep("<div style=\"min-width:0;display:flex;gap:6px;align-items:center;padding:8px 0\"><b style=\"font-size:var(--f14,14px);white-space:nowrap\">{{ s.ko }}</b>", "<div style=\"min-width:0;display:flex;gap:8px;align-items:center;padding:20px 0\"><b style=\"font-size:var(--f14,14px);white-space:nowrap\">{{ s.ko }}</b>")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

@@ -246,7 +246,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">WAYPOINTS · 이 날 지나는 역참</div>
 <div style="display:grid;margin-top:8px"><sc-for list="{{ sdStops }}" as="s" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:stretch">
 <div style="display:flex;flex-direction:column;align-items:center"><div style="width:4px;height:8px;background:{{ s.lt }};opacity:.7"></div><span style="width:26px;height:26px;flex:none;border-radius:50%;background:{{ s.bg }};color:{{ s.c }};font:800 var(--f12,12px) 'DM Sans',sans-serif;display:grid;place-items:center">{{ s.no }}</span><div style="width:4px;flex:1;min-height:8px;background:{{ s.lb }};opacity:.7"></div></div>
-<div style="min-width:0;display:flex;gap:6px;align-items:center;padding:8px 0"><b style="font-size:var(--f14,14px);white-space:nowrap">{{ s.ko }}</b><span style="font:500 var(--f12,12px) 'Noto Serif JP',serif;color:#85859A;white-space:nowrap">{{ s.jp }}</span></div>
+<div style="min-width:0;display:flex;gap:8px;align-items:center;padding:20px 0"><b style="font-size:var(--f14,14px);white-space:nowrap">{{ s.ko }}</b><span style="font:500 var(--f12,12px) 'Noto Serif JP',serif;color:#85859A;white-space:nowrap">{{ s.jp }}</span></div>
 <span style="align-self:center;font-size:var(--f13,13px);font-weight:700;color:#555568;white-space:nowrap;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ s.rel }} km</span>
 </div></sc-for></div>
 </div>
@@ -744,7 +744,7 @@ const PLACES12 = [
   { name: '마키노하라 차밭', km: 6, ll: [34.8070, 138.1010], desc: '차밭 너머 후지산', q: '牧之原公園', long: '메이지 시대에 무사와 강 인부들이 개간한 대지로, 지금은 일본을 대표하는 녹차 산지예요. 공원 전망대에서 맑은 날엔 차밭 너머로 후지산과 오이강이 보여요.' },
   { name: '요나키이시', km: 8, ll: [34.7962, 138.0735], desc: '고개의 전설과 찻집 엿', q: '小夜の中山 久延寺', long: '고개에서 산적에게 목숨을 잃은 여인 곁의 돌이 밤마다 울었다는 전설이 전해져요. 근처 규엔지 앞 찻집의 물엿 「고소다테아메」가 고개의 명물이에요.' }
 ];
-const PHOTOS = ['https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1600&auto=format&fit=crop', 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1600&auto=format&fit=crop', 'https://images.unsplash.com/photo-1570459027562-4a916cc6113f?q=80&w=1600&auto=format&fit=crop', 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=1600&auto=format&fit=crop'];
+const PHOTOS = ['assets/dayhero/3.jpg', 'assets/dayhero/7.jpg', 'assets/dayhero/12.jpg', 'assets/dayhero/26.jpg'];
 const MILES = [['하코네', 89.8], ['시즈오카', 166.2], ['하마나호', 258], ['나고야', 339.6], ['스즈카', 413.7]];
 const BAR_TOTAL = 487.7, MIN_PER_KM = 15, START_MIN = 8 * 60;
 const hhmm = m => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(Math.round(m % 60)).padStart(2, '0')}`;
@@ -1057,7 +1057,7 @@ class Component extends DCLogic {
     const placeState = dd.places.map((p, i) => { const passed = isPast || (isToday && stage > 0 && p.km <= walked); if (!passed && firstUp < 0) firstUp = i; return passed; });
     const places = dd.places.map((p, i) => {
       const passed = placeState[i], isNext = isToday && i === firstUp, ahead = (p.km - (isToday ? walked : 0)).toFixed(1);
-      return { ...p, n: i + 1, passed, slotId: 'place-' + (i + 1), ph: p.name + ' 사진', src: PHOTOS[i % PHOTOS.length], credit: 'Photo on Unsplash', creditHref: 'https://unsplash.com/photos/' + PHOTOS[i % PHOTOS.length].split('photo-')[1].split('?')[0],
+      return { ...p, n: i + 1, passed, slotId: 'place-' + (i + 1), ph: p.name + ' 사진', src: PHOTOS[i % PHOTOS.length], credit: '', creditHref: '',
         filter: passed ? 'grayscale(1)' : 'none', op: passed ? .55 : 1,
         badge: passed ? '✓ 지나옴' : isNext ? '다음 · ' + ahead + ' km' : ahead + ' km 앞',
         badgeBg: passed ? '#20A85A' : isNext ? accent : 'rgba(15,23,42,.88)',

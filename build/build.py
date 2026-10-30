@@ -188,7 +188,7 @@ for a_, b_ in RESTORE:
 # 일본어 탭 글자 키우기 (사용자 요청)
 BIGGER = [
     ("font:700 34px/1.4 'Noto Serif JP',serif;word-break:normal;", "font:700 42px/1.4 'Noto Serif JP',serif;word-break:normal;"),
-    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;", "font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;"),
+    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;", "font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;"),
     ("font-size:18px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;", "font-size:24px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;"),
     ("height:44px;padding:0 13px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:12.5px;", "height:48px;padding:0 16px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:16px;"),
     ('<div style="padding:12px 14px;border-radius:14px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }}" style-hover="background:#FFFFFF"><div style="font-size:15px;font-weight:700;line-height:1.45;color:#20202A">{{ p.ko }}</div><div style="font-size:15px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px">{{ p.read }}</div></div>'.replace('<div style="padding','<div onClick="{{ p.open }}" style="padding'),
@@ -242,10 +242,10 @@ SHOW10 = [
   ['pay', '계산 부탁해요', 'お会計をお願いします。'],
   ['photo', '사진 좀 찍어 주실래요?', '写真を撮ってもらえますか？'],
 ]
-SC_BLOCK = ('<div style="grid-column:1/-1;background:#FFFFFF;border:1px solid #E8E7EF;border-radius:18px;padding:18px 18px 14px;margin-bottom:6px">'
-  '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:22px;font-weight:800">보여주기 카드</div><span style="font-size:15px;color:#85859A">누르면 화면 가득 크게</span></div>'
-  '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">'
-  + ''.join('<button type="button" data-show="%s" style="height:56px;padding:0 18px;border-radius:14px;border:1.5px solid #E8E7EF;background:#F7F7FB;color:#20202A;font-size:19px;font-weight:700;font-family:inherit;cursor:pointer">%s</button>' % (k, ko) for k, ko, _ in SHOW10)
+SC_BLOCK = ('<div style="grid-column:1/-1;background:linear-gradient(135deg,#E8F1FF 0%,#F4F8FF 100%);border:1px solid #CFE0FB;border-radius:20px;padding:18px 18px 16px;margin-bottom:8px">'
+  '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:24px;font-weight:800;color:#1F5BD0">보여주기 카드</div><span style="font-size:16px;color:#3B6FD1;font-weight:600">누르면 화면 가득 크게</span></div>'
+  '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:14px">'
+  + ''.join('<button type="button" data-show="%s" style="min-height:76px;padding:8px 14px;border-radius:16px;border:0;background:linear-gradient(135deg,#3979E8 0%%,#55A7EA 100%%);color:#fff;font-size:22px;font-weight:800;line-height:1.3;font-family:inherit;cursor:pointer;box-shadow:0 6px 14px rgba(57,121,232,.28)">%s</button>' % (k, ko) for k, ko, _ in SHOW10)
   + '</div></div>')
 SC_GRID_OLD = '<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding-bottom:16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-content:start">\n<sc-for list="{{ phrases }}"'
 assert dc.count(SC_GRID_OLD) == 1
@@ -257,7 +257,7 @@ SC_JS = """<script>(function () {
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-show]'); if (!b) return;
     var it = SHOW.filter(function (x) { return x[0] === b.getAttribute('data-show'); })[0]; if (!it) return;
-    var ov = el('div', 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px;padding:40px 32px;box-sizing:border-box;overflow:auto');
+    var ov = el('div', 'position:fixed;inset:0;z-index:5000;background:#0F2A5C;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px;padding:40px 32px;box-sizing:border-box;overflow:auto');
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', it[1]);
     ov.appendChild(el('div', "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere", it[2]));
     if (it[0] === 'hotel' || it[0] === 'checkin') {
@@ -268,13 +268,13 @@ SC_JS = """<script>(function () {
       if (h.ko) box.appendChild(el('div', 'font-size:clamp(22px,4vw,32px);opacity:.9', h.ko));
       var ad = h.addr || h.town; if (ad) box.appendChild(el('div', "font:500 clamp(20px,3.6vw,28px)/1.4 'Noto Serif JP',serif;opacity:.9", ad));
       var q = encodeURIComponent((h.ja || h.en || h.ko || '') + ' ' + (h.town || ''));
-      var a = el('a', 'margin-top:6px;display:inline-flex;align-items:center;height:56px;padding:0 28px;border-radius:999px;background:#673DE6;color:#fff;font-size:22px;font-weight:800;text-decoration:none', '지도로 보여주기');
+      var a = el('a', 'margin-top:6px;display:inline-flex;align-items:center;height:56px;padding:0 28px;border-radius:999px;background:#3979E8;color:#fff;font-size:22px;font-weight:800;text-decoration:none', '지도로 보여주기');
       a.href = 'https://www.google.com/maps/search/?api=1&query=' + (h.ll || q); a.target = '_blank'; a.rel = 'noopener'; box.appendChild(a);
       ov.appendChild(box);
     }
     ov.appendChild(el('div', 'font-size:clamp(26px,5vw,44px);font-weight:700;opacity:.92', it[1]));
     var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
-    var c = el('button', 'margin-top:8px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer', '닫기');
+    var c = el('button', 'margin-top:8px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#0F2A5C;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer', '닫기');
     c.type = 'button'; c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
     ov.appendChild(c); document.body.appendChild(ov);
     try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (er) {}
@@ -295,6 +295,13 @@ dc = dc.replace(P_OLD, 'dayPhotos: [1, 2, 3].map(')
 P_GRID = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px"><sc-for list="{{ dayPhotos }}"'
 assert dc.count(P_GRID) == 1
 dc = dc.replace(P_GRID, P_GRID.replace('repeat(4,', 'repeat(3,'))
+H_OLD = 'box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0">'
+assert dc.count(H_OLD) == 1
+dc = dc.replace(H_OLD, 'box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0;display:none">')
+PI_OLD = '<div onClick="{{ p.open }}" style="padding:16px 18px;'
+assert dc.count(PI_OLD) == 1
+dc = dc.replace(PI_OLD, '<div data-phrase="1" onClick="{{ p.open }}" style="padding:16px 18px;')
+dc = dc.replace('font-size:20px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px', 'font-size:20px;font-weight:700;line-height:1.45;color:#2B6AE0;margin-top:4px')
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
@@ -307,19 +314,20 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
   fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
   /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
   document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('[data-phrase]')) { setTimeout(function () { var h = document.querySelector('[data-showcard]'); if (h) h.dispatchEvent(new MouseEvent('click', { bubbles: true })); }, 80); return; }
     var card = e.target.closest && e.target.closest('[data-showcard]');
     if (!card || e.target.closest('button')) return;
     var t = card.querySelectorAll(':scope > div:nth-child(2) > div');
     if (t.length < 3) return;
     var ov = document.createElement('div');
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', '보여주기 카드');
-    ov.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;padding:40px 32px;box-sizing:border-box;overflow:auto';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#0F2A5C;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;padding:40px 32px;box-sizing:border-box;overflow:auto';
     var mk = function (txt, css) { var d = document.createElement('div'); d.textContent = txt; d.style.cssText = css; ov.appendChild(d); };
     mk(t[0].textContent, "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere");
     mk(t[1].textContent, 'font-size:clamp(30px,6vw,52px);font-weight:800;line-height:1.35;color:#CDBBFF');
     mk(t[2].textContent, 'font-size:clamp(24px,4.6vw,38px);font-weight:600;opacity:.92;padding-top:24px;border-top:1px solid rgba(255,255,255,.25);min-width:60%');
     var c = document.createElement('button'); c.type = 'button'; c.textContent = '닫기';
-    c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
+    c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#0F2A5C;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
     var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
     c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
     ov.appendChild(c); document.body.appendChild(ov); goFs();

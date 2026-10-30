@@ -433,7 +433,7 @@ for _o,_n,_c in [('style="height:46px;padding:0 16px;border:0;border-radius:13px
     dc=dc.replace(_o,_n)
 _HB='background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)">'
 assert dc.count(_HB)==1
-dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;top:0;bottom:0;right:0;width:70%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,#101A2B 0%,#101A2B 26%,rgba(16,26,43,.82) 40%,rgba(16,26,43,.35) 58%,rgba(16,26,43,0) 76%)"></div>')
+dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,#101A2B 0%,#101A2B 18%,rgba(16,26,43,.97) 24%,rgba(16,26,43,.9) 30%,rgba(16,26,43,.78) 36%,rgba(16,26,43,.62) 43%,rgba(16,26,43,.44) 50%,rgba(16,26,43,.27) 58%,rgba(16,26,43,.12) 67%,rgba(16,26,43,0) 78%)"></div>')
 # ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
 def _bump(n):
     n = float(n)

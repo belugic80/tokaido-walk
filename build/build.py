@@ -158,9 +158,33 @@ DATA_JSON = json.dumps(data, ensure_ascii=False)
 main_tpl = open(os.path.join(HERE, 'template_main.html'), encoding='utf-8').read()
 main_html = main_tpl.replace('/*__DATA__*/null', DATA_JSON)
 NEW_TABS = {
-    'index': 'today', 'today': 'today', 'journey': 'journey', 'records': 'record', 'plan': 'schedule',
+    'today': 'today', 'journey': 'journey', 'records': 'record', 'plan': 'schedule',
     'map': 'map', 'more': 'more', 'japanese': 'lang', 'guide': 'info',
 }
+
+# ── 홈(/) = 클로드 디자인 v7 파일 그대로 ──────────────────────────────
+# design/ 의 원본은 손대지 않고, 폰 테두리 프레임만 폴드 화면(880px 꽉 차게)으로 바꿔서 내보냄
+DESIGN = os.path.join(ROOT, 'design')
+dc = open(os.path.join(DESIGN, 'Tokaido Today v7.dc.html'), encoding='utf-8').read()
+FRAME = [
+    ('<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px">',
+     '<div style="min-height:100vh;display:flex;justify-content:center">'),
+    ('width:820px;height:910px;flex:none;border-radius:30px;', 'width:880px;height:100dvh;flex:none;border-radius:0;'),
+    ('box-shadow:0 0 0 9px #15181b,0 0 0 10px #3b4147,0 40px 90px rgba(20,24,27,.32);', ''),
+]
+for a, b in FRAME:
+    assert dc.count(a) == 1, a
+    dc = dc.replace(a, b)
+# 가짜 상태 표시줄(9:41·5G·배터리)과 카메라 점 제거
+dc, k = re.subn(r'\n<div style="position:absolute;top:0;left:0;right:0;height:32px;z-index:1000;.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>', '', dc, count=1, flags=re.S)
+assert k == 1
+open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
+import shutil as _sh
+for f in ('support.js', 'image-slot.js'):
+    _sh.copyfile(os.path.join(DESIGN, f), os.path.join(ROOT, f))
+os.makedirs(os.path.join(ROOT, 'assets'), exist_ok=True)
+for f in os.listdir(os.path.join(DESIGN, 'assets')):
+    _sh.copyfile(os.path.join(DESIGN, 'assets', f), os.path.join(ROOT, 'assets', f))
 for name, tab in NEW_TABS.items():
     html = main_html.replace("let TAB = 'today';", f"let TAB = '{tab}';")
     open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)

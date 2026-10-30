@@ -380,6 +380,12 @@ assert dc.count('<meta name="viewport" content="width=device-width, initial-scal
 _TP='<sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:4px 20px 20px 24px;'
 assert dc.count(_TP)==1
 dc = dc.replace(_TP, _TP.replace('padding:4px 20px 20px 24px;','padding:4px 20px 120px 24px;'))
+for _o,_n in [("padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;position:relative;overflow:hidden\">\n<b style=\"font-size:20px;","padding:20px 8px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;position:relative;overflow:hidden\">\n<b style=\"font-size:32px;"),
+ ("<span style=\"font-size:13px;font-weight:600;margin-left:3px\">{{ c.unit }}","<span style=\"font-size:19px;font-weight:600;margin-left:3px\">{{ c.unit }}"),
+ ("<small style=\"font-size:12px;line-height:1.35;color:#85859A\">{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}","<small style=\"font-size:16px;line-height:1.3;color:#6B6B80\">{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}")]:
+    assert dc.count(_o)==1,_o[:40]
+    dc=dc.replace(_o,_n)
+dc=dc.replace('padding:4px 20px 120px 24px;','padding:4px 20px 92px 24px;')
 dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh

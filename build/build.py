@@ -512,6 +512,17 @@ _row = '<div style="flex:none;display:grid;grid-template-columns:minmax(0,1.5fr)
 assert dc.count(_row) == 1
 dc = dc.replace(_row, _stats.replace('gap:12px">', 'gap:12px;margin-top:8px">', 1) + _row)
 
+
+# ---- 여행 정보/일본어 상단 제목 삭제 ----
+_rep('<sc-if value="{{ tabMore }}" hint-placeholder-val="{{ false }}">\n<div style="flex:none;padding:0 20px 12px 24px;display:flex;align-items:flex-end', '<sc-if value="{{ moreHead }}" hint-placeholder-val="{{ false }}">\n<div style="flex:none;padding:0 20px 12px 24px;display:flex;align-items:flex-end')
+_rep("tabMore: tab === 7, tabLang:", "tabMore: tab === 7, moreHead: tab === 7 && ['stamp', 'prog'].indexOf(this.state.moreSub) >= 0, tabLang:")
+
+
+# ---- 일본어: 참배 카테고리 삭제 ----
+_n0 = dc.count('\n["참배",')
+dc = re.sub(r'\n\["참배",[^\n]*', '', dc)
+assert _n0 > 0 and '["참배"' not in dc
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

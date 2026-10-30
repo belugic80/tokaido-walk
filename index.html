@@ -542,7 +542,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 </sc-if>
 
-<sc-if value="{{ tabMore }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ moreHead }}" hint-placeholder-val="{{ false }}">
 <div style="flex:none;padding:0 20px 12px 24px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px"><div><div style="font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;color:#673DE6">{{ moreEye }}</div><div style="font-size:28px;font-weight:700;letter-spacing:-.04em;line-height:1.25;margin-top:4px;color:#20202A">{{ moreTitle }}</div></div></div>
 </sc-if>
 <sc-if value="{{ tabStamp }}" hint-placeholder-val="{{ false }}">
@@ -804,16 +804,6 @@ const PH = [
 ["식당","ごちそうさまでした。","고치소-사마데시타.","잘 먹었습니다.",0],
 ["식당","テイクアウトできますか？","테이쿠아우토 데키마스카?","포장 가능한가요?",0],
 ["식당","人気のあるメニューはどれですか？","닌키노 아루 메뉴-와 도레데스카?","인기 있는 메뉴는 어느 것인가요?",0],
-["참배","参拝のルールを教えてください。","산파이노 루-루오 오시오에테 쿠다사이.","참배 방법을 알려주세요.",0],
-["참배","御朱印（ごしゅいん）はどこでもらえますか？","고슈인와 도코데 모라에마스카?","고슈인(참배 도장)은 어디서 받나요?",0],
-["참배","写真をとってもいいですか？","샤신오 토테모 이이데스카?","사진을 찍어도 되나요?",0],
-["참배","お守りはいくらですか？","오마모리와 이쿠라데스카?","부적은 얼마인가요?",0],
-["참배","ここは何の神様ですか？","코코와 난노 카미사마데스카?","여기는 어떤 신을 모시는 곳인가요?",0],
-["참배","手水舎（ちょうずや）の使い方は？","쵸-즈야노 츠카이카타와?","손 씻는 곳(쵸즈야) 이용법은 어떻게 되나요?",0],
-["참배","お賽銭（おさいせん）はいくらがいいですか？","오사이센와 이쿠라가 이이데스카?","새전(헌금)은 얼마 정도가 좋은가요?",0],
-["참배","拝観料はいくらですか？","하이칸료-와 이쿠라데스카?","입장료(관람료)는 얼마인가요?",0],
-["참배","何時まで開いていますか？","난지마데 아키테이마스카?","몇 시까지 문을 연가요?",0],
-["참배","境内（けいだい）の map はありますか？","케이다이노 맵푸와 아리마스카?","경내 지도가 있나요?",0],
 ["응급","助けてください！","타스케테 쿠다사이!","도와주세요!",1],
 ["응급","気分（体調）が悪いです。","키분(타이쵸-)가 와루이데스.","몸 상태가 안 좋습니다.",0],
 ["응급","足（膝）が痛いです。","아시(히자)가 이타이데스.","발(무릎)이 아픕니다.",1],
@@ -1439,7 +1429,7 @@ class Component extends DCLogic {
       tabToday: tab === 0, tabRecord: tab === 1, tabSchedule: tab === 6, tabManage: tab === 2, fx, tl, hov, tlTabs, diary: this._diary || [], glance: [{ v: jr.km, u: 'km', l: '걸은 거리' }, { v: today, u: '/ 31일', l: '걸은 날' }, { v: jr.stats[0].value, u: '/ 53', l: '지난 역참' }, { v: badges.filter(x => x.c === '#8A5A12').length, u: '/ 15', l: '모은 배지' }, { v: expCum, u: '원', l: '누적 지출' }], tlIsB: true, dayPrompt: this._prompt || (this._prompt = ['오늘 가장 기억에 남는 순간은?', '오늘의 나에게 해주고 싶은 말은?', '내일은 어떤 마음으로 걸을까?'][Math.floor(Math.random() * 3)]),
       dayNote: (this.state.dayNotes || {})[view] || '', onDayNote: e => { const v_ = e.target.value; this.setState(s_ => ({ dayNotes: Object.assign({}, s_.dayNotes || {}, { [view]: v_ }), dayNoteSaved: false })); },
       saveDayNote: () => this.setState({ dayNoteSaved: true }), dayNoteBtn: this.state.dayNoteSaved ? '저장됨 ✓' : '저장', dayNoteBg: this.state.dayNoteSaved ? '#20A85A' : BRAND,
-      dayPhotos: [1, 2, 3].map(x => ({ id: 'day-' + today + '-photo-' + x, ph: '사진 ' + x })), schedPad: '12px', mg, tabMap: tab === 3, tabJourney: tab === 6, tabMore: tab === 7, tabLang: tab === 7 && (this.state.moreSub || 'lang') === 'lang', tabInfo: tab === 7 && this.state.moreSub === 'info', tabStamp: tab === 7 && this.state.moreSub === 'stamp', tabProg: tab === 7 && this.state.moreSub === 'prog', moreTitle: { lang: '일본어', info: '여행 정보', stamp: '', prog: '' }[this.state.moreSub || 'lang'], moreEye: { lang: '日本語 · 회화', info: 'TRAVEL INFO · 날씨·연락처·환율', stamp: 'STAMPS · 53역참', prog: 'AT A GLANCE · 지금까지의 여정' }[this.state.moreSub || 'lang'],
+      dayPhotos: [1, 2, 3].map(x => ({ id: 'day-' + today + '-photo-' + x, ph: '사진 ' + x })), schedPad: '12px', mg, tabMap: tab === 3, tabJourney: tab === 6, tabMore: tab === 7, moreHead: tab === 7 && ['stamp', 'prog'].indexOf(this.state.moreSub) >= 0, tabLang: tab === 7 && (this.state.moreSub || 'lang') === 'lang', tabInfo: tab === 7 && this.state.moreSub === 'info', tabStamp: tab === 7 && this.state.moreSub === 'stamp', tabProg: tab === 7 && this.state.moreSub === 'prog', moreTitle: { lang: '일본어', info: '여행 정보', stamp: '', prog: '' }[this.state.moreSub || 'lang'], moreEye: { lang: '日本語 · 회화', info: 'TRAVEL INFO · 날씨·연락처·환율', stamp: 'STAMPS · 53역참', prog: 'AT A GLANCE · 지금까지의 여정' }[this.state.moreSub || 'lang'],
       moreTabs: [['lang', '일본어'], ['info', '여행 정보'], ['stamp', '역참 스탬프'], ['prog', '여정 진행']].map(([k, label]) => { const on = (this.state.moreSub || 'lang') === k; return { label, bg: on ? '#FFFFFF' : 'transparent', color: on ? '#4E27C5' : '#85859A', border: 'transparent', shadow: on ? '0 2px 8px rgba(15,42,74,.08)' : 'none', onClick: () => this.setState({ moreSub: k }) }; }),
       jr,
       schedFilters, schedGroups, sdStatus, sdBadgeBg: view === today ? accent : '#FFFFFF', sdBadgeColor: view === today ? '#fff' : '#20202A', sdStats, sdStops, sdActual, sdActualNote,

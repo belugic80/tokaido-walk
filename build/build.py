@@ -325,7 +325,8 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
   var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
   fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
   /* 전체 화면을 기본으로: 브라우저 규칙상 첫 터치가 있어야 켤 수 있어서, 화면을 처음 누르는 순간 자동으로 켬 (홈 화면 아이콘으로 열면 처음부터 전체 화면) */
-  var auto = function () { document.removeEventListener('pointerup', auto, true); if (!document.fullscreenElement) goFs(); };
+  var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  var auto = function () { document.removeEventListener('pointerup', auto, true); if (!inApp && !document.fullscreenElement) goFs(); };
   document.addEventListener('pointerup', auto, true);
   /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
   document.addEventListener('click', function (e) {

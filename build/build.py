@@ -666,6 +666,12 @@ _rep("closePop: () => this.setState({ pop: -1 }),", "closePop: () => this.setSta
 _rep("this.popMap = pm; this.popR = L.svg({ padding: 0.5 }).addTo(pm); this.drawPop();", "this._popN = this._pop && this._pop.n; this.popMap = pm; this.popR = L.svg({ padding: 0.5 }).addTo(pm); this.drawPop();")
 _rep("} else if (!pel && this.popMap) {", "} else if (pel && this.popMap && this._pop && this._popN !== this._pop.n) { this._popN = this._pop.n; this.drawPop(); } else if (!pel && this.popMap) {")
 
+
+# ---- 지도: 하단 '구글 지도 길찾기' 글자 삭제 → 지도 버튼 열에 구글 지도 버튼 추가, 지도는 그만큼 커짐 ----
+_rep('\n<a href="{{ gmapsDir }}" target="_blank" rel="noopener" style="font-weight:700;white-space:nowrap">구글 지도 길찾기 ›</a>', '')
+_gb = '<a href="{{ gmapsDir }}" target="_blank" rel="noopener" title="구글 지도로 길찾기" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2F6FE0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg></a>\n'
+_rep('<div style="position:absolute;right:12px;bottom:12px;z-index:500;display:grid;gap:9px">\n<button onClick="{{ lodgeFly }}"', '<div style="position:absolute;right:12px;bottom:12px;z-index:500;display:grid;gap:9px">\n' + _gb + '<button onClick="{{ lodgeFly }}"')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

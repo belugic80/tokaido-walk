@@ -37,13 +37,9 @@ button{font-family:inherit}
 img{max-width:100%}
 .jp{font-family:'Noto Serif JP',serif}
 #app{width:880px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:92px;position:relative}
-.topbar{display:flex;align-items:center;gap:10px;padding:14px 18px 8px}
-.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;white-space:nowrap}
-.brand .jp{font-size:12px;color:var(--ink-faint);font-weight:500}
-.spacer{flex:1}
 .iconbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
 
-.hero{position:relative;margin:0 18px;height:268px;border-radius:22px;overflow:hidden;background:#1d3557 center 38%/cover;background-image:var(--heroBg,none)}
+.hero{position:relative;margin:18px 18px 0;height:268px;border-radius:22px;overflow:hidden;background:#1d3557 center 38%/cover;background-image:var(--heroBg,none)}
 .hero .ovtop{position:absolute;left:0;right:0;top:0;height:104px;background:linear-gradient(180deg,rgba(10,16,30,.6) 0%,rgba(10,16,30,.3) 50%,rgba(10,16,30,0) 100%)}
 .hero .ovbot{position:absolute;left:0;right:0;bottom:0;height:184px;background:linear-gradient(180deg,rgba(10,16,30,0) 0%,rgba(10,16,30,.45) 26%,rgba(10,16,30,.78) 58%,rgba(10,16,30,.92) 100%)}
 .hero .ovrad{position:absolute;inset:0;background:radial-gradient(90% 60% at 18% 62%,rgba(10,16,30,.28),rgba(10,16,30,0) 70%)}
@@ -62,6 +58,9 @@ img{max-width:100%}
 .daypill span{font-size:13px;font-weight:700;color:#1b2433}
 .daypill .tag{font-size:10.5px;font-weight:800;border-radius:6px;padding:2px 6px}
 .todaybtn{height:36px;padding:0 12px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap}
+.themebtn-float{position:absolute;z-index:500;border:none;background:rgba(251,247,236,.94);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.hero .themebtn-float{top:58px;right:14px}
+.fullmap .themebtn-float{top:10px;right:10px}
 .hero-txt{position:absolute;left:24px;right:24px;bottom:66px;z-index:2;color:#fff}
 .hero-txt .jpline{font:500 12.5px 'Noto Serif JP',serif;opacity:.92;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 8px rgba(8,12,24,.5)}
 .hero-txt h2{font-size:27px;font-weight:800;line-height:1.22;letter-spacing:-.02em;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 12px rgba(8,12,24,.45)}
@@ -183,9 +182,11 @@ img{max-width:100%}
 .oldlink{display:block;text-align:center;font-size:11.5px;color:var(--ink-faint);margin:18px 18px 0;padding-bottom:2px}
 
 /* ---- 탭 공통 머리/필터 칩 ---- */
-.tabhead{padding:34px 18px 0}
+.tabhead{padding:34px 18px 0;position:relative}
 .tabhead .eyebrow{font-size:12px;color:var(--ink-faint)}
 .tabhead h2{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:2px 0 0}
+.tabhead .iconbtn{position:absolute;top:30px;right:18px}
+.sched-list .tabhead .iconbtn,.lang-list .tabhead .iconbtn{top:-4px;right:4px}
 .chiprow{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
 .chiprow button{flex:none;height:32px;padding:0 13px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
 .chiprow button.on{background:var(--ink2);color:#fff;border-color:var(--ink2)}
@@ -315,11 +316,6 @@ img{max-width:100%}
 </head>
 <body>
 <div id="app">
-  <div class="topbar">
-    <div class="brand">東海道 <span class="jp">53の休符</span></div>
-    <div class="spacer"></div>
-    <button class="iconbtn" id="themeBtn" title="밝게/어둡게/자동" aria-label="화면 밝기 바꾸기">◐</button>
-  </div>
   <div id="main"></div>
   <nav class="bottomnav" id="bottomnav"></nav>
 </div>
@@ -425,7 +421,7 @@ function dayData(n){
   const title = d.walkSeg ? d.walkSeg.replace(/\s*\(.*?\)\s*/g, ' ').trim() : (first && last ? `${first.name} → ${last.name}` : stayLabel);
   const jpTitle = stops.map(s => jpOf(s.name)).filter(Boolean).join(' → ');
   const spots = (d.photos && d.photos.s || []).slice(0, 4);
-  return { n, d, stops, dist: d.km || 0, title, jpTitle, stayLabel, summary: d.km ? `${d.km} km · 지점 ${stops.length}곳` : (d.type || ''), spots };
+  return { n, d, stops, dist: d.km || 0, title, jpTitle, stayLabel, summary: d.km ? `${d.km} km · 지점 ${stops.length}곳` : (d.type || ''), spots, hero: !!d.hero };
 }
 function stationsThru(n, frac){
   let done = 0;
@@ -575,6 +571,17 @@ let view = Math.min(Math.max(todayN(), 1), DATA.days.length);
 const trueToday = Math.min(Math.max(todayN(), 1), DATA.days.length);
 let TAB = 'today';
 
+/* 화면 밝기 토글: 탭마다 머리글에 다시 그려지므로 렌더될 때마다 다시 바인딩한다 */
+function themeGet(){ try{ return localStorage.getItem('tk-theme') || 'light'; } catch(e){ return 'light'; } }
+function themeApply(t){ const r = document.documentElement; if (t === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', t); }
+function themeBtnHtml(cls){ return `<button class="iconbtn ${cls || ''}" id="themeBtn" title="밝게/어둡게/자동" aria-label="화면 밝기 바꾸기">◐</button>`; }
+function bindThemeBtn(){
+  const L = { light: '☀', dark: '🌙', auto: '◐' }, order = ['light', 'dark', 'auto'];
+  const b = $('#themeBtn'); if (!b) return;
+  b.textContent = L[themeGet()];
+  b.onclick = () => { const t = order[(order.indexOf(themeGet()) + 1) % 3]; try { localStorage.setItem('tk-theme', t); } catch(e){} themeApply(t); bindThemeBtn(); };
+}
+
 /* 오늘 실제 기록 통계 카드(오늘 탭·기록 탭 공용) */
 function healthStatBlock(){
   const tn = todayN(), hasTrip = tn >= 1 && tn <= DATA.days.length;
@@ -636,7 +643,7 @@ function renderToday(){
   const doneAll = walkDay && reached >= n - 1;
 
   const heroHtml = `
-  <div class="hero" id="hero" style="--heroBg:none">
+  <div class="hero" id="hero" style="--heroBg:${dd.hero ? `url(/hero/${dd.n}.jpg)` : 'none'}">
     <div class="ovtop"></div><div class="ovbot"></div><div class="ovrad"></div>
     <div class="hero-top">
       <div class="wxchip"><span class="ic"><span class="sun" id="wxsun"></span><span class="cloud"></span></span><b id="wxval">·</b><span id="wxsub">${esc(stateLabel)}</span></div>
@@ -647,6 +654,7 @@ function renderToday(){
         <button id="nextDay" ${view >= DATA.days.length ? 'disabled' : ''} aria-label="다음 날">›</button>
       </div>
     </div>
+    ${themeBtnHtml('themebtn-float')}
     <div class="hero-txt">
       ${dd.jpTitle ? `<div class="jpline jp">${esc(dd.jpTitle)}</div>` : ''}
       <h2>${esc(dd.title)}</h2>
@@ -784,7 +792,7 @@ function renderToday(){
 
   /* 비동기: 날씨 · 사진 */
   fillWeatherFor(ll(dd.d), isoDay(dateOf(dd.n)), stateLabel);
-  (async () => { const r = await wikiImg(heroQ); if (r && $('#hero')) $('#hero').style.backgroundImage = `url(${r.src})`; })();
+  if (!dd.hero) (async () => { const r = await wikiImg(heroQ); if (r && $('#hero')) $('#hero').style.backgroundImage = `url(${r.src})`; })();
   (async () => { const r = await wikiImg(hi.town); const el = $('#stayimg'); if (r && el) el.style.backgroundImage = `url(${r.src})`; })();
   dd.spots.forEach(([name, q], i) => { (async () => {
     const r = await wikiImg(q); const el = document.getElementById(`pimg-${dd.n}-${i}`);
@@ -822,7 +830,7 @@ function renderRecord(){
   }).join('');
 
   $('#main').innerHTML = `
-  <div class="tabhead"><div class="eyebrow">역참을 누르면 스탬프를 찍거나 지울 수 있어요</div><h2>기록</h2></div>
+  <div class="tabhead"><div class="eyebrow">역참을 누르면 스탬프를 찍거나 지울 수 있어요</div><h2>기록</h2>${themeBtnHtml('')}</div>
   <div class="reccards">${cards.map(c => `<div class="reccard"><div class="lab">${esc(c.label)}</div><div class="valrow"><b style="color:${c.color}">${c.value}</b><span>${esc(c.unit)}</span></div><div class="bar"><i style="width:${Math.min(100, Math.max(0, c.pct))}%;background:${c.color}"></i></div></div>`).join('')}</div>
   ${healthStatBlock()}
   <div class="stampbox">
@@ -875,7 +883,7 @@ function renderSchedule(){
   $('#main').innerHTML = `
   <div class="sched">
     <section class="sched-list">
-      <div class="tabhead"><div class="eyebrow">한 달, 53개의 역참을 따라</div><h2>전체 일정</h2>
+      <div class="tabhead"><div class="eyebrow">한 달, 53개의 역참을 따라</div><h2>전체 일정</h2>${themeBtnHtml('')}
       <div class="chiprow">${filters.map(([k, l]) => `<button class="${schedFilter === k ? 'on' : ''}" data-schf="${k}">${l}</button>`).join('')}</div></div>
       <div class="sched-scroll">
         ${groups.map(g => `<div class="weekhd"><span>${g.label}</span><span class="rg">${g.range}</span></div>
@@ -888,7 +896,7 @@ function renderSchedule(){
     </section>
     <section class="sched-detail">
       <div class="sdcard">
-        <div class="sdhero" id="sdHero"><div class="ov"></div><div class="tx"><div class="row"><b style="background:${sdBg};color:${sdColor}">${sdStatus}</b><span>${dd.n}일차 · ${esc(dd.d.date)} (${esc(dd.d.dow)})</span></div><h3>${esc(dd.title)}</h3>${dd.jpTitle ? `<div class="jp">${esc(dd.jpTitle)}</div>` : ''}</div></div>
+        <div class="sdhero" id="sdHero" style="${dd.hero ? `background-image:url(/hero/${dd.n}.jpg)` : ''}"><div class="ov"></div><div class="tx"><div class="row"><b style="background:${sdBg};color:${sdColor}">${sdStatus}</b><span>${dd.n}일차 · ${esc(dd.d.date)} (${esc(dd.d.dow)})</span></div><h3>${esc(dd.title)}</h3>${dd.jpTitle ? `<div class="jp">${esc(dd.jpTitle)}</div>` : ''}</div></div>
         <div class="sdbody">
           <div class="sdgrid">${sdStats.map(x => `<div class="c"><div class="l">${esc(x.l)}</div><div class="v">${esc(x.v)}</div></div>`).join('')}</div>
           <div class="sdlab"><b>실제 기록</b><span>${sdNote}</span></div>
@@ -910,7 +918,7 @@ function renderSchedule(){
   $('#sdPrev')?.addEventListener('click', () => { view = Math.max(1, dd.n - 1); renderSchedule(); });
   $('#sdNext')?.addEventListener('click', () => { view = Math.min(DATA.days.length, dd.n + 1); renderSchedule(); });
   $('#sdOpen')?.addEventListener('click', () => setTab('today'));
-  (async () => { const r = await wikiImg(heroQ); const el = $('#sdHero'); if (r && el) el.style.backgroundImage = `url(${r.src})`; })();
+  if (!dd.hero) (async () => { const r = await wikiImg(heroQ); const el = $('#sdHero'); if (r && el) el.style.backgroundImage = `url(${r.src})`; })();
 }
 
 /* ---- 지도(전체화면) ---- */
@@ -943,6 +951,7 @@ function renderMapTab(){
 
   $('#main').innerHTML = `
   <div class="fullmap">
+    ${themeBtnHtml('themebtn-float')}
     <div class="top">
       <div class="navpill">
         <button id="mPrev" ${view <= 1 ? 'disabled' : ''}>‹</button>
@@ -991,7 +1000,7 @@ function renderLang(){
   $('#main').innerHTML = `
   <div class="lang">
     <section class="lang-list">
-      <div class="tabhead"><div class="eyebrow">누르면 오른쪽에 크게 보여요</div><h2>일본어</h2>
+      <div class="tabhead"><div class="eyebrow">누르면 오른쪽에 크게 보여요</div><h2>일본어</h2>${themeBtnHtml('')}
       <div class="chiprow">${cats.map(c => `<button class="${langCat === c ? 'on' : ''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}</div></div>
       <div class="lang-scroll">${idxs.map(i => `<div class="phraserow ${i === curI ? 'sel' : ''}" data-i="${i}"><div class="jp">${esc(list[i].ja)}</div><div class="ko">${esc(list[i].ko)}</div></div>`).join('')}</div>
     </section>
@@ -1026,7 +1035,7 @@ function renderInfo(){
   const cats = Array.from(new Set(tips.map(t => t.cat)));
   const callSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>';
   $('#main').innerHTML = `
-  <div class="tabhead"><div class="eyebrow">누르면 바로 전화가 연결돼요</div><h2>알아둘 것</h2></div>
+  <div class="tabhead"><div class="eyebrow">누르면 바로 전화가 연결돼요</div><h2>알아둘 것</h2>${themeBtnHtml('')}</div>
   <div class="callgrid">${calls.map(c => `<a class="callcard" href="${c.href}"><div class="tx"><div class="lab">${esc(c.label)}</div><div class="num">${esc(c.num)}</div><div class="note">${esc(c.note)}</div></div><span class="ic" style="background:${c.bg}">${callSvg}</span></a>`).join('')}</div>
   ${cats.map(cat => `<div class="tipgroup"><h4>${esc(cat)}</h4>${tips.filter(t => t.cat === cat).map(t => `<div class="tipcard"><div class="t">${esc(t.title)}${t.must ? '<span class="must">꼭</span>' : ''}</div><div class="b">${esc(t.body)}</div></div>`).join('')}</div>`).join('')}`;
 }
@@ -1041,6 +1050,7 @@ function renderApp(){
   if (TAB !== 'today' && TAB !== 'map') destroyMap();
   renderNav();
   (TAB_FNS[TAB] || renderToday)();
+  bindThemeBtn();
 }
 
 function renderNav(){
@@ -1064,14 +1074,7 @@ function renderNav(){
   $('#bottomnav').querySelectorAll('a[data-tab]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); setTab(a.dataset.tab); }));
 }
 
-(function(){
-  const L={light:['☀','밝게'],dark:['🌙','어둡게'],auto:['◐','자동']}, order=['light','dark','auto'];
-  const get=()=>{try{return localStorage.getItem('tk-theme')||'light'}catch(e){return 'light'}};
-  const apply=t=>{const r=document.documentElement; if(t==='auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme',t); $('#themeBtn').textContent=L[t][0];};
-  apply(get());
-  $('#themeBtn').onclick=()=>{const t=order[(order.indexOf(get())+1)%3]; try{localStorage.setItem('tk-theme',t)}catch(e){} apply(t);};
-})();
-
+themeApply(themeGet());
 renderApp();
 setTimeout(loadHC, 300);
 document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (!HCLAST || Date.now() - (HCLAST.at || 0) > 9e5) loadHC(); });

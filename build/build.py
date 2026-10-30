@@ -1,8 +1,17 @@
-import openpyxl, json, datetime, re, sys
+import openpyxl, json, datetime, re, sys, os
 
 SRC = sys.argv[1]
 OUT = sys.argv[2]
 wb = openpyxl.load_workbook(SRC, data_only=True)
+
+_HERE0 = os.path.dirname(os.path.abspath(__file__))
+HERO_DIR = os.path.join(_HERE0, '..', 'assets', 'hero')
+HERO_DAYS = set()
+if os.path.isdir(HERO_DIR):
+    for f in os.listdir(HERO_DIR):
+        m = re.match(r'^(\d+)\.jpg$', f)
+        if m:
+            HERO_DAYS.add(int(m.group(1)))
 
 
 def v(x):
@@ -100,6 +109,7 @@ for n in sorted(A):
         'agoda': AG.get(n), 'photos': {k: [list(x) + ['', 0] for x in PH.get(n, {}).get(k, [])] + [list(x) + [1] for x in XT.get(n, {}).get(k, [])] for k in ('s', 'f', 'c')},
         'stayQ': PH.get(n, {}).get('stay'),
         'nodes': nodes_of(route, a[7] or 0),
+        'hero': n in HERO_DAYS,
     })
 
 
@@ -154,6 +164,15 @@ NEW_TABS = {
 for name, tab in NEW_TABS.items():
     html = main_html.replace("let TAB = 'today';", f"let TAB = '{tab}';")
     open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)
+
+# ── 히어로 사진(실제 폴더 사진): assets/hero/*.jpg → /hero/*.jpg로 그대로 배포 ──
+import shutil
+if os.path.isdir(HERO_DIR):
+    out_hero = os.path.join(ROOT, 'hero')
+    os.makedirs(out_hero, exist_ok=True)
+    for f in os.listdir(HERO_DIR):
+        if re.match(r'^\d+\.jpg$', f):
+            shutil.copyfile(os.path.join(HERO_DIR, f), os.path.join(out_hero, f))
 
 # ── 예전 화면 (옛 디자인 그대로, 탭만 다르게 열림) ──────────────────────
 old_tpl = open(os.path.join(HERE, 'template.html'), encoding='utf-8').read()

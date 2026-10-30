@@ -198,6 +198,15 @@ BIGGER = [
 for a_, b_ in BIGGER:
     assert dc.count(a_) == 1, a_
     dc = dc.replace(a_, b_)
+# 여행 정보 탭: 눈이 좋지 않은 사용자를 위해 전체를 크게 (사용자 요청)
+INFO_OLD = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px">'
+INFO_NEW = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px;zoom:1.3">'
+assert dc.count(INFO_OLD) == 1
+dc = dc.replace(INFO_OLD, INFO_NEW)
+# 비상 연락처는 번호가 잘리지 않도록 2열로
+EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
+assert dc.count(EM_OLD) == 1
+dc = dc.replace(EM_OLD, EM_OLD.replace('repeat(4,minmax(0,1fr))', 'repeat(2,minmax(0,1fr))'))
 # 전체 화면 버튼 (주소창 숨기기) — 예전 사이트에 있던 기능
 FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:10px;bottom:10px;z-index:2000;width:44px;height:44px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
 <script>document.getElementById('fsBtn').addEventListener('click', async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} });</script>

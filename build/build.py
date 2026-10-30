@@ -185,6 +185,25 @@ RESTORE = [
 for a_, b_ in RESTORE:
     assert dc.count(a_) == 1, a_
     dc = dc.replace(a_, b_)
+# 일본어 탭 글자 키우기 (사용자 요청)
+BIGGER = [
+    ("font:700 34px/1.4 'Noto Serif JP',serif;word-break:normal;", "font:700 42px/1.4 'Noto Serif JP',serif;word-break:normal;"),
+    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;", "font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;"),
+    ("font-size:18px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;", "font-size:24px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;"),
+    ("height:44px;padding:0 13px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:12.5px;", "height:48px;padding:0 16px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:16px;"),
+    ('<div style="padding:12px 14px;border-radius:14px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }}" style-hover="background:#FFFFFF"><div style="font-size:15px;font-weight:700;line-height:1.45;color:#20202A">{{ p.ko }}</div><div style="font-size:15px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px">{{ p.read }}</div></div>'.replace('<div style="padding','<div onClick="{{ p.open }}" style="padding'),
+     '<div onClick="{{ p.open }}" style="padding:16px 18px;border-radius:14px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }}" style-hover="background:#FFFFFF"><div style="font-size:20px;font-weight:700;line-height:1.45;color:#20202A">{{ p.ko }}</div><div style="font-size:20px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px">{{ p.read }}</div></div>'),
+    ("font-size:18px;font-weight:800;white-space:nowrap\">일본어</div>", "font-size:22px;font-weight:800;white-space:nowrap\">일본어</div>"),
+]
+for a_, b_ in BIGGER:
+    assert dc.count(a_) == 1, a_
+    dc = dc.replace(a_, b_)
+# 전체 화면 버튼 (주소창 숨기기) — 예전 사이트에 있던 기능
+FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:10px;bottom:10px;z-index:2000;width:44px;height:44px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
+<script>document.getElementById('fsBtn').addEventListener('click', async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} });</script>
+"""
+assert dc.count('</body>') == 1
+dc = dc.replace('</body>', FS + '</body>')
 # 가짜 상태 표시줄(9:41·5G·배터리)과 카메라 점 제거
 dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 50px;font:600 12px system-ui;color:#20202A">\n<span>9:41</span>.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>\n', '', dc, count=1, flags=re.S)
 assert k == 1

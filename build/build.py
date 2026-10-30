@@ -187,9 +187,9 @@ for a_, b_ in RESTORE:
     dc = dc.replace(a_, b_)
 # 일본어 탭 글자 키우기 (사용자 요청)
 BIGGER = [
-    ("font:700 34px/1.4 'Noto Serif JP',serif;word-break:normal;", "font:700 42px/1.4 'Noto Serif JP',serif;word-break:normal;"),
-    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;", "font-size:36px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;"),
-    ("font-size:18px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;", "font-size:24px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;"),
+    ("font:700 34px/1.4 'Noto Serif JP',serif;word-break:normal;", "font:700 52px/1.4 'Noto Serif JP',serif;word-break:normal;"),
+    ("font-size:30px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#CDBBFF;", "font-size:44px;font-weight:800;line-height:1.35;letter-spacing:-.01em;color:#BFD8FF;"),
+    ("font-size:18px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;", "font-size:30px;font-weight:600;padding-top:12px;border-top:1px solid rgba(255,255,255,.18);min-width:60%;"),
     ("height:44px;padding:0 13px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:12.5px;", "height:48px;padding:0 16px;border-radius:10px;border:0;background:{{ f.bg }};color:{{ f.color }};font-size:16px;"),
     ('<div style="padding:12px 14px;border-radius:14px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }}" style-hover="background:#FFFFFF"><div style="font-size:15px;font-weight:700;line-height:1.45;color:#20202A">{{ p.ko }}</div><div style="font-size:15px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px">{{ p.read }}</div></div>'.replace('<div style="padding','<div onClick="{{ p.open }}" style="padding'),
      '<div onClick="{{ p.open }}" style="padding:16px 18px;border-radius:14px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }}" style-hover="background:#FFFFFF"><div style="font-size:20px;font-weight:700;line-height:1.45;color:#20202A">{{ p.ko }}</div><div style="font-size:20px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px">{{ p.read }}</div></div>'),
@@ -205,7 +205,7 @@ assert dc.count(INFO_OLD) == 1
 dc = dc.replace(INFO_OLD, INFO_NEW)
 SC_OLD = '<div style="flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))'
 assert dc.count(SC_OLD) == 1
-dc = dc.replace(SC_OLD, '<div data-showcard="1" style="cursor:pointer;flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))')
+dc = dc.replace(SC_OLD, '<div data-showcard="1" style="cursor:pointer;flex:none;height:max(420px,calc(100dvh - 790px));background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))')
 assert dc.count('길에서 바로 보여주세요</span>') == 1
 dc = dc.replace('길에서 바로 보여주세요</span>', '눌러서 화면 가득 보여주기</span>')
 # ── 일본어 탭: 보여주기 카드 10문장 + 오늘 숙소 카드 (예전 사이트 기능을 v15 일본어 탭으로) ──
@@ -297,7 +297,7 @@ assert dc.count(P_GRID) == 1
 dc = dc.replace(P_GRID, P_GRID.replace('repeat(4,', 'repeat(3,'))
 H_OLD = 'box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0">'
 assert dc.count(H_OLD) == 1
-dc = dc.replace(H_OLD, 'box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0;display:none">')
+dc = dc.replace(H_OLD, 'box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0">')
 PI_OLD = '<div onClick="{{ p.open }}" style="padding:16px 18px;'
 assert dc.count(PI_OLD) == 1
 dc = dc.replace(PI_OLD, '<div data-phrase="1" onClick="{{ p.open }}" style="padding:16px 18px;')
@@ -316,9 +316,11 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
   var fsBtn = document.getElementById('fsBtn');
   var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
   fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
+  /* 전체 화면을 기본으로: 브라우저 규칙상 첫 터치가 있어야 켤 수 있어서, 화면을 처음 누르는 순간 자동으로 켬 (홈 화면 아이콘으로 열면 처음부터 전체 화면) */
+  var auto = function () { document.removeEventListener('pointerup', auto, true); if (!document.fullscreenElement) goFs(); };
+  document.addEventListener('pointerup', auto, true);
   /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
   document.addEventListener('click', function (e) {
-    if (e.target.closest && e.target.closest('[data-phrase]')) { setTimeout(function () { var h = document.querySelector('[data-showcard]'); if (h) h.dispatchEvent(new MouseEvent('click', { bubbles: true })); }, 80); return; }
     var card = e.target.closest && e.target.closest('[data-showcard]');
     if (!card || e.target.closest('button')) return;
     var t = card.querySelectorAll(':scope > div:nth-child(2) > div');

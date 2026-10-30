@@ -630,8 +630,8 @@
 </sc-if>
 <sc-if value="{{ tabLang }}" hint-placeholder-val="{{ false }}">
 <div style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0 20px 0 24px">
-<div style="flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86)),url(https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1600&auto=format&fit=crop) center/cover;color:#fff;border-radius:24px;padding:24px 28px 20px;box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0">
-<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,.14)">{{ sp.cat }}</span><span style="font-size:12px;opacity:.6">길에서 바로 보여주세요</span></div>
+<div data-showcard="1" style="cursor:pointer;flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86)),url(https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1600&auto=format&fit=crop) center/cover;color:#fff;border-radius:24px;padding:24px 28px 20px;box-shadow:0 16px 40px rgba(15,42,74,.18);display:flex;flex-direction:column;min-width:0">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,.14)">{{ sp.cat }}</span><span style="font-size:12px;opacity:.6">눌러서 화면 가득 보여주기</span></div>
 <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;padding:0 56px">
 <button onClick="{{ prevPhrase }}" aria-label="이전 문장" style="position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px);left:-8px">‹</button>
 <button onClick="{{ nextPhrase }}" aria-label="다음 문장" style="position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px);right:-8px">›</button>
@@ -1479,6 +1479,29 @@ class Component extends DCLogic {
 }
 </script>
 <button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:10px;bottom:10px;z-index:2000;width:44px;height:44px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
-<script>(function () { var tried = false; var go = function () { try { return document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} }; document.getElementById('fsBtn').addEventListener('click', async function (e) { tried = true; try { if (document.fullscreenElement) await document.exitFullscreen(); else await go(); } catch (er) {} }); /* 브라우저는 사용자 터치 없이는 전체 화면을 못 켜므로, 처음 화면을 터치하는 순간 자동으로 켬 */ var first = function () { document.removeEventListener('pointerup', first, true); if (tried || document.fullscreenElement) return; tried = true; var r = go(); if (r && r.catch) r.catch(function () {}); }; document.addEventListener('pointerup', first, true); })();</script>
+<script>(function () {
+  var fsBtn = document.getElementById('fsBtn');
+  var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
+  fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
+  /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest && e.target.closest('[data-showcard]');
+    if (!card || e.target.closest('button')) return;
+    var t = card.querySelectorAll(':scope > div:nth-child(2) > div');
+    if (t.length < 3) return;
+    var ov = document.createElement('div');
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', '보여주기 카드');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;padding:40px 32px;box-sizing:border-box;overflow:auto';
+    var mk = function (txt, css) { var d = document.createElement('div'); d.textContent = txt; d.style.cssText = css; ov.appendChild(d); };
+    mk(t[0].textContent, "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere");
+    mk(t[1].textContent, 'font-size:clamp(30px,6vw,52px);font-weight:800;line-height:1.35;color:#CDBBFF');
+    mk(t[2].textContent, 'font-size:clamp(24px,4.6vw,38px);font-weight:600;opacity:.92;padding-top:24px;border-top:1px solid rgba(255,255,255,.25);min-width:60%');
+    var c = document.createElement('button'); c.type = 'button'; c.textContent = '닫기';
+    c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
+    var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
+    c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
+    ov.appendChild(c); document.body.appendChild(ov); goFs();
+  });
+})();</script>
 </body>
 </html>

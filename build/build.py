@@ -203,13 +203,41 @@ INFO_OLD = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<d
 INFO_NEW = '<sc-if value="{{ tabInfo }}" hint-placeholder-val="{{ false }}">\n<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px;zoom:1.3">'
 assert dc.count(INFO_OLD) == 1
 dc = dc.replace(INFO_OLD, INFO_NEW)
+SC_OLD = '<div style="flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))'
+assert dc.count(SC_OLD) == 1
+dc = dc.replace(SC_OLD, '<div data-showcard="1" style="cursor:pointer;flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))')
+assert dc.count('길에서 바로 보여주세요</span>') == 1
+dc = dc.replace('길에서 바로 보여주세요</span>', '눌러서 화면 가득 보여주기</span>')
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
 dc = dc.replace(EM_OLD, EM_OLD.replace('repeat(4,minmax(0,1fr))', 'repeat(2,minmax(0,1fr))'))
 # 전체 화면 버튼 (주소창 숨기기) — 예전 사이트에 있던 기능
 FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:10px;bottom:10px;z-index:2000;width:44px;height:44px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
-<script>(function () { var tried = false; var go = function () { try { return document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} }; document.getElementById('fsBtn').addEventListener('click', async function (e) { tried = true; try { if (document.fullscreenElement) await document.exitFullscreen(); else await go(); } catch (er) {} }); /* 브라우저는 사용자 터치 없이는 전체 화면을 못 켜므로, 처음 화면을 터치하는 순간 자동으로 켬 */ var first = function () { document.removeEventListener('pointerup', first, true); if (tried || document.fullscreenElement) return; tried = true; var r = go(); if (r && r.catch) r.catch(function () {}); }; document.addEventListener('pointerup', first, true); })();</script>
+<script>(function () {
+  var fsBtn = document.getElementById('fsBtn');
+  var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
+  fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
+  /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest && e.target.closest('[data-showcard]');
+    if (!card || e.target.closest('button')) return;
+    var t = card.querySelectorAll(':scope > div:nth-child(2) > div');
+    if (t.length < 3) return;
+    var ov = document.createElement('div');
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', '보여주기 카드');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;padding:40px 32px;box-sizing:border-box;overflow:auto';
+    var mk = function (txt, css) { var d = document.createElement('div'); d.textContent = txt; d.style.cssText = css; ov.appendChild(d); };
+    mk(t[0].textContent, "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere");
+    mk(t[1].textContent, 'font-size:clamp(30px,6vw,52px);font-weight:800;line-height:1.35;color:#CDBBFF');
+    mk(t[2].textContent, 'font-size:clamp(24px,4.6vw,38px);font-weight:600;opacity:.92;padding-top:24px;border-top:1px solid rgba(255,255,255,.25);min-width:60%');
+    var c = document.createElement('button'); c.type = 'button'; c.textContent = '닫기';
+    c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
+    var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
+    c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
+    ov.appendChild(c); document.body.appendChild(ov); goFs();
+  });
+})();</script>
 """
 assert dc.count('</body>') == 1
 dc = dc.replace('</body>', FS + '</body>')

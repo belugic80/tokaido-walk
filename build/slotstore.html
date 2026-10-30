@@ -1,0 +1,8 @@
+<script>(function(){var F='.image-slots.state.json',DB='tk-slots',mem=null;
+function open(){return new Promise(function(res,rej){var r=indexedDB.open(DB,1);r.onupgradeneeded=function(){r.result.createObjectStore('kv')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+function get(){return open().then(function(db){return new Promise(function(res){var q=db.transaction('kv').objectStore('kv').get(F);q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}})}).catch(function(){return null})}
+function put(v){return open().then(function(db){return new Promise(function(res,rej){var t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,F);t.oncomplete=res;t.onerror=function(){rej(t.error)}})})}
+window.omelette=window.omelette||{};window.omelette.writeFile=function(n,c){mem=c;try{localStorage.setItem('tk-slots-bak-ts',String(Date.now()))}catch(e){}return put(c)};
+var of=window.fetch;window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf(F)>=0){return get().then(function(v){return v?new Response(v,{status:200,headers:{'Content-Type':'application/json'}}):new Response('',{status:404})})}return of.apply(this,arguments)};
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+})();</script>

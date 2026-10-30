@@ -768,6 +768,10 @@ _rep("{{ c.value }}<span style=\"font-size:19px;font-weight:600;margin-left:3px\
 
 _rep("오늘의 한 줄을 기록 탭에서 남겨 보세요", "오늘의 한 줄을 기록 탭에서 남겨 보세요. 사진과 함께 여기에서 다시 볼 수 있어요.")
 
+
+_rep("dayPhotos: [1, 2, 3].map(", "jrLabel: (() => { const q = new Date(2026, 11, 3 + today); return today + '일차 · ' + (q.getMonth() + 1) + '/' + q.getDate() + ' (' + '일월화수목금토'[q.getDay()] + ')'; })(), dayPhotos: [1, 2, 3].map(")
+_rep("JOURNAL · 오늘 나의 하루</div><div style=\"font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px\">사진과 한 줄 기록</div>", "JOURNAL · 오늘 나의 하루</div><div style=\"font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px\">사진과 한 줄 기록</div></div><div style=\"flex:none;padding:6px 14px;border-radius:999px;background:#F1ECFF;color:#4E27C5;font:800 var(--f14,14px) 'DM Sans','Noto Sans KR',sans-serif;white-space:nowrap\">{{ jrLabel }}</div><div style=\"display:none\">")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

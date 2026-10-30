@@ -325,6 +325,15 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
   var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
   fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
   /* 전체 화면을 기본으로: 브라우저 규칙상 첫 터치가 있어야 켤 수 있어서, 화면을 처음 누르는 순간 자동으로 켬 (홈 화면 아이콘으로 열면 처음부터 전체 화면) */
+  /* 좌우 드래그 잠금: 지도 밖에서 가로로 끌면 화면이 미세하게 흔들리거나 크기가 바뀌지 않게 막음 */
+  var sx = 0, sy = 0;
+  document.addEventListener('touchstart', function (e) { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1) { e.preventDefault(); return; }
+    var dx = Math.abs(e.touches[0].clientX - sx), dy = Math.abs(e.touches[0].clientY - sy);
+    if (dx > dy && !(e.target.closest && e.target.closest('.leaflet-container,input,textarea'))) e.preventDefault();
+  }, { passive: false });
+  window.scrollTo(0, 0); window.addEventListener('scroll', function () { if (window.scrollX) window.scrollTo(0, window.scrollY); }, { passive: true });
   var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   var auto = function () { document.removeEventListener('pointerup', auto, true); if (!inApp && !document.fullscreenElement) goFs(); };
   document.addEventListener('pointerup', auto, true);
@@ -387,6 +396,12 @@ for _o,_n in [("padding:12px 10px;display:flex;flex-direction:column;align-items
     assert dc.count(_o)==1,_o[:40]
     dc=dc.replace(_o,_n)
 dc=dc.replace('padding:4px 20px 120px 24px;','padding:4px 20px 92px 24px;')
+_G='grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr));gap:10px'
+assert dc.count(_G)==1
+dc=dc.replace(_G,'grid-template-columns:minmax(0,2.3fr) repeat(3,minmax(0,.8fr));gap:10px')
+_A='color:#B7791F">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px">53역참 중 {{ stCount }}</div>'
+assert dc.count(_A)==1
+dc=dc.replace(_A,'color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px;white-space:nowrap">53역참 중 {{ stCount }}</div>')
 dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}header{gap:8px!important;padding-left:16px!important;padding-right:12px!important}header>div:nth-child(3)>span:last-child{display:none}header>*{flex-shrink:1;min-width:0}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh

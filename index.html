@@ -540,10 +540,10 @@
 </sc-if>
 <sc-if value="{{ tabStamp }}" hint-placeholder-val="{{ false }}">
 <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px 24px;display:flex;flex-direction:column;gap:12px">
-<div style="flex:none;display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr));gap:10px">
+<div style="flex:none;display:grid;grid-template-columns:minmax(0,2.3fr) repeat(3,minmax(0,.8fr));gap:10px">
 <div style="border-radius:20px;padding:14px 18px;background:linear-gradient(135deg,#FFF6E5 0%,#FFFBF0 100%);border:1px solid #F2D49B;display:flex;align-items:center;gap:14px">
 <div style="width:68px;height:68px;flex:none;border-radius:50%;background:conic-gradient(from -90deg,#B7791F 0%,#E0A84A {{ stSum.pct }}%,#F3E3C2 {{ stSum.pct }}% 100%);display:grid;place-items:center;position:relative"><div style="position:absolute;inset:8px;border-radius:50%;background:#FFFBF0"></div><b style="position:relative;font:700 16px 'DM Sans',sans-serif;color:#8A5A12">{{ stSum.pct }}%</b></div>
-<div style="min-width:0"><div style="font:700 12px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A;color:#B7791F">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px">53역참 중 {{ stCount }}</div><div style="display:flex;height:8px;border-radius:99px;overflow:hidden;background:#F3E3C2;margin-top:8px"><div style="width:{{ stSum.walkP }}%;background:#B7791F"></div><div style="width:{{ stSum.trP }}%;background:#0891B2"></div></div></div>
+<div style="min-width:0"><div style="font:700 12px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A;color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px;white-space:nowrap">53역참 중 {{ stCount }}</div><div style="display:flex;height:8px;border-radius:99px;overflow:hidden;background:#F3E3C2;margin-top:8px"><div style="width:{{ stSum.walkP }}%;background:#B7791F"></div><div style="width:{{ stSum.trP }}%;background:#0891B2"></div></div></div>
 </div>
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center"><b style="font-size:20px;font-weight:700;line-height:1.2;color:#8A5A12;white-space:nowrap;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ stSum.walk }}<span style="font-size:12px;font-weight:600;color:#85859A;margin-left:3px">곳</span></b><small style="font-size:12px;color:#85859A">걸어서 받은 도장</small></div>
 <div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center"><b style="font-size:20px;font-weight:700;line-height:1.2;color:#0891B2;white-space:nowrap;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ stSum.tr }}<span style="font-size:12px;font-weight:600;color:#85859A;margin-left:3px">곳</span></b><small style="font-size:12px;color:#85859A">교통으로 지난 곳</small></div>
@@ -1485,6 +1485,15 @@ class Component extends DCLogic {
   var goFs = function () { try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (e) {} };
   fsBtn.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else goFs(); } catch (e) {} });
   /* 전체 화면을 기본으로: 브라우저 규칙상 첫 터치가 있어야 켤 수 있어서, 화면을 처음 누르는 순간 자동으로 켬 (홈 화면 아이콘으로 열면 처음부터 전체 화면) */
+  /* 좌우 드래그 잠금: 지도 밖에서 가로로 끌면 화면이 미세하게 흔들리거나 크기가 바뀌지 않게 막음 */
+  var sx = 0, sy = 0;
+  document.addEventListener('touchstart', function (e) { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1) { e.preventDefault(); return; }
+    var dx = Math.abs(e.touches[0].clientX - sx), dy = Math.abs(e.touches[0].clientY - sy);
+    if (dx > dy && !(e.target.closest && e.target.closest('.leaflet-container,input,textarea'))) e.preventDefault();
+  }, { passive: false });
+  window.scrollTo(0, 0); window.addEventListener('scroll', function () { if (window.scrollX) window.scrollTo(0, window.scrollY); }, { passive: true });
   var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   var auto = function () { document.removeEventListener('pointerup', auto, true); if (!inApp && !document.fullscreenElement) goFs(); };
   document.addEventListener('pointerup', auto, true);

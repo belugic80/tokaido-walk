@@ -486,6 +486,12 @@ _rep("<div style=\"font:700 var(--f14,14px) 'DM Sans',sans-serif;white-space:now
 _rep("padding:0 14px;font:600 var(--f14,14px) 'Noto Sans KR',sans-serif;color:#20202A;outline:none;min-width:0;box-sizing:border-box;font-family:'DM Sans',sans-serif\"></input></label>\n", "padding:0 8px;font:600 14px 'Noto Sans KR',sans-serif;color:#20202A;outline:none;min-width:0;box-sizing:border-box;font-family:'DM Sans',sans-serif\"></input></label>\n", 0) if False else None
 
 dc = re.sub(r'(type="time" value="\{\{ mg\.lodgeIn \}\}"[^>]*?)padding:0 14px;font:600 var\(--f14,14px\)', r'\1padding:0 6px;font:600 14px', dc)
+
+# ---- 역참 도장: 한 줄 6개, 세로 직사각형 ----
+_rep("grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:14px", "grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px")
+_rep("position:relative;aspect-ratio:1;border-radius:18px;border:1px solid {{ st.cardBorder }}", "position:relative;aspect-ratio:3/4;border-radius:18px;border:1px solid {{ st.cardBorder }}")
+_rep('<div style="width:54px;height:54px;border-radius:50%;border:2.5px {{ st.borderStyle }} {{ st.ring }}', '<div style="width:66px;height:66px;flex:none;border-radius:50%;border:3px {{ st.borderStyle }} {{ st.ring }}')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

@@ -523,6 +523,10 @@ _n0 = dc.count('\n["참배",')
 dc = re.sub(r'\n\["참배",[^\n]*', '', dc)
 assert _n0 > 0 and '["참배"' not in dc
 
+
+# ---- 일본어: 1980년생 47살 문장을 사교로 이동 ----
+_rep('["숫자","私は1980年生まれの47歳です。"', '["사교","私は1980年生まれの47歳です。"')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

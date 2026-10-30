@@ -431,6 +431,9 @@ for _o,_n,_c in [('style="height:46px;padding:0 16px;border:0;border-radius:13px
  ('style="height:46px;padding:0 14px;border-radius:15px;background:rgba(255,255,255,.94)','style="height:68px;padding:0 18px;border-radius:16px;background:rgba(255,255,255,.94)',1)]:
     assert dc.count(_o)==_c,_o
     dc=dc.replace(_o,_n)
+_HB='background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)">'
+assert dc.count(_HB)==1
+dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;inset:-24px;background:url({{ heroImg }}) center/cover;filter:blur(22px) brightness(.62) saturate(1.2)"></div><div style="position:absolute;inset:0;background:url({{ heroImg }}) 66% center/contain no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,30,.92) 0%,rgba(8,14,30,.78) 34%,rgba(8,14,30,.25) 62%,rgba(8,14,30,0) 80%)"></div>')
 # ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
 def _bump(n):
     n = float(n)

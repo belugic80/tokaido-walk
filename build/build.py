@@ -175,6 +175,16 @@ FRAME = [
 for a_, b_ in FRAME:
     assert dc.count(a_) == 1, a_
     dc = dc.replace(a_, b_)
+# 새로고침해도 보던 메뉴(탭)·하위 메뉴·날짜가 유지되도록 저장/복원만 추가
+RESTORE = [
+    ("lodgeOk: false, tab: 0, mapMode: 'route', view: null,",
+     "lodgeOk: false, tab: (() => { try { const v = +localStorage.getItem('tk-v15-tab'); return v >= 0 && v <= 7 ? v : 0; } catch (e) { return 0; } })(), moreSub: (() => { try { return localStorage.getItem('tk-v15-sub') || undefined; } catch (e) { return undefined; } })(), mapMode: 'route', view: (() => { try { const v = +localStorage.getItem('tk-v15-view'); return v >= 1 && v <= 31 ? v : null; } catch (e) { return null; } })(),"),
+    ("  componentDidUpdate() { this.loadDay(this.view());",
+     "  componentDidUpdate() { try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view());"),
+]
+for a_, b_ in RESTORE:
+    assert dc.count(a_) == 1, a_
+    dc = dc.replace(a_, b_)
 # 가짜 상태 표시줄(9:41·5G·배터리)과 카메라 점 제거
 dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 50px;font:600 12px system-ui;color:#20202A">\n<span>9:41</span>.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>\n', '', dc, count=1, flags=re.S)
 assert k == 1

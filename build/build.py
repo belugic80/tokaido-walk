@@ -209,7 +209,7 @@ assert dc.count(EM_OLD) == 1
 dc = dc.replace(EM_OLD, EM_OLD.replace('repeat(4,minmax(0,1fr))', 'repeat(2,minmax(0,1fr))'))
 # 전체 화면 버튼 (주소창 숨기기) — 예전 사이트에 있던 기능
 FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" style="position:fixed;left:10px;bottom:10px;z-index:2000;width:44px;height:44px;border-radius:50%;border:1px solid #E8E7EF;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(15,42,74,.18);display:grid;place-items:center;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#20202A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
-<script>document.getElementById('fsBtn').addEventListener('click', async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} });</script>
+<script>(function () { var tried = false; var go = function () { try { return document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} }; document.getElementById('fsBtn').addEventListener('click', async function (e) { tried = true; try { if (document.fullscreenElement) await document.exitFullscreen(); else await go(); } catch (er) {} }); /* 브라우저는 사용자 터치 없이는 전체 화면을 못 켜므로, 처음 화면을 터치하는 순간 자동으로 켬 */ var first = function () { document.removeEventListener('pointerup', first, true); if (tried || document.fullscreenElement) return; tried = true; var r = go(); if (r && r.catch) r.catch(function () {}); }; document.addEventListener('pointerup', first, true); })();</script>
 """
 assert dc.count('</body>') == 1
 dc = dc.replace('</body>', FS + '</body>')
@@ -218,7 +218,7 @@ dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:cen
 assert k == 1
 # 휴대폰에서는 디자인 폭(1000px) 그대로 화면에 맞춰 축소해서 보이게 함
 assert dc.count('<meta name="viewport" content="width=device-width, initial-scale=1">') == 1
-dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style>')
+dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes">')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

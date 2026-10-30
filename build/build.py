@@ -811,6 +811,26 @@ _rep("JOURNAL · 오늘 나의 하루</div><div style=\"font-size:var(--f16,16px
 _rep("note: d === today ? (this.state.dayNote || '오늘의 한 줄을 기록 탭에서 남겨 보세요. 사진과 함께 여기에서 다시 볼 수 있어요.') : PASTN[(d * 5) % PASTN.length]", "note: (this.state.dayNotes || {})[d] || (d === today ? '오늘의 한 줄을 기록 탭에서 남겨 보세요. 사진과 함께 여기에서 다시 볼 수 있어요.' : PASTN[(d * 5) % PASTN.length])")
 _rep("dayNote: (this.state.dayNotes || {})[view] || '', onDayNote: e => { const v_ = e.target.value; this.setState(s_ => ({ dayNotes: Object.assign({}, s_.dayNotes || {}, { [view]: v_ }), dayNoteSaved: false })); },", "dayNote: (this.state.dayNotes || {})[today] || '', onDayNote: e => { const v_ = e.target.value; this.setState(s_ => ({ dayNotes: Object.assign({}, s_.dayNotes || {}, { [today]: v_ }), dayNoteSaved: false })); },")
 
+
+# ---- 일정 관리 변경 → 오늘/전체 여정 반영: PLAN을 mg(변경)으로 매 렌더 재계산 ----
+_pl = dc.index("const PLAN = [")
+_pe = dc.index("];", _pl) + 2
+dc = dc[:_pe] + """
+const PLAN0 = PLAN.map(x => x && x.slice());
+function applyPlan(M) { M = M || {}; const E = [0]; for (let d = 1; d <= 31; d++) { const prev = E[d - 1]; E.push(M.rest && M.rest[d] ? prev : Math.max(prev, (M.ends && M.ends[d]) ?? Math.max(PLAN0[d][1], prev))); } for (let d = 1; d <= 31; d++) PLAN[d] = [E[d - 1], E[d]]; }
+""" + dc[_pe:]
+_rep("    const today = this.today(), view = this.view();\n", "    applyPlan(this.state.mg);\n    const today = this.today(), view = this.view();\n")
+_rep("E.push(M.rest[d] ? prev : Math.max(prev, M.ends[d] ?? def));", "E.push(M.rest[d] ? prev : Math.max(prev, M.ends[d] ?? def));")
+_rep("const def = Math.max(PLAN[d][1], prev);", "const def = Math.max(PLAN0[d][1], prev);")
+_rep("  if (d === 12) stops = [ST[22], ST[23], SAYO, ST[24], ST[25]];", "  const o12 = d === 12 && PLAN[12][0] === 22 && PLAN[12][1] === 25;\n  if (o12) stops = [ST[22], ST[23], SAYO, ST[24], ST[25]];")
+_rep("const route = d === 12 ? ROUTE12", "const route = o12 ? ROUTE12")
+_rep("const stopIdx = d === 12 ? [0, 4, 10, 12, 14]", "const stopIdx = o12 ? [0, 4, 10, 12, 14]")
+_rep("lodgeNote: d === 12 ? '도착 지점 · 역 앞 료칸'", "lodgeNote: o12 ? '도착 지점 · 역 앞 료칸'")
+_rep("places: d === 12 ? PLACES12 :", "places: o12 ? PLACES12 :")
+
+
+_rep("    title: `${first.ko.replace(/\\(.*\\)/, '')}에서 ${last.ko.replace(/\\(.*\\)/, '')}까지`,", "    title: dist === 0 ? `${first.ko.replace(/\\(.*\\)/, '')}에서 휴식` : `${first.ko.replace(/\\(.*\\)/, '')}에서 ${last.ko.replace(/\\(.*\\)/, '')}까지`,")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

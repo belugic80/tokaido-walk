@@ -454,6 +454,31 @@ _sec = re.sub(r'font:(\d+) (\d+(?:\.\d+)?)px', _fh, _sec)
 _css = '@media (orientation:portrait){:root{' + ''.join('--f%g:%gpx;' % (n, _bump(n)) for n in sorted(_sizes)) + '}}'
 dc = dc[:_i0] + _sec + dc[_i1:]
 dc = dc.replace('<link rel="manifest"', '<style>' + _css + '</style><link rel="manifest"', 1)
+
+# ---- 숙소: 후보 버튼 동작 + 아고다 검색(날짜·지역) ----
+def _rep(a, b, cnt=1):
+    global dc
+    assert dc.count(a) == cnt, (a[:60], dc.count(a))
+    dc = dc.replace(a, b)
+_rep("lodgeLabel: isPast ? '숙박 완료' : lodgeOk && isToday ? '예약 확정' : '후보',\n      lodgeColor: lodgeOk && isToday ? '#fff' : '#555568', lodgeBg: lodgeOk && isToday ? ink : '#EDEDF4',\n      toggleLodge: () => { if (isToday) this.setState(s => ({ lodgeOk: !s.lodgeOk })); },",
+ "lodgeLabel: isPast ? '숙박 완료' : ((lodgeOf(view).st === 'ok') || (lodgeOk && isToday)) ? '예약 확정' : '후보',\n      lodgeColor: ((lodgeOf(view).st === 'ok') || (lodgeOk && isToday)) ? '#fff' : '#3E1FA0', lodgeBg: ((lodgeOk && isToday) || lodgeOf(view).st === 'ok') ? ink : '#EDEDF4',\n      toggleLodge: e => { if (e && e.stopPropagation) e.stopPropagation(); if (isPast) return; const wasOk = (lodgeOf(view).st === 'ok') || (lodgeOk && isToday); setM(m => { m.lodge[view] = Object.assign({}, m.lodge[view], { st: wasOk ? 'cand' : 'ok' }); }); if (isToday) this.setState({ lodgeOk: false }); },")
+_rep('<div onClick="{{ toggleLodge }}" style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px;cursor:pointer;display:flex;gap:14px;align-items:center"',
+     '<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px;display:flex;gap:14px;align-items:center"')
+_rep('<span style="font-size:var(--f12,12px);font-weight:700;color:{{ lodgeColor }};background:{{ lodgeBg }};border-radius:999px;padding:5px 10px;white-space:nowrap">{{ lodgeLabel }}</span>',
+     '<button onClick="{{ toggleLodge }}" style="font-size:var(--f12,12px);font-weight:700;color:{{ lodgeColor }};background:{{ lodgeBg }};border:0;border-radius:999px;height:36px;padding:0 14px;white-space:nowrap;cursor:pointer;font-family:inherit">{{ lodgeLabel }}</button>')
+_AGO = "'&checkIn=' + ymd(dt) + '&los=1&rooms=1&adults=1&locale=ko-kr&currencyCode=KRW'"
+_rep("'&checkIn=' + ymd(dt) + '&checkOut=' + ymd(dt2) + '&rooms=1&adults=1'", _AGO)
+_rep("'&checkIn=' + ymd(dt) + '&checkOut=' + ymd(new Date(dt.getTime() + 864e5)) + '&rooms=1&adults=1'", _AGO)
+
+
+# ---- 오늘 통계 숫자 색상: 주요 색 4가지 ----
+_rep("value: remain.toFixed(1), unit: 'km', color: '#20202A', sub1: '도착 예정', sub2: hhmm(eta), pct: Math.round(remain / dd.dist * 100), bar: ink, top: ink",
+     "value: remain.toFixed(1), unit: 'km', color: '#2F6FE0', sub1: '도착 예정', sub2: hhmm(eta), pct: Math.round(remain / dd.dist * 100), bar: '#2F6FE0', top: '#2F6FE0'")
+_rep("unit: '보', color: '#20202A', sub1: '목표 2만 보', sub2: Math.min(100, Math.round(steps / 200)) + '%', pct: Math.min(100, Math.round(steps / 200)), bar: ink, top: ink",
+     "unit: '보', color: '#1E9E57', sub1: '목표 2만 보', sub2: Math.min(100, Math.round(steps / 200)) + '%', pct: Math.min(100, Math.round(steps / 200)), bar: '#1E9E57', top: '#1E9E57'")
+_i=dc.index("unit: '', color: '#20202A', sub1: '남은 예상'"); _j=dc.index("bar: ink, top: ink", _i)
+dc=dc[:_i]+dc[_i:_j].replace("color: '#20202A'","color: '#D9602F'")+"bar: '#D9602F', top: '#D9602F'"+dc[_j+len("bar: ink, top: ink"):]
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

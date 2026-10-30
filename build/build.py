@@ -602,6 +602,41 @@ DIARY_JS = r"""<script>(function () {
 })();</script>
 """
 dc = dc.replace('</body>', DIARY_JS + '</body>')
+SYNC_JS = r"""<script>(function () {
+  var URL_ = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-sync', H = { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' };
+  var F = '.image-slots.state.json', DK = 'tk-v15-data', timer = null, busy = false, pulling = false;
+  function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function idb() { return new Promise(function (res, rej) { var r = indexedDB.open('tk-slots', 1); r.onupgradeneeded = function () { r.result.createObjectStore('kv'); }; r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }
+  function idbGet() { return idb().then(function (db) { return new Promise(function (res) { var q = db.transaction('kv').objectStore('kv').get(F); q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { res(null); }; }); }).catch(function () { return null; }); }
+  function idbPut(v) { return idb().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, F); t.oncomplete = res; t.onerror = function () { rej(t.error); }; }); }); }
+  function dirtySet() { try { return JSON.parse(ls('tk-sync-dirty') || '{}'); } catch (e) { return {}; } }
+  function mark(n) { var d = dirtySet(); d[n] = 1; ls('tk-sync-dirty', JSON.stringify(d)); clearTimeout(timer); timer = setTimeout(push, 4000); }
+  function local(n) { return n === 'data' ? Promise.resolve(ls(DK)) : idbGet(); }
+  function put(n, v) { return fetch(URL_ + '?name=' + n, { method: 'PUT', headers: H, body: typeof v === 'string' ? v : JSON.stringify(v) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { ls('tk-sync-ts-' + n, String(Date.parse(j.updated_at))); var d = dirtySet(); delete d[n]; ls('tk-sync-dirty', JSON.stringify(d)); }); }
+  function push() { if (busy) return; busy = true; var d = dirtySet(); Promise.all(Object.keys(d).map(function (n) { return local(n).then(function (v) { return v ? put(n, v) : null; }); })).catch(function () { clearTimeout(timer); timer = setTimeout(push, 30000); }).then(function () { busy = false; }); }
+  var last = ls(DK); var sp = Storage.prototype.setItem;
+  Storage.prototype.setItem = function (k, v) { if (pulling && k === DK) return; sp.apply(this, arguments); if (k === DK && v !== last) { last = v; mark('data'); } };
+  function hookSlots() { var o = window.omelette; if (o && o.writeFile && !o._tk) { var w = o.writeFile; o.writeFile = function () { mark('slots'); return w.apply(this, arguments); }; o._tk = 1; } }
+  hookSlots(); setTimeout(hookSlots, 1500);
+  function init() {
+    var reload = false, d = dirtySet();
+    return Promise.all(['data', 'slots'].map(function (n) {
+      return fetch(URL_ + '?name=' + n, { headers: H }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (srv) {
+        return local(n).then(function (lv) {
+          var sMs = srv.updated_at ? Date.parse(srv.updated_at) : 0, tMs = +ls('tk-sync-ts-' + n) || 0;
+          if (d[n] || (lv && !srv.value)) return lv ? put(n, lv) : null;
+          if (srv.value && (!lv || sMs > tMs)) {
+            if (lv && lv === srv.value) { ls('tk-sync-ts-' + n, String(sMs)); return null; }
+            pulling = true; return (n === 'data' ? Promise.resolve(sp.call(localStorage, DK, srv.value)) : idbPut(srv.value)).then(function () { ls('tk-sync-ts-' + n, String(sMs)); reload = true; });
+          }
+        });
+      });
+    })).then(function () { if (reload && !sessionStorage.getItem('tk-sync-rl')) { sessionStorage.setItem('tk-sync-rl', '1'); location.reload(); } }).catch(function () {});
+  }
+  init();
+})();</script>
+"""
+dc = dc.replace('</body>', SYNC_JS + '</body>')
 
 
 # ---- 오늘 지나는 곳: 12일차뿐 아니라 모든 날에 (일정표의 명소 목록 사용) ----

@@ -421,7 +421,15 @@ assert dc.count(_N)==1
 dc=dc.replace(_N,'<b style="font-size:14px;font-weight:{{ s.weight }};color:{{ s.nameColor }};white-space:nowrap;flex:none">{{ s.name }}</b>')
 _L='{{ c.label }} · {{ c.sub1 }} {{ c.sub2 }}</small>'
 assert dc.count(_L)==1
-dc=dc.replace(_L,'<span style="display:block">{{ c.label }}</span><span style="display:block">{{ c.sub1 }}</span><span style="display:block">{{ c.sub2 }}</span></small>')
+dc=dc.replace(_L,'{{ c.sub1 }} {{ c.sub2 }}</small>')
+_B='<b style="font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.025em;color:{{ c.color }}'
+assert dc.count(_B)==1
+dc=dc.replace(_B,'<small style="font-size:16px;line-height:1.3;font-weight:800;color:#3B3B4E">{{ c.label }}</small>'+_B)
+for _o,_n,_c in [('style="height:46px;padding:0 16px;border:0;border-radius:13px;','style="height:68px;padding:0 20px;border:0;border-radius:16px;',1),
+ ('style="width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.35)','style="width:62px;height:68px;border-radius:16px;border:1px solid rgba(255,255,255,.35)',2),
+ ('style="height:46px;padding:0 14px;border-radius:15px;background:rgba(255,255,255,.94)','style="height:68px;padding:0 18px;border-radius:16px;background:rgba(255,255,255,.94)',1)]:
+    assert dc.count(_o)==_c,_o
+    dc=dc.replace(_o,_n)
 # ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
 def _bump(n):
     n = float(n)
@@ -440,8 +448,8 @@ def _fh(m):
 _sec = re.sub(r'font-size:(\d+(?:\.\d+)?)px', _fs, _sec)
 _sec = re.sub(r'font:(\d+) (\d+(?:\.\d+)?)px', _fh, _sec)
 _css = '@media (orientation:portrait){:root{' + ''.join('--f%g:%gpx;' % (n, _bump(n)) for n in sorted(_sizes)) + '}}'
-dc = dc.replace('<link rel="manifest"', '<style>' + _css + '</style><link rel="manifest"', 1)
 dc = dc[:_i0] + _sec + dc[_i1:]
+dc = dc.replace('<link rel="manifest"', '<style>' + _css + '</style><link rel="manifest"', 1)
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

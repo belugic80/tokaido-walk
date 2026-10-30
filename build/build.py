@@ -302,6 +302,10 @@ PI_OLD = '<div onClick="{{ p.open }}" style="padding:16px 18px;'
 assert dc.count(PI_OLD) == 1
 dc = dc.replace(PI_OLD, '<div data-phrase="1" onClick="{{ p.open }}" style="padding:16px 18px;')
 dc = dc.replace('font-size:20px;font-weight:700;line-height:1.45;color:#673DE6;margin-top:4px', 'font-size:20px;font-weight:700;line-height:1.45;color:#2B6AE0;margin-top:4px')
+# 오늘 탭: 날짜 이동 버튼(오늘로·‹·날짜·›)을 화면 아래쪽으로 내려 엄지가 닿게 (사용자 요청)
+N_OLD = '<div style="display:flex;align-items:center;gap:6px">\n<sc-if value="{{ notToday }}"'
+assert dc.count(N_OLD) == 1
+dc = dc.replace(N_OLD, '<div style="position:fixed;left:calc(50% - 46px);bottom:12px;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;padding:8px;border-radius:24px;background:rgba(24,43,61,.94);box-shadow:0 10px 28px rgba(15,42,74,.35)">\n<sc-if value="{{ notToday }}"')
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
@@ -346,7 +350,7 @@ FIT_JS = """<script>(function () {
       var stats = row && row.nextElementSibling; if (!stats) return;
       var scroller = row.parentElement, frame = document.querySelector('[data-screen-label="Fold8 unfolded"]');
       if (!scroller || !frame || scroller.scrollTop > 1) return;
-      var bottom = stats.getBoundingClientRect().bottom, target = frame.getBoundingClientRect().bottom - 14;
+      var bottom = stats.getBoundingClientRect().bottom, target = frame.getBoundingClientRect().bottom - 86;
       var cur = box.getBoundingClientRect().height, h = Math.max(430, Math.round(cur + (target - bottom)));
       if (Math.abs(h - cur) > 2) { box.style.height = h + 'px'; setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 30); }
     } finally { busy = false; }

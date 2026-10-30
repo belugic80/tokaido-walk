@@ -158,8 +158,8 @@ DATA_JSON = json.dumps(data, ensure_ascii=False)
 main_tpl = open(os.path.join(HERE, 'template_main.html'), encoding='utf-8').read()
 main_html = main_tpl.replace('/*__DATA__*/null', DATA_JSON)
 NEW_TABS = {
-    'index': 'today', 'today': 'today', 'records': 'record', 'plan': 'schedule',
-    'map': 'map', 'japanese': 'lang', 'guide': 'info',
+    'index': 'today', 'today': 'today', 'journey': 'journey', 'records': 'record', 'plan': 'schedule',
+    'map': 'map', 'more': 'more', 'japanese': 'lang', 'guide': 'info',
 }
 for name, tab in NEW_TABS.items():
     html = main_html.replace("let TAB = 'today';", f"let TAB = '{tab}';")

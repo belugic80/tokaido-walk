@@ -757,6 +757,10 @@ _rep("opacity:.85\">WEATHER · 지금</span><span style=\"height:24px;padding:0 
 _cb = '<button onClick="{{ closePop }}" aria-label="팝업 닫기" style="width:68px;height:68px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(103,61,230,.4);flex:none">✕</button>'
 _rep('<a href="{{ pop.dir }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:20px;font-weight:700;color:#5B32D6;padding:14px 6px">구글 지도로 길찾기 ›</a>\n', _cb + '\n')
 
+
+_rep("<b style=\"font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.025em;color:{{ c.color }}", "<b style=\"font-size:26px;font-weight:700;line-height:1.2;letter-spacing:-.025em;color:{{ c.color }}")
+_rep("{{ c.value }}<span style=\"font-size:19px;font-weight:600;margin-left:3px\">{{ c.unit }}", "{{ c.value }}<span style=\"font-size:16px;font-weight:600;margin-left:3px\">{{ c.unit }}")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

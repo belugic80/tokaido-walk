@@ -538,6 +538,15 @@ _rep("credit: 'Photo on Unsplash', creditHref: 'https://unsplash.com/photos/' + 
 # ---- 전체 여정: 웨이포인트 간격 넓힘 ----
 _rep("<div style=\"min-width:0;display:flex;gap:6px;align-items:center;padding:8px 0\"><b style=\"font-size:var(--f14,14px);white-space:nowrap\">{{ s.ko }}</b>", "<div style=\"min-width:0;display:flex;gap:8px;align-items:center;padding:20px 0\"><b style=\"font-size:var(--f14,14px);white-space:nowrap\">{{ s.ko }}</b>")
 
+
+# ---- 한눈에 날짜별 기록: 사진은 올리는 곳이 아니라 '기록' 탭에 올린 사진을 불러와 보여주기만 ----
+for _k in ('p1', 'p2', 'p3'):
+    _rep('<image-slot id="{{ d.%s }}"' % _k, '<image-slot class="ro" id="{{ d.%s }}"' % _k)
+dc = dc.replace('<link rel="manifest"', '<style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}</style><link rel="manifest"', 1)
+
+
+dc = dc.replace('사진 칸에 끌어다 놓으면 저장돼요', '기록 탭에 올린 사진이 여기 나와요')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

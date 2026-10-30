@@ -367,7 +367,7 @@ FIT_JS = """<script>(function () {
       var lc = document.querySelector('.leaflet-container'); if (!lc) return;
       var box = lc.parentElement; if (!box || !/430px/.test(box.getAttribute('data-h0') || box.style.height || '')) { if (!box || !box.getAttribute('data-h0')) return; }
       var row = box.parentElement; while (row && getComputedStyle(row).display !== 'grid' && row.parentElement) row = row.parentElement;
-      var stats = row && row.nextElementSibling; if (!stats) return;
+      var stats = row; if (!stats) return;
       var scroller = row.parentElement, frame = document.querySelector('[data-screen-label="Fold8 unfolded"]');
       if (!scroller || !frame || scroller.scrollTop > 1) return;
       var bottom = stats.getBoundingClientRect().bottom, target = frame.getBoundingClientRect().bottom - 86;
@@ -501,6 +501,16 @@ dc = dc.replace('<link rel="manifest"', '<style>@media (orientation:portrait){:r
 _m = re.search(r'<div style="grid-column:1/-1;background:linear-gradient\(135deg,#E8F1FF 0%,#F4F8FF 100%\);border:1px solid #CFE0FB[^\n]*\n', dc)
 assert _m
 dc = dc[:_m.start()] + dc[_m.end():]
+
+
+# ---- 오늘: 통계 박스를 사진(히어로)과 지도 사이로 이동 ----
+_sa = dc.index('<div style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">\n<sc-for list="{{ stats }}"')
+_se = dc.index('</sc-for>\n</div>\n', _sa) + len('</sc-for>\n</div>\n')
+_stats = dc[_sa:_se]
+dc = dc[:_sa] + dc[_se:]
+_row = '<div style="flex:none;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.9fr);gap:14px">\n<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:14px;display:flex;flex-direction:column;min-width:0">\n<div data-h0="430"'
+assert dc.count(_row) == 1
+dc = dc.replace(_row, _stats.replace('gap:12px">', 'gap:12px;margin-top:8px">', 1) + _row)
 
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh

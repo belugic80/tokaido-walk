@@ -208,6 +208,83 @@ assert dc.count(SC_OLD) == 1
 dc = dc.replace(SC_OLD, '<div data-showcard="1" style="cursor:pointer;flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))')
 assert dc.count('길에서 바로 보여주세요</span>') == 1
 dc = dc.replace('길에서 바로 보여주세요</span>', '눌러서 화면 가득 보여주기</span>')
+# ── 일본어 탭: 보여주기 카드 10문장 + 오늘 숙소 카드 (예전 사이트 기능을 v15 일본어 탭으로) ──
+import json as _json
+def _lines(t): return [x.strip() for x in str(t or '').split('\n') if x.strip()]
+def _hotel_day(i):
+    hd = i
+    while (not days[hd].get('h1') or '위와 같음' in days[hd]['h1']) and hd > 0 and days[hd - 1]['stay'] == days[i]['stay']:
+        hd -= 1
+    return hd
+def _last_ll(i):
+    for k in range(i, -1, -1):
+        if days[k]['route']: return days[k]['route'][-1]['ll']
+    return '35.0,138.5'
+HOTELS = {}
+for i, dd in enumerate(days):
+    hd = days[_hotel_day(i)]
+    first = (_lines(hd.get('h1')) or [''])[0]
+    m = re.search(r'\(([A-Za-z][^)]*)\)', first)
+    en = m.group(1) if m else (first.split(',')[0] if re.match(r'^[A-Za-z]', first) else '')
+    ko = re.sub(r'\(.*?\)', '', re.split(r',|·', first)[0]).strip()
+    # v15 디자인의 N일차는 엑셀의 (N+1)일차와 같은 구간이라, 숙소는 한 칸 뒤 행을 사용
+    HOTELS[max(1, dd['n'] - 1)] = {'ko': ko, 'en': en, 'ja': hd.get('jaName') or '', 'addr': hd.get('jaAddr') or '', 'town': hd.get('stayQ') or '', 'll': _last_ll(i)}
+HOTELS[31] = HOTELS.get(31) or HOTELS[30]
+SHOW10 = [
+  ['hotel', '숙소로 가 주세요', 'このホテルまでお願いします。'],
+  ['checkin', '예약했어요, 체크인 부탁해요', '予約しています。チェックインをお願いします。'],
+  ['bag', '짐을 맡아 주실 수 있나요?', '荷物を預かってもらえますか？'],
+  ['road', '도카이도 옛길은 어느 쪽인가요?', '旧東海道はどちらですか？'],
+  ['toilet', '화장실을 써도 될까요?', 'トイレを借りてもいいですか？'],
+  ['pharm', '근처에 약국이 있나요?', '近くに薬局はありますか？'],
+  ['hurt', '다리가 아파요. 병원에 가고 싶어요', '足が痛いです。病院に行きたいです。'],
+  ['one', '한 명이에요', '一人です。'],
+  ['pay', '계산 부탁해요', 'お会計をお願いします。'],
+  ['photo', '사진 좀 찍어 주실래요?', '写真を撮ってもらえますか？'],
+]
+SC_BLOCK = ('<div style="grid-column:1/-1;background:#FFFFFF;border:1px solid #E8E7EF;border-radius:18px;padding:18px 18px 14px;margin-bottom:6px">'
+  '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:22px;font-weight:800">보여주기 카드</div><span style="font-size:15px;color:#85859A">누르면 화면 가득 크게</span></div>'
+  '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">'
+  + ''.join('<button type="button" data-show="%s" style="height:56px;padding:0 18px;border-radius:14px;border:1.5px solid #E8E7EF;background:#F7F7FB;color:#20202A;font-size:19px;font-weight:700;font-family:inherit;cursor:pointer">%s</button>' % (k, ko) for k, ko, _ in SHOW10)
+  + '</div></div>')
+SC_GRID_OLD = '<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding-bottom:16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-content:start">\n<sc-for list="{{ phrases }}"'
+assert dc.count(SC_GRID_OLD) == 1
+dc = dc.replace(SC_GRID_OLD, SC_GRID_OLD.split('\n')[0] + '\n' + SC_BLOCK + '\n<sc-for list="{{ phrases }}"')
+SC_JS = """<script>(function () {
+  var HOTELS = %s, SHOW = %s;
+  var curDay = function () { var m = (document.body.innerText.match(/DAY\\s*(\\d+)\\s*\\/\\s*31/) || [])[1]; return +m || 12; };
+  var el = function (tag, css, txt) { var d = document.createElement(tag); if (css) d.style.cssText = css; if (txt != null) d.textContent = txt; return d; };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-show]'); if (!b) return;
+    var it = SHOW.filter(function (x) { return x[0] === b.getAttribute('data-show'); })[0]; if (!it) return;
+    var ov = el('div', 'position:fixed;inset:0;z-index:5000;background:#14102B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px;padding:40px 32px;box-sizing:border-box;overflow:auto');
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', it[1]);
+    ov.appendChild(el('div', "font:700 clamp(44px,9vw,84px)/1.35 'Noto Serif JP',serif;overflow-wrap:anywhere", it[2]));
+    if (it[0] === 'hotel' || it[0] === 'checkin') {
+      var h = HOTELS[curDay()] || {};
+      var box = el('div', 'display:flex;flex-direction:column;gap:10px;align-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:22px 28px;max-width:100%%');
+      if (h.ja) box.appendChild(el('div', "font:700 clamp(30px,6vw,52px)/1.3 'Noto Serif JP',serif", h.ja));
+      if (h.en) box.appendChild(el('div', 'font-size:clamp(24px,4.6vw,38px);font-weight:700', h.en));
+      if (h.ko) box.appendChild(el('div', 'font-size:clamp(22px,4vw,32px);opacity:.9', h.ko));
+      var ad = h.addr || h.town; if (ad) box.appendChild(el('div', "font:500 clamp(20px,3.6vw,28px)/1.4 'Noto Serif JP',serif;opacity:.9", ad));
+      var q = encodeURIComponent((h.ja || h.en || h.ko || '') + ' ' + (h.town || ''));
+      var a = el('a', 'margin-top:6px;display:inline-flex;align-items:center;height:56px;padding:0 28px;border-radius:999px;background:#673DE6;color:#fff;font-size:22px;font-weight:800;text-decoration:none', '지도로 보여주기');
+      a.href = 'https://www.google.com/maps/search/?api=1&query=' + (h.ll || q); a.target = '_blank'; a.rel = 'noopener'; box.appendChild(a);
+      ov.appendChild(box);
+    }
+    ov.appendChild(el('div', 'font-size:clamp(26px,5vw,44px);font-weight:700;opacity:.92', it[1]));
+    var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
+    var c = el('button', 'margin-top:8px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#14102B;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer', '닫기');
+    c.type = 'button'; c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
+    ov.appendChild(c); document.body.appendChild(ov);
+    try { var r = document.documentElement.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(function () {}); } catch (er) {}
+  });
+})();</script>
+""" % (_json.dumps(HOTELS, ensure_ascii=False), _json.dumps(SHOW10, ensure_ascii=False))
+# 한눈에 탭: 사진 영역을 화면 높이에 맞춰 키워서, 사진·통계·역참 진행이 한 화면에 꽉 차게
+G_OLD = 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:96px 96px;gap:8px'
+assert dc.count(G_OLD) == 1
+dc = dc.replace(G_OLD, 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:repeat(2,max(96px,calc((100dvh - GAPPX)/2)));gap:8px'.replace('GAPPX', '540px'))
 # 비상 연락처는 번호가 잘리지 않도록 2열로
 EM_OLD = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px">\n<sc-for list="{{ calls }}"'
 assert dc.count(EM_OLD) == 1
@@ -240,7 +317,7 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
 })();</script>
 """
 assert dc.count('</body>') == 1
-dc = dc.replace('</body>', FS + '</body>')
+dc = dc.replace('</body>', FS + SC_JS + '</body>')
 # 가짜 상태 표시줄(9:41·5G·배터리)과 카메라 점 제거
 dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 50px;font:600 12px system-ui;color:#20202A">\n<span>9:41</span>.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>\n', '', dc, count=1, flags=re.S)
 assert k == 1

@@ -180,7 +180,7 @@ dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:cen
 assert k == 1
 # 휴대폰에서는 디자인 폭(1000px) 그대로 화면에 맞춰 축소해서 보이게 함
 assert dc.count('<meta name="viewport" content="width=device-width, initial-scale=1">') == 1
-dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000">')
+dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, initial-scale=1, maximum-scale=1, user-scalable=no"><style>html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style>')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

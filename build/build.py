@@ -405,7 +405,7 @@ dc=dc.replace(_A,'color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</di
 # ---- 저장(유실 방지): 입력값을 이 기기에 자동 저장, 사진은 IndexedDB ----
 PERSIST_KEYS = ['smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
 _P = [
- ("heroImg: (this.props.heroImg && !/^assets\\//.test(this.props.heroImg)) ? this.props.heroImg : 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop',", "heroImg: 'assets/dayhero/' + view + '.jpg',"),
+ ("heroImg: (this.props.heroImg && !/^assets\\//.test(this.props.heroImg)) ? this.props.heroImg : 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop',", "heroImg: 'assets/dayhero/' + view + '.jpg', heroPos: (Number(view)===31 ? '50% 86%' : '50% 40%'),"),
  ("amenOn: {}, pop: -1 };", "amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };"),
  ("componentDidUpdate() { try {", "componentDidUpdate() { try { const _d = {}; " + repr(PERSIST_KEYS) + ".forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try {"),
  ("dayNote: this.state.dayNote || '', onDayNote: e => this.setState({ dayNote: e.target.value, dayNoteSaved: false })", "dayNote: (this.state.dayNotes || {})[view] || '', onDayNote: e => { const v_ = e.target.value; this.setState(s_ => ({ dayNotes: Object.assign({}, s_.dayNotes || {}, { [view]: v_ }), dayNoteSaved: false })); }"),
@@ -433,7 +433,7 @@ for _o,_n,_c in [('style="height:46px;padding:0 16px;border:0;border-radius:13px
     dc=dc.replace(_o,_n)
 _HB='background:#182B3D url({{ heroImg }}) center 42%/cover;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)">'
 assert dc.count(_HB)==1
-dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;inset:-24px;background:url({{ heroImg }}) center/cover;filter:blur(22px) brightness(.62) saturate(1.2)"></div><div style="position:absolute;inset:0;background:url({{ heroImg }}) 50% 38%/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,30,.9) 0%,rgba(8,14,30,.72) 38%,rgba(8,14,30,.28) 66%,rgba(8,14,30,.05) 85%)"></div>')
+dc=dc.replace(_HB,'background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;top:0;bottom:0;right:0;width:70%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,#101A2B 0%,#101A2B 26%,rgba(16,26,43,.82) 40%,rgba(16,26,43,.35) 58%,rgba(16,26,43,0) 76%)"></div>')
 # ---- 글자 크기 가이드: 오늘(홈) 탭만 먼저 적용 ----
 def _bump(n):
     n = float(n)

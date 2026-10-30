@@ -70,7 +70,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:4px 20px 100px 24px;display:flex;flex-direction:column;gap:12px">
-<div data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:330px;border-radius:28px;overflow:hidden;background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;inset:-24px;background:url({{ heroImg }}) center/cover;filter:blur(22px) brightness(.62) saturate(1.2)"></div><div style="position:absolute;inset:0;background:url({{ heroImg }}) 50% 38%/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,30,.9) 0%,rgba(8,14,30,.72) 38%,rgba(8,14,30,.28) 66%,rgba(8,14,30,.05) 85%)"></div>
+<div data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:330px;border-radius:28px;overflow:hidden;background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;top:0;bottom:0;right:0;width:70%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,#101A2B 0%,#101A2B 26%,rgba(16,26,43,.82) 40%,rgba(16,26,43,.35) 58%,rgba(16,26,43,0) 76%)"></div>
 <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.42) 0%,rgba(15,23,42,0) 34%,rgba(15,23,42,.18) 52%,rgba(15,23,42,.86) 100%)"></div>
 <div style="position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(115,67,235,.32),transparent 36%)"></div>
 <div style="position:absolute;left:20px;right:20px;top:18px;display:flex;justify-content:space-between;align-items:center;gap:10px">
@@ -1459,7 +1459,7 @@ class Component extends DCLogic {
       prevDay: () => this.goView(view - 1), nextDayFn: () => this.goView(view + 1), goToday: () => this.goView(today),
       miles: MILES.map(([label, km]) => ({ label, x: pct(km), bg: km <= posKmF ? '#fff' : 'rgba(15,23,42,.6)', op: km <= posKmF ? 1 : .7 })),
       ringPct: Math.max(0, Math.min(100, Math.round(walked / Math.max(dd.dist, .1) * 100))), posKm: Math.round(dd.startKm + walked), posPct: pct(posKmF), prevPct: pct(barStart), todayPct: pct(posKmF - barStart), stationsDone,
-      heroImg: 'assets/dayhero/' + view + '.jpg',
+      heroImg: 'assets/dayhero/' + view + '.jpg', heroPos: (Number(view)===31 ? '50% 86%' : '50% 40%'),
       creaseOn: this.props.showCrease ?? false,
       ctaLabel, ctaBg, ctaColor, ctaCursor, ctaShadow,
       canReset: isToday && stage > 0,

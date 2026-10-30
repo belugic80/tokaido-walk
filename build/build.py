@@ -672,6 +672,28 @@ _rep('\n<a href="{{ gmapsDir }}" target="_blank" rel="noopener" style="font-weig
 _gb = '<a href="{{ gmapsDir }}" target="_blank" rel="noopener" title="구글 지도로 길찾기" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2F6FE0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg></a>\n'
 _rep('<div style="position:absolute;right:12px;bottom:12px;z-index:500;display:grid;gap:9px">\n<button onClick="{{ lodgeFly }}"', '<div style="position:absolute;right:12px;bottom:12px;z-index:500;display:grid;gap:9px">\n' + _gb + '<button onClick="{{ lodgeFly }}"')
 
+
+# ---- 체중 그래프: 값이 범위(72~80)를 벗어나도 그래프 안에 들어오게 눈금 자동 조절 ----
+_rep("    const wPts = wv.map((v, i) => ({ x: sx(i, wv.length, 52, 330), y: sc(v, 72, 80, 10, 146),",
+     "    const wLo = Math.min(72, Math.floor((Math.min(...wv, 77) - 1) / 2) * 2), wHi = Math.max(80, Math.ceil((Math.max(...wv, 77) + 1) / 2) * 2), wTicks = []; for (let t = wLo; t <= wHi; t += 2) wTicks.push(t);\n    const wPts = wv.map((v, i) => ({ x: sx(i, wv.length, 52, 330), y: sc(v, wLo, wHi, 10, 146),")
+_rep("const wBase = 77, wBY = sc(wBase, 72, 80, 10, 146);", "const wBase = 77, wBY = sc(wBase, wLo, wHi, 10, 146);")
+_rep("grid: grid([72, 74, 76, 78, 80], 72, 80, 10, 146, v => v + 'kg'), baseY: wBY", "grid: grid(wTicks, wLo, wHi, 10, 146, v => v + 'kg'), baseY: wBY")
+
+
+# ---- 수면 그래프: 기준 8시간, 그래프 세로로 더 길게 (체중 그래프도 같은 높이) ----
+dc = dc.replace('viewBox="0 0 354 170"', 'viewBox="0 0 354 250"')
+assert dc.count('y="165" text-anchor="middle"') == 2
+dc = dc.replace('y="165" text-anchor="middle"', 'y="245" text-anchor="middle"')
+dc = dc.replace('10, 146', '10, 226')
+_rep("rline(sleep, 5, 9, [5, 6, 7, 8, 9], v => v + 'h'", "rline(sleep, 4, 10, [4, 6, 8, 10], v => v + 'h'")
+_rep("sc(7, 5, 9, 10, 226)", "sc(8, 4, 10, 10, 226)")
+_rep("y = sc(v, 5, 9, 10, 226)", "y = sc(v, 4, 10, 10, 226)")
+_rep("c: v >= 7 ? '#7951E8' : '#F2C66A'", "c: v >= 8 ? '#7951E8' : '#F2C66A'")
+_rep("sleep.filter(v => v >= 7).length", "sleep.filter(v => v >= 8).length")
+_rep("'기준 7시간 대비'", "'기준 8시간 대비'")
+dc = dc.replace('>기준 7시간 대비 · Galaxy Watch9<', '>기준 8시간 대비 · Galaxy Watch9<')
+dc = dc.replace('>기준 7h<', '>기준 8h<').replace('>7h 이상 {{ c.over }}일<', '>8h 이상 {{ c.over }}일<').replace('>7h 미만 {{ c.under }}일<', '>8h 미만 {{ c.under }}일<')
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

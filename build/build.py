@@ -619,6 +619,39 @@ _rep("    places: d === 12 ? PLACES12 : []\n",
 """)
 _rep("const PLACES12 = [", "const PLACESX = " + json.dumps(_px, ensure_ascii=False) + ";\nconst PLACES12 = [")
 
+
+# ---- 기록: 수면/체중 카드 위아래 간격 (고정 높이 때문에 글자가 겹치던 것) ----
+_rep("gap:12px;height:62px\"><div style=\"min-width:0\">", "gap:12px;min-height:62px;padding-bottom:6px\"><div style=\"min-width:0\">", 2)
+_rep("margin-top:10px;height:36px;flex-wrap:nowrap", "margin-top:14px;min-height:40px;flex-wrap:nowrap", 2)
+
+
+# ---- 장소 팝업 크게 ----
+_pa = dc.index('<div data-screen-label="Spot popup"'); _pb = dc.index('<sc-if value="{{ creaseOn }}"')
+_pp = dc[_pa:_pb]
+for _o, _n in [
+  ('justify-content:flex-end;padding:60px 120px 40px 40px', 'justify-content:flex-end;padding:30px 96px 30px 24px'),
+  ('width:440px;max-height:100%', 'width:min(800px,100%);max-height:100%'),
+  ('border-radius:28px;padding:20px;box-shadow', 'border-radius:32px;padding:26px;box-shadow'),
+  ('position:relative;height:200px;border-radius:20px', 'position:relative;height:min(40dvh,420px);border-radius:24px'),
+  ('padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700', 'padding:8px 16px;border-radius:999px;font-size:18px;font-weight:700'),
+  ('margin:16px 0 12px;text-align:center', 'margin:22px 0 16px;text-align:center'),
+  ('font-size:24px;font-weight:800;letter-spacing:-.02em;color:#0F172A', 'font-size:36px;font-weight:800;letter-spacing:-.02em;color:#0F172A'),
+  ("font:500 13px 'Noto Serif JP',serif;color:#64748B;margin-top:4px", "font:500 19px 'Noto Serif JP',serif;color:#64748B;margin-top:6px"),
+  ('gap:8px">\n<sc-for list="{{ pop.facts }}"', 'gap:12px">\n<sc-for list="{{ pop.facts }}"'),
+  ('border-radius:14px;padding:10px 8px;display:flex', 'border-radius:18px;padding:16px 8px;display:flex'),
+  ('<small style="font-size:12px;color:#64748B;font-weight:500">', '<small style="font-size:17px;color:#64748B;font-weight:500">'),
+  ("font:800 16px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:-.02em;color:#0F172A;white-space:nowrap", "font:800 25px 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:-.02em;color:#0F172A;white-space:nowrap"),
+  ('font-size:13px;color:#475569;line-height:1.7;margin:12px 0', 'font-size:20px;color:#475569;line-height:1.7;margin:18px 0'),
+  ('position:relative;height:150px;border-radius:16px', 'position:relative;height:260px;border-radius:20px'),
+  ('padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.94);font-size:12px', 'padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.94);font-size:16px'),
+  ('margin-top:14px;padding-top:10px;border-top', 'margin-top:18px;padding-top:12px;border-top'),
+  ('gap:6px;font-size:13px;font-weight:700;color:#5B32D6;padding:12px 4px', 'gap:6px;font-size:20px;font-weight:700;color:#5B32D6;padding:14px 6px'),
+  ('width:48px;height:48px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:18px', 'width:68px;height:68px;border-radius:50%;border:0;background:linear-gradient(135deg,#673DE6 0%,#8B5CF6 100%);color:#fff;font-size:26px'),
+]:
+    assert _pp.count(_o) == 1, _o
+    _pp = _pp.replace(_o, _n)
+dc = dc[:_pa] + _pp + dc[_pb:]
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

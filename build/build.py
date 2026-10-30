@@ -162,22 +162,25 @@ NEW_TABS = {
     'map': 'map', 'more': 'more', 'japanese': 'lang', 'guide': 'info',
 }
 
-# ── 홈(/) = 클로드 디자인 v7 파일 그대로 ──────────────────────────────
-# design/ 의 원본은 손대지 않고, 폰 테두리 프레임만 폴드 화면(880px 꽉 차게)으로 바꿔서 내보냄
+# ── 홈(/) = 클로드 디자인 v15 파일 그대로 ─────────────────────────────
+# design/ 의 원본은 손대지 않고, 폰 테두리 프레임만 걷어내 화면에 꽉 차게 내보냄
 DESIGN = os.path.join(ROOT, 'design')
-dc = open(os.path.join(DESIGN, 'Tokaido Today v7.dc.html'), encoding='utf-8').read()
+dc = open(os.path.join(DESIGN, 'Tokaido Today v15.dc.html'), encoding='utf-8').read()
 FRAME = [
-    ('<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px">',
-     '<div style="min-height:100vh;display:flex;justify-content:center">'),
-    ('width:820px;height:910px;flex:none;border-radius:30px;', 'width:880px;height:100dvh;flex:none;border-radius:0;'),
-    ('box-shadow:0 0 0 9px #15181b,0 0 0 10px #3b4147,0 40px 90px rgba(20,24,27,.32);', ''),
+    ('<div style="min-height:100vh;display:flex;flex-direction:column;align-items:safe center;justify-content:safe center;gap:14px;padding:36px 24px;box-sizing:border-box;overflow-x:auto">',
+     '<div style="min-height:100vh;display:flex;justify-content:center;box-sizing:border-box">'),
+    ('width:1000px;height:960px;flex:none;border-radius:34px;', 'width:100%;max-width:1000px;height:100dvh;flex:none;border-radius:0;'),
+    ('box-shadow:0 0 0 9px #15181B,0 0 0 10px #3B4147,0 36px 80px rgba(23,43,61,.3);', ''),
 ]
-for a, b in FRAME:
-    assert dc.count(a) == 1, a
-    dc = dc.replace(a, b)
+for a_, b_ in FRAME:
+    assert dc.count(a_) == 1, a_
+    dc = dc.replace(a_, b_)
 # 가짜 상태 표시줄(9:41·5G·배터리)과 카메라 점 제거
-dc, k = re.subn(r'\n<div style="position:absolute;top:0;left:0;right:0;height:32px;z-index:1000;.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>', '', dc, count=1, flags=re.S)
+dc, k = re.subn(r'<div style="flex:none;height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 50px;font:600 12px system-ui;color:#20202A">\n<span>9:41</span>.*?</div>\n</div>\n<div style="position:absolute;top:10px;left:24px;width:12px;height:12px;border-radius:50%;background:#0b0d0f;z-index:1001"></div>\n', '', dc, count=1, flags=re.S)
 assert k == 1
+# 휴대폰에서는 디자인 폭(1000px) 그대로 화면에 맞춰 축소해서 보이게 함
+assert dc.count('<meta name="viewport" content="width=device-width, initial-scale=1">') == 1
+dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000">')
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):
@@ -185,9 +188,7 @@ for f in ('support.js', 'image-slot.js'):
 os.makedirs(os.path.join(ROOT, 'assets'), exist_ok=True)
 for f in os.listdir(os.path.join(DESIGN, 'assets')):
     _sh.copyfile(os.path.join(DESIGN, 'assets', f), os.path.join(ROOT, 'assets', f))
-for name, tab in NEW_TABS.items():
-    html = main_html.replace("let TAB = 'today';", f"let TAB = '{tab}';")
-    open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)
+
 
 # ── 히어로 사진(실제 폴더 사진): assets/hero/*.jpg → /hero/*.jpg로 그대로 배포 ──
 import shutil
@@ -210,4 +211,4 @@ for name, tab in OLD_TABS.items():
     open(os.path.join(ROOT, f'{name}.html'), 'w', encoding='utf-8').write(html)
 
 print('days', len(days), 'tips', len(tips), 'ja', len(ja), 'routes', sum(1 for d in days if d['route']))
-print('wrote', ', '.join(NEW_TABS) + '.html (new design, 6 tabs)', '+', len(OLD_TABS), 'old_*.html (old design)')
+print('wrote index.html (v15) +', len(OLD_TABS), 'old_*.html')

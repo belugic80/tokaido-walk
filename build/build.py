@@ -581,7 +581,7 @@ DIARY_JS = r"""<script>(function () {
       '<div style="font-size:30px;font-weight:800;margin:10px 0">' + esc(it.path) + '</div>' +
       (has ? '<img src="' + it.pics[Math.min(pic, it.pics.length - 1)] + '" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:20px;display:block;margin:0 auto">'
            : '<div style="width:100%;aspect-ratio:4/3;margin:0 auto;border-radius:20px;background:#F1F1F7;display:grid;place-items:center;color:#85859A;font-size:21px;text-align:center;line-height:1.5">이 날은 올린 사진이 없어요<br>기록 탭에서 올리면 여기 나와요</div>') + thumbs +
-      '<div style="font-size:24px;font-weight:500;line-height:1.5;margin-top:14px;padding:16px 20px;min-height:3.4em;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:16px;background:linear-gradient(135deg,#EEE9FF 0%,#F8F5FF 100%)">“' + esc(it.note) + '”</div>' +
+      '<div style="font-size:24px;font-weight:500;line-height:1.5;margin-top:14px;padding:16px 20px;word-break:keep-all;min-height:calc(2 * 1.5em + 32px);box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:16px;background:linear-gradient(135deg,#EEE9FF 0%,#F8F5FF 100%)">“' + esc(it.note) + '”</div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:12px;border-top:1px solid #F1F5F9">' + cbtn +
       '<div style="display:flex;align-items:center;gap:10px">' + nb(1, idx >= list.length - 1, '‹ 이전 날') + '<span style="font:700 20px \'DM Sans\',sans-serif;color:#555568;min-width:64px;text-align:center">' + (list.length - idx) + ' / ' + list.length + '</span>' + nb(-1, idx <= 0, '다음 날 ›') + '</div>' + cbtn + '</div></div>';
   }
@@ -764,6 +764,9 @@ _rep('<a href="{{ pop.dir }}" target="_blank" rel="noopener" style="display:inli
 
 _rep("<b style=\"font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.025em;color:{{ c.color }}", "<b style=\"font-size:26px;font-weight:700;line-height:1.2;letter-spacing:-.025em;color:{{ c.color }}")
 _rep("{{ c.value }}<span style=\"font-size:19px;font-weight:600;margin-left:3px\">{{ c.unit }}", "{{ c.value }}<span style=\"font-size:16px;font-weight:600;margin-left:3px\">{{ c.unit }}")
+
+
+_rep("오늘의 한 줄을 기록 탭에서 남겨 보세요", "오늘의 한 줄을 기록 탭에서 남겨 보세요. 사진과 함께 여기에서 다시 볼 수 있어요.")
 
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh

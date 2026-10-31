@@ -162,7 +162,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <span style="display:flex;align-items:center;gap:6px;font-size:var(--f12,12px);color:#555568"><span style="width:10px;height:10px;border-radius:50%;background:#18A96B"></span>지나온 곳</span><span style="display:flex;align-items:center;gap:6px;font-size:var(--f12,12px);color:#555568"><span style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #2585F5;box-sizing:border-box"></span>앞으로 갈 곳</span>
 <sc-if value="{{ morePlaces }}" hint-placeholder-val="{{ false }}"><button onClick="{{ placesPrev }}" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;width:44px;height:44px">‹</button><button onClick="{{ placesNext }}" style="width:46px;height:46px;border:1px solid #DDE5EC;border-radius:15px;background:#fff;color:#23374A;box-shadow:0 4px 14px rgba(27,51,69,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;width:44px;height:44px">›</button></sc-if>
 </div>
-<div ref="{{ placesRef }}" style="display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;margin:6px -10px -10px;padding:8px 10px 18px">
+<div data-hscroll="1" ref="{{ placesRef }}" style="-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;margin:6px -10px -10px;padding:8px 10px 18px">
 <sc-for list="{{ places }}" as="p" hint-placeholder-count="4">
 <div onClick="{{ p.onClick }}" style="flex:none;width:calc((100% - 36px) / 4);scroll-snap-align:start;cursor:pointer;min-width:0;border-radius:18px;padding:8px;border:1px solid #E8E7EF;box-shadow:inset 0 0 0 1.5px {{ p.border }},0 10px 24px rgba(15,42,74,.10),0 2px 6px rgba(15,42,74,.05);background:#FFFFFF;transition:transform .2s ease,box-shadow .2s ease" style-hover="transform:translateY(-3px);box-shadow:0 16px 32px rgba(15,42,74,.16)">
 <div style="position:relative;height:110px;border-radius:12px;overflow:hidden;background:#F1F1F7;box-shadow:0 6px 14px rgba(15,42,74,.18)"><div style="position:absolute;inset:0;filter:{{ p.filter }};opacity:{{ p.op }}"><image-slot id="{{ p.slotId }}" src="{{ p.src }}" credit="{{ p.credit }}" credit-href="{{ p.creditHref }}" shape="rounded" radius="12" placeholder="{{ p.ph }}"></image-slot></div>
@@ -668,7 +668,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="position:relative;display:flex;justify-content:space-between;align-items:center"><span style="font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;opacity:.85">WEATHER · 지금</span><span style="height:24px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:var(--f12,12px);font-weight:700;display:flex;align-items:center;white-space:nowrap;flex:none">{{ wxw.badge }}</span></div>
 <div style="position:relative;display:flex;align-items:center;gap:14px;margin-top:12px">
 <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"></path></svg>
-<div><div style="font:700 52px/1 'DM Sans',sans-serif;letter-spacing:-.05em">{{ wxw.now }}°</div><div style="font-size:var(--f14,14px);font-weight:600;margin-top:4px;opacity:.92">{{ wxw.place }} 인근 · {{ wxw.cond }}</div></div>
+<div><div style="font:700 52px/1 'DM Sans',sans-serif;letter-spacing:-.05em">{{ wxw.now }}°</div><div style="font-size:var(--f14,14px);font-weight:600;margin-top:4px;opacity:.92">{{ wxw.place }} · {{ wxw.cond }}</div></div>
 </div>
 <div style="position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px">
 <sc-for list="{{ wxw.sun }}" as="x" hint-placeholder-count="2"><div style="border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)"><div style="font-size:var(--f12,12px);opacity:.85">{{ x.label }}</div><div style="font:700 20px 'DM Sans',sans-serif;margin-top:2px">{{ x.t }}</div></div></sc-for>
@@ -889,7 +889,9 @@ class Component extends DCLogic {
     try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
     const apply = (lat, lon, src) => {
       const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&timezone=auto&forecast_days=7';
-      fetch(u).then(r => r.json()).then(j => { if (!j || !j.current || !j.daily || !j.daily.time) throw 0; const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.current.weather_code, d: j.daily }; this.setState({ wlive: w }); try { localStorage.setItem('tk-wx', JSON.stringify(w)); } catch (e) {} }).catch(() => {});
+      fetch(u).then(r => r.json()).then(j => { if (!j || !j.current || !j.daily || !j.daily.time) throw 0; const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.current.weather_code, d: j.daily, name: (this.state.wlive && this.state.wlive.src === src && this.state.wlive.name) || '' }; this.setState({ wlive: w }); try { localStorage.setItem('tk-wx', JSON.stringify(w)); } catch (e) {}
+        if (src === 'gps') fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=ko&lat=' + lat.toFixed(4) + '&lon=' + lon.toFixed(4)).then(r => r.json()).then(g => { const a = (g && g.address) || {}; const big = a.city || a.town || a.village || a.county || a.state || '', small = a.borough || a.city_district || a.suburb || a.quarter || a.neighbourhood || ''; const nm = [big, small].filter(Boolean).join(' ') || (g && g.name) || ''; if (!nm) return; const w2 = { ...w, name: nm }; this.setState({ wlive: w2 }); try { localStorage.setItem('tk-wx', JSON.stringify(w2)); } catch (e) {} }).catch(() => {});
+      }).catch(() => {});
     };
     const fb = () => { const ll = this._wxLL || [34.97, 138.38]; apply(ll[0], ll[1], 'trip'); };
     try { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => apply(p.coords.latitude, p.coords.longitude, 'gps'), fb, { timeout: 6000, maximumAge: 600000 }); else fb(); } catch (e) { fb(); }
@@ -1438,14 +1440,14 @@ class Component extends DCLogic {
     const wxDays = Array.from({ length: 7 }, (_, i) => { const dn = dno0 + i, dtx = new Date(2026, 11, dn), k = Math.floor(rnd(dn * 3 + 5) * 10) % 3, rain = k === 2 ? 50 + Math.round(rnd(dn) * 40) : k === 1 ? 10 + Math.round(rnd(dn) * 20) : Math.round(rnd(dn) * 10), kk = WXK[k];
       return { name: i === 0 ? '오늘' : i === 1 ? '내일' : '일월화수목금토'[dtx.getDay()], date: (dtx.getMonth() + 1) + '/' + dtx.getDate(), icon: kk[1], ic: kk[2], hi: 11 + Math.round(rnd(dn + 7) * 5), lo: 2 + Math.round(rnd(dn + 9) * 4), rain, bg: i === 0 ? '#F1ECFF' : '#F1F1F7', c: i === 0 ? '#4E27C5' : '#20202A' }; });
     const [sr, ss] = sunAt(dno0), fmtT = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.round(m) % 60).padStart(2, '0');
-    const wxw = { badge: '예시 데이터', place: wxPlace, now: 9, cond: WXK[Math.floor(rnd(dno0 * 3 + 5) * 10) % 3][0], days: wxDays,
+    const wxw = { badge: '예시 데이터', place: wxPlace + ' 인근', now: 9, cond: WXK[Math.floor(rnd(dno0 * 3 + 5) * 10) % 3][0], days: wxDays,
       sun: [{ label: '일출', t: fmtT(sr), color: '#20202A' }, { label: '일몰', t: fmtT(ss), color: accent }] };
     const WL = this.state.wlive;
     if (WL && WL.d && WL.d.time && WL.d.time.length) {
       const wcat = c => c <= 1 ? 0 : c <= 48 ? 1 : 2;
       const wtxt = c => c === 0 ? '맑음' : c <= 2 ? '구름 조금' : c === 3 ? '흐림' : c <= 48 ? '안개' : c <= 57 ? '이슬비' : c <= 67 ? '비' : c <= 77 ? '눈' : c <= 82 ? '소나기' : c <= 86 ? '눈보라' : '뇌우';
       wxw.days = WL.d.time.map((t, i) => { const [yy, mm, d2] = t.split('-').map(Number), dtx = new Date(yy, mm - 1, d2), kk = WXK[wcat(WL.d.weather_code[i])]; return { name: i === 0 ? '오늘' : i === 1 ? '내일' : '일월화수목금토'[dtx.getDay()], date: mm + '/' + d2, icon: kk[1], ic: kk[2], hi: Math.round(WL.d.temperature_2m_max[i]), lo: Math.round(WL.d.temperature_2m_min[i]), rain: Math.round(WL.d.precipitation_probability_max[i] || 0), bg: i === 0 ? '#F1ECFF' : '#F1F1F7', c: i === 0 ? '#4E27C5' : '#20202A' }; });
-      wxw.now = Math.round(WL.now); wxw.cond = wtxt(WL.code); wxw.place = WL.src === 'gps' ? '내 위치' : wxPlace;
+      wxw.now = Math.round(WL.now); wxw.cond = wtxt(WL.code); wxw.place = WL.src === 'gps' ? (WL.name || '내 위치') : wxPlace + ' 인근';
       const sr0 = (WL.d.sunrise[0] || '').slice(11, 16), ss0 = (WL.d.sunset[0] || '').slice(11, 16);
       wxw.sun = [{ label: '일출', t: sr0, color: '#20202A' }, { label: '일몰', t: ss0, color: accent }];
       wxw.badge = '실시간 · ' + (WL.src === 'gps' ? '내 위치' : '코스 기준');
@@ -1538,7 +1540,7 @@ class Component extends DCLogic {
   document.addEventListener('touchmove', function (e) {
     if (e.touches.length > 1) { e.preventDefault(); return; }
     var dx = Math.abs(e.touches[0].clientX - sx), dy = Math.abs(e.touches[0].clientY - sy);
-    if (dx > dy && !(e.target.closest && e.target.closest('.leaflet-container,input,textarea'))) e.preventDefault();
+    if (dx > dy && !(e.target.closest && e.target.closest('.leaflet-container,input,textarea,[data-hscroll]'))) e.preventDefault();
   }, { passive: false });
   window.scrollTo(0, 0); window.addEventListener('scroll', function () { if (window.scrollX) window.scrollTo(0, window.scrollY); }, { passive: true });
   var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;

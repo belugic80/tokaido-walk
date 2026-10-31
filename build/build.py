@@ -331,7 +331,7 @@ FS = """<button id="fsBtn" aria-label="전체 화면" title="전체 화면" styl
   document.addEventListener('touchmove', function (e) {
     if (e.touches.length > 1) { e.preventDefault(); return; }
     var dx = Math.abs(e.touches[0].clientX - sx), dy = Math.abs(e.touches[0].clientY - sy);
-    if (dx > dy && !(e.target.closest && e.target.closest('.leaflet-container,input,textarea'))) e.preventDefault();
+    if (dx > dy && !(e.target.closest && e.target.closest('.leaflet-container,input,textarea,[data-hscroll]'))) e.preventDefault();
   }, { passive: false });
   window.scrollTo(0, 0); window.addEventListener('scroll', function () { if (window.scrollX) window.scrollTo(0, window.scrollY); }, { passive: true });
   var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
@@ -917,6 +917,14 @@ PTR_JS = r"""<script>(function () {
 dc = dc.replace('</body>', PTR_JS + '</body>')
 _rep('<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ d.ic }}" stroke-width="1.8"', '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="{{ d.ic }}" stroke-width="1.6"')
 _rep('<span style="color:#85859A;font-weight:500;font-size:19px"> {{ d.lo }}°</span>', '<span style="color:#85859A;font-weight:800;font-size:25px"> {{ d.lo }}°</span>')
+_rep('<div ref="{{ placesRef }}" style="', '<div data-hscroll="1" ref="{{ placesRef }}" style="-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;')
+_rep("const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.current.weather_code, d: j.daily }; this.setState({ wlive: w }); try { localStorage.setItem('tk-wx', JSON.stringify(w)); } catch (e) {} }).catch(() => {});",
+"""const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.current.weather_code, d: j.daily, name: (this.state.wlive && this.state.wlive.src === src && this.state.wlive.name) || '' }; this.setState({ wlive: w }); try { localStorage.setItem('tk-wx', JSON.stringify(w)); } catch (e) {}
+        if (src === 'gps') fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=ko&lat=' + lat.toFixed(4) + '&lon=' + lon.toFixed(4)).then(r => r.json()).then(g => { const a = (g && g.address) || {}; const big = a.city || a.town || a.village || a.county || a.state || '', small = a.borough || a.city_district || a.suburb || a.quarter || a.neighbourhood || ''; const nm = [big, small].filter(Boolean).join(' ') || (g && g.name) || ''; if (!nm) return; const w2 = { ...w, name: nm }; this.setState({ wlive: w2 }); try { localStorage.setItem('tk-wx', JSON.stringify(w2)); } catch (e) {} }).catch(() => {});
+      }).catch(() => {});""")
+_rep("{{ wxw.place }} 인근 · {{ wxw.cond }}", "{{ wxw.place }} · {{ wxw.cond }}")
+_rep("place: wxPlace, now: 9,", "place: wxPlace + ' 인근', now: 9,")
+_rep("wxw.place = WL.src === 'gps' ? '내 위치' : wxPlace;", "wxw.place = WL.src === 'gps' ? (WL.name || '내 위치') : wxPlace + ' 인근';")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

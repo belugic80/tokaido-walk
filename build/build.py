@@ -880,6 +880,41 @@ _rep("stageFor(d, n) { const t = this.today(); return d < t ? n : d > t ? 0 : Ma
 "stageFor(d, n) { const t = this.today(); if (this.dayInfo().diff < 0) return 0; return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }")
 _rep("background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap\">TODAY'S JOURNEY",
 "background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap;margin-left:96px\">TODAY'S JOURNEY")
+PTR_JS = r"""<script>(function () {
+  /* 위에서 아래로 당기면 새로고침 (맨 위에서만, 지도·입력창·팝업 제외) */
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;left:50%;top:0;transform:translate(-50%,-70px);z-index:9000;padding:10px 22px;border-radius:999px;background:#1F2A44;color:#fff;font:700 18px "Noto Sans KR",sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.3);pointer-events:none;white-space:nowrap;transition:transform .15s';
+  document.body.appendChild(bar);
+  var y0 = 0, on = false, dy = 0, TH = 110;
+  var atTop = function (el) {
+    for (; el && el !== document.body && el.nodeType === 1; el = el.parentElement) {
+      if (el.classList && el.classList.contains('leaflet-container')) return false;
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.getAttribute('role') === 'dialog') return false;
+      var cs = getComputedStyle(el);
+      if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight && el.scrollTop > 0) return false;
+    }
+    return true;
+  };
+  document.addEventListener('touchstart', function (e) {
+    on = false; dy = 0;
+    if (e.touches.length !== 1 || !atTop(e.target)) return;
+    y0 = e.touches[0].clientY; on = true;
+  }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (!on) return;
+    dy = e.touches[0].clientY - y0;
+    if (dy < 0) { on = false; bar.style.transform = 'translate(-50%,-70px)'; return; }
+    if (dy < 12) return;
+    var p = Math.min(1, dy / TH);
+    bar.textContent = p >= 1 ? '놓으면 새로고침' : '↓ 당겨서 새로고침';
+    bar.style.transform = 'translate(-50%,' + (Math.min(dy, 160) * .5 - 10) + 'px)';
+  }, { passive: true });
+  var end = function () { var go = on && dy >= TH; on = false; bar.style.transform = 'translate(-50%,-70px)'; if (go) { bar.textContent = '새로고침 중…'; bar.style.transform = 'translate(-50%,30px)'; setTimeout(function () { location.reload(); }, 80); } };
+  document.addEventListener('touchend', end, { passive: true });
+  document.addEventListener('touchcancel', function () { on = false; bar.style.transform = 'translate(-50%,-70px)'; }, { passive: true });
+})();</script>
+"""
+dc = dc.replace('</body>', PTR_JS + '</body>')
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

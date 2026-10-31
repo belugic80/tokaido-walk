@@ -1700,5 +1700,38 @@ class Component extends DCLogic {
   }
   init();
 })();</script>
+<script>(function () {
+  /* 위에서 아래로 당기면 새로고침 (맨 위에서만, 지도·입력창·팝업 제외) */
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;left:50%;top:0;transform:translate(-50%,-70px);z-index:9000;padding:10px 22px;border-radius:999px;background:#1F2A44;color:#fff;font:700 18px "Noto Sans KR",sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.3);pointer-events:none;white-space:nowrap;transition:transform .15s';
+  document.body.appendChild(bar);
+  var y0 = 0, on = false, dy = 0, TH = 110;
+  var atTop = function (el) {
+    for (; el && el !== document.body && el.nodeType === 1; el = el.parentElement) {
+      if (el.classList && el.classList.contains('leaflet-container')) return false;
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.getAttribute('role') === 'dialog') return false;
+      var cs = getComputedStyle(el);
+      if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight && el.scrollTop > 0) return false;
+    }
+    return true;
+  };
+  document.addEventListener('touchstart', function (e) {
+    on = false; dy = 0;
+    if (e.touches.length !== 1 || !atTop(e.target)) return;
+    y0 = e.touches[0].clientY; on = true;
+  }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (!on) return;
+    dy = e.touches[0].clientY - y0;
+    if (dy < 0) { on = false; bar.style.transform = 'translate(-50%,-70px)'; return; }
+    if (dy < 12) return;
+    var p = Math.min(1, dy / TH);
+    bar.textContent = p >= 1 ? '놓으면 새로고침' : '↓ 당겨서 새로고침';
+    bar.style.transform = 'translate(-50%,' + (Math.min(dy, 160) * .5 - 10) + 'px)';
+  }, { passive: true });
+  var end = function () { var go = on && dy >= TH; on = false; bar.style.transform = 'translate(-50%,-70px)'; if (go) { bar.textContent = '새로고침 중…'; bar.style.transform = 'translate(-50%,30px)'; setTimeout(function () { location.reload(); }, 80); } };
+  document.addEventListener('touchend', end, { passive: true });
+  document.addEventListener('touchcancel', function () { on = false; bar.style.transform = 'translate(-50%,-70px)'; }, { passive: true });
+})();</script>
 </body>
 </html>

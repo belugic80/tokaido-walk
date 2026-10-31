@@ -969,6 +969,17 @@ _rep("    const cumSteps = Math.round(cumNow * 1340);\n", """    const hcSum = A
 _rep("{ label: '실제 걸은 거리', value: cumNow.toFixed(1), unit: 'km',", "{ label: '실제 걸은 거리', value: (cumKmW != null ? cumKmW : cumNow).toFixed(1), unit: 'km',")
 _rep("{ label: '걷기 평균 심박', value: 98, unit: 'bpm'", "{ label: '걷기 평균 심박', value: cumHr, unit: 'bpm'")
 _rep("km: x.dist, note: (this.state.dayNotes", "km: hcD(d) ? +hcD(d).km.toFixed(1) : x.dist, note: (this.state.dayNotes")
+
+# ---- 기록 탭: 시간대별 걸음 · 걸은 거리 · 심박 그래프도 워치 값으로 ----
+_rep("hr: v.hr || null, hrMax: v.hrMax || null, synced: v.synced || '' };", "hr: v.hr || null, hrMax: v.hrMax || null, hourly: v.hourly || null, series: v.series || null, synced: v.synced || '' };")
+_rep("tW = tst <= 0 ? 0 : tdd.stops[Math.min(tst - 1, tn - 1)].rel;", "tW = hcT0 ? hcT0.km : tst <= 0 ? 0 : tdd.stops[Math.min(tst - 1, tn - 1)].rel;")
+_rep("hrsArr.push({ h: hh2 + '시', dn: Math.round(dn), pl: Math.round(pl) });", "const hv = hcT0 && hcT0.hourly ? Math.round(+hcT0.hourly[hh2] || 0) : null; hrsArr.push(hv != null ? { h: hh2 + '시', dn: hv, pl: hv } : { h: hh2 + '시', dn: Math.round(dn), pl: Math.round(pl) });")
+_rep("const tlPins = stopEvs.map(", "const tlPins = (hcT0 && hcT0.hourly ? [] : stopEvs).map(")
+_rep("const HRV = [88, 90, 89, 93, 85, 91, 127, 96, 86, 90, 92, 91, 94, 92];", "const HRS = hcT0 && hcT0.series && hcT0.series.length >= 2 ? hcT0.series : null;\n    const HRV = HRS ? HRS.map(a => a[1]) : [88, 90, 89, 93, 85, 91, 127, 96, 86, 90, 92, 91, 94, 92];\n    const hhl = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + '시';\n    const hrX = HRS ? [hhl(HRS[0][0]), hhl((HRS[0][0] + HRS[HRS.length - 1][0]) / 2), hhl(HRS[HRS.length - 1][0])] : ['08시', '09시', '10시'];\n    const hrAvgV = hcT0 && hcT0.hr ? hcT0.hr : 92;")
+_rep("y: sc(v, 70, 140, 14, 150) }));\n    const hmI", "y: sc(Math.max(70, Math.min(140, v)), 70, 140, 14, 150) }));\n    const hmI")
+_rep("hrAvg: 92, hrMin:", "hrAvg: hrAvgV, x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin:")
+_rep('<text x="34" y="166" font-size="11" fill="#85859A">08시</text><text x="200" y="166" text-anchor="middle" font-size="11" fill="#85859A">09시</text><text x="372" y="166" text-anchor="end" font-size="11" fill="#85859A">10시</text>',
+     '<text x="34" y="166" font-size="11" fill="#85859A">{{ hov.x0 }}</text><text x="200" y="166" text-anchor="middle" font-size="11" fill="#85859A">{{ hov.x1 }}</text><text x="372" y="166" text-anchor="end" font-size="11" fill="#85859A">{{ hov.x2 }}</text>')
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

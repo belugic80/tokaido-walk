@@ -1107,6 +1107,21 @@ dc = dc.replace(_anchor, '</div>\n</div>\n' + _card + '\n</div>\n</sc-if>\n<sc-i
 assert dc.count("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png") >= 1
 dc = dc.replace("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
 
+# ---- 오늘 탭 지도: 실제로 걸어온 길(폰 GPS 트랙 + 서버 위치) 표시 — 경로를 벗어난 식사·관광도 보이게 ----
+_rep("  drawMain() {\n", """  trackPts(iso) {
+    const a = (((this.state.track || {})[iso]) || []).concat((((this.state.hc || {}).locs || {})[iso]) || []).sort((x, y) => x[2] - y[2]), o = [];
+    a.forEach(q => { const l = o[o.length - 1]; if (!l || hav([l[0], l[1]], [q[0], q[1]]) > 0.02) o.push(q); });
+    return o.map(q => [q[0], q[1]]);
+  }
+  drawMain() {
+""")
+_rep("key: [view, cutI, route.length,", "walk: (() => { if (view !== this.today()) return []; const n3 = new Date(); return this.trackPts(n3.getFullYear() + '-' + String(n3.getMonth() + 1).padStart(2, '0') + '-' + String(n3.getDate()).padStart(2, '0')); })(), key: [view, cutI, route.length,")
+_rep("    this.drawnKey = m.key;\n    this.declutter();", """    try { if (m.walk && m.walk.length > 1) { L.polyline(m.walk, { renderer: this.svgR, color: '#673DE6', weight: 5, opacity: .95, lineCap: 'round', lineJoin: 'round' }).bindTooltip('걸어온 길', { sticky: true }).addTo(lay); L.circleMarker(m.walk[0], { radius: 6, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(lay); } } catch (e) {}
+    this.drawnKey = _wk;
+    this.declutter();""")
+
+_rep("    if (m.key === this.drawnKey) return;\n    if (this.fitKey", "    const _wk = m.key + '#' + (m.walk ? m.walk.length : 0); if (_wk === this.drawnKey) return;\n    if (this.fitKey")
+_rep("    this.drawnKey = m.key;\n    this.declutter();", "    this.drawnKey = _wk;\n    this.declutter();") if False else None
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

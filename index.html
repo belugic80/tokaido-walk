@@ -951,9 +951,14 @@ class Component extends DCLogic {
       setTimeout(() => { if (this.popMap === pm) { pm.invalidateSize(); this.drawPop(); } }, 220);
     } else if (pel && this.popMap && this._pop && this._popN !== this._pop.n) { this._popN = this._pop.n; this.drawPop(); } else if (!pel && this.popMap) { try { this.popMap.remove(); } catch (e) {} this.popMap = null; this.popEl = null; }
   }
+  trackPts(iso) {
+    const a = (((this.state.track || {})[iso]) || []).concat((((this.state.hc || {}).locs || {})[iso]) || []).sort((x, y) => x[2] - y[2]), o = [];
+    a.forEach(q => { const l = o[o.length - 1]; if (!l || hav([l[0], l[1]], [q[0], q[1]]) > 0.02) o.push(q); });
+    return o.map(q => [q[0], q[1]]);
+  }
   drawMain() {
     const m = this._m, L = this.mapL; if (!m || !this.map || !L) return;
-    if (m.key === this.drawnKey) return;
+    const _wk = m.key + '#' + (m.walk ? m.walk.length : 0); if (_wk === this.drawnKey) return;
     if (this.fitKey !== m.fitKey) { this.fitKey = m.fitKey; this.fit(); }
     const lay = this.lay; lay.clearLayers();
     try { L.polyline(m.route, { renderer: this.svgR, color: '#2585F5', weight: 5, opacity: .9, lineCap: 'round', lineJoin: 'round' }).addTo(lay); } catch (e) {}
@@ -963,7 +968,8 @@ class Component extends DCLogic {
     this.placeMs = m.places.map(p => L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: placeHtml(p.n, p.passed) }), zIndexOffset: 200 }).on('click', () => this.setState({ pop: p.n - 1 })).addTo(lay));
     this.stopMs = m.stops.map((s, i) => L.marker(s.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: s.html }), zIndexOffset: 300 + (i === 0 || i === m.stops.length - 1 ? 50 : 0) }).bindTooltip(s.name, { direction: 'top', offset: [0, -14] }).addTo(lay));
     this.meM = m.me ? L.marker(m.me, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: ME_HTML }), zIndexOffset: 1000 }).addTo(lay) : null;
-    this.drawnKey = m.key;
+    try { if (m.walk && m.walk.length > 1) { L.polyline(m.walk, { renderer: this.svgR, color: '#673DE6', weight: 5, opacity: .95, lineCap: 'round', lineJoin: 'round' }).bindTooltip('걸어온 길', { sticky: true }).addTo(lay); L.circleMarker(m.walk[0], { radius: 6, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(lay); } } catch (e) {}
+    this.drawnKey = _wk;
     this.declutter();
   }
   declutter() {
@@ -1149,7 +1155,7 @@ class Component extends DCLogic {
     });
     const placeMarks = places.map(p => ({ ll: p.ll, n: p.n, passed: p.passed }));
     let trans = []; const _tr = TRN[view]; if (_tr && route.length > 1) { let i0 = nearestIdx(route, ST[_tr.a].ll), i1 = nearestIdx(route, ST[_tr.b].ll); if (i0 > i1) { const q = i0; i0 = i1; i1 = q; } trans = route.slice(i0, i1 + 1); }
-    this._m = { trans, trKind: _tr ? ({ train: '기차', bus: '버스', taxi: '택시' }[_tr.k] || '교통') : '', key: [view, cutI, route.length, trans.length, _tr ? _tr.a + '-' + _tr.b : '', JSON.stringify(amenOn), amC ? 1 : 0, meLL ? meLL.join() : ''].join('|'), fitKey: view + ':' + route.length, route, done: route.slice(0, cutI + 1), me: meLL, stops: stopMarks, places: placeMarks, amen: amenList };
+    this._m = { trans, trKind: _tr ? ({ train: '기차', bus: '버스', taxi: '택시' }[_tr.k] || '교통') : '', walk: (() => { if (view !== this.today()) return []; const n3 = new Date(); return this.trackPts(n3.getFullYear() + '-' + String(n3.getMonth() + 1).padStart(2, '0') + '-' + String(n3.getDate()).padStart(2, '0')); })(), key: [view, cutI, route.length, trans.length, _tr ? _tr.a + '-' + _tr.b : '', JSON.stringify(amenOn), amC ? 1 : 0, meLL ? meLL.join() : ''].join('|'), fitKey: view + ':' + route.length, route, done: route.slice(0, cutI + 1), me: meLL, stops: stopMarks, places: placeMarks, amen: amenList };
     const llq = ll => ll[0].toFixed(5) + ',' + ll[1].toFixed(5);
     const gmapsDir = 'https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=' + llq(dd.stops[0].ll) + '&destination=' + llq(dd.stops[n - 1].ll) + (n > 2 ? '&waypoints=' + encodeURIComponent(dd.stops.slice(1, -1).map(s => llq(s.ll)).join('|')) : '');
     const routeNote = rc ? '실제 도보 경로 ' + rc.km + ' km' : rc === false ? '대략 경로' : '경로 불러오는 중…';

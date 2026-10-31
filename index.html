@@ -281,7 +281,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ tlIsB }}" hint-placeholder-val="{{ true }}">
 <div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">HOURLY STEPS · 시간대별 걸음 수</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">언제 가장 많이 걸었을까요?</div></div><span style="font:700 24px 'DM Sans',sans-serif;letter-spacing:-.03em;color:#20202A">{{ hov.steps }}<small style="font:500 var(--f12,12px) 'Noto Sans KR',sans-serif;color:#85859A;margin-left:4px">걸음</small></span></div>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">HOURLY STEPS · 시간대별 걸음 수</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">언제 가장 많이 걸었을까요?{{ hov.hourNote }}</div></div><span style="font:700 24px 'DM Sans',sans-serif;letter-spacing:-.03em;color:#20202A">{{ hov.steps }}<small style="font:500 var(--f12,12px) 'Noto Sans KR',sans-serif;color:#85859A;margin-left:4px">걸음</small></span></div>
 <div style="position:relative;height:230px;margin-top:10px">
 <div style="position:absolute;left:0;right:0;top:56px;bottom:22px;display:flex;align-items:flex-end;gap:6px">
 <sc-for list="{{ tl.hours }}" as="b" hint-placeholder-count="13"><div style="flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">
@@ -903,7 +903,7 @@ class Component extends DCLogic {
     const to = new Date(), from = to >= new Date(2026, 11, 4) ? new Date(2026, 11, 4) : new Date(to.getTime() - 9 * 864e5);
     fetch('https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/hc-read?from=' + iso(from) + '&to=' + iso(to), { headers: { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' }, cache: 'no-store' })
       .then(r => { if (!r.ok) throw 0; return r.json(); })
-      .then(j => { const days = {}; Object.entries(j.days || {}).forEach(([k, v]) => { days[k] = { km: Math.max(+v.km || 0, +v.exKm || 0), steps: v.steps || 0, min: v.min == null ? null : v.min, kcal: v.kcal == null ? (v.kcalActive == null ? null : v.kcalActive) : v.kcal, hr: v.hr || null, hrMax: v.hrMax || null, hourly: v.hourly || null, series: v.series || null, synced: v.synced || '' }; }); const hc = { days, at: Date.now() }; this.setState({ hc }); try { localStorage.setItem('tk-hc3', JSON.stringify(hc)); } catch (e) {} })
+      .then(j => { const days = {}; Object.entries(j.days || {}).forEach(([k, v]) => { days[k] = { km: Math.max(+v.km || 0, +v.exKm || 0), steps: v.steps || 0, min: v.min == null ? null : v.min, kcal: v.kcal == null ? (v.kcalActive == null ? null : v.kcalActive) : v.kcal, hr: v.hr || null, hrMax: v.hrMax || null, hourly: v.hourly || null, sessions: v.sessions || null, series: v.series || null, synced: v.synced || '' }; }); const hc = { days, at: Date.now() }; this.setState({ hc }); try { localStorage.setItem('tk-hc3', JSON.stringify(hc)); } catch (e) {} })
       .catch(() => { this.setState(s => ({ hc: Object.assign({}, s.hc || {}, { err: true }) })); });
     clearTimeout(this._hcT); this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);
   }
@@ -1432,14 +1432,23 @@ class Component extends DCLogic {
     });
     const wmax = Math.max.apply(null, evs.filter(e => e.isWalk).map(e => e.kmRaw).concat([1]));
     evs.forEach(e => { if (e.isWalk) e.pct = Math.round(e.kmRaw / wmax * 100); });
-    const hrsArr = []; for (let hh2 = 6; hh2 <= 18; hh2++) { let dn = 0, pl = 0; walks.forEach(w => { const ov = Math.max(0, Math.min(w.to, (hh2 + 1) * 60) - Math.max(w.from, hh2 * 60)); if (ov > 0) { const st = w.steps * ov / (w.to - w.from); pl += st; if (w.done) dn += st; } }); const hv = hcT0 && hcT0.hourly ? Math.round(+hcT0.hourly[hh2] || 0) : null; hrsArr.push(hv != null ? { h: hh2 + '시', dn: hv, pl: hv } : { h: hh2 + '시', dn: Math.round(dn), pl: Math.round(pl) }); }
+    const hcH = (() => {
+      if (!hcT0) return null;
+      const ks = Object.keys(hcT0.hourly || {}).map(Number).sort((a, b) => a - b), body = ks.slice(0, -1).map(k => hcT0.hourly[k]);
+      const flat = ks.length >= 4 && Math.max.apply(null, body) - Math.min.apply(null, body) <= 1;
+      if (ks.length && !flat) return { map: hcT0.hourly, note: '' };
+      const m = {}, ss = (hcT0.sessions || []).filter(x => x.s && x.e);
+      ss.forEach(x => { const a = +x.s.slice(0, 2) * 60 + +x.s.slice(3, 5), b = Math.max(a + 1, +x.e.slice(0, 2) * 60 + +x.e.slice(3, 5)), st = x.steps != null ? x.steps : Math.round((x.km || 0) * 1340); for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m[h] = (m[h] || 0) + st * ov / (b - a); } });
+      return ss.length ? { map: m, note: '걷기 운동 기록 기준' } : { map: {}, note: '시간별 기록 없음 · 워치에서 걷기 운동을 시작하면 표시' };
+    })();
+    const hrsArr = []; for (let hh2 = 6; hh2 <= 18; hh2++) { let dn = 0, pl = 0; walks.forEach(w => { const ov = Math.max(0, Math.min(w.to, (hh2 + 1) * 60) - Math.max(w.from, hh2 * 60)); if (ov > 0) { const st = w.steps * ov / (w.to - w.from); pl += st; if (w.done) dn += st; } }); const hv = hcH ? Math.round(hcH.map[hh2] || 0) : null; hrsArr.push(hv != null ? { h: hh2 + '시', dn: hv, pl: hv } : { h: hh2 + '시', dn: Math.round(dn), pl: Math.round(pl) }); }
     const hpMax = Math.max.apply(null, hrsArr.map(x => x.pl).concat([1]));
     const tlHours = hrsArr.map(x => ({ h: x.h, planPct: Math.round(x.pl / hpMax * 100), doneRel: x.pl ? Math.round(x.dn / x.pl * 100) : 0, bg: '#7544ED', lab: x.dn ? (x.dn >= 1000 ? (x.dn / 1000).toFixed(1) + '천' : String(x.dn)) : '' }));
     const stopEvs = evs.filter(e => e.isStop);
-    const tlPins = (hcT0 && hcT0.hourly ? [] : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = i <= tlReached; return { x: Math.max(4, Math.min(96, ((hh3 * 60 + mm3) - 360) / 780 * 100)).toFixed(1), top: i % 2 ? 26 : 0, name: e.name, time: e.time, bg: done ? '#20A85A' : i === tlReached + 1 ? accent : '#A6A6B5', color: done ? '#20A85A' : '#A6A6B5' }; });
+    const tlPins = (hcH ? [] : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = i <= tlReached; return { x: Math.max(4, Math.min(96, ((hh3 * 60 + mm3) - 360) / 780 * 100)).toFixed(1), top: i % 2 ? 26 : 0, name: e.name, time: e.time, bg: done ? '#20A85A' : i === tlReached + 1 ? accent : '#A6A6B5', color: done ? '#20A85A' : '#A6A6B5' }; });
     const tlDt = new Date(2026, 11, 3 + today);
     const hrArea = path(hrPts) + ' L' + hrPts[hrPts.length - 1].x + ',150 L' + hrPts[0].x + ',150 Z';
-    const hov = { hrD: path(hrPts), hrArea, hrAvg: hrAvgV, x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin: Math.min.apply(null, HRV), hrMax: Math.max.apply(null, HRV), hrGrid: grid([80, 100, 120, 140], 70, 140, 14, 150, v => v), hrMx: hrPts[hmI].x, hrMy: hrPts[hmI].y,
+    const hov = { hrD: path(hrPts), hrArea, hrAvg: hrAvgV, hourNote: hcH && hcH.note ? ' · ' + hcH.note : '', x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin: Math.min.apply(null, HRV), hrMax: Math.max.apply(null, HRV), hrGrid: grid([80, 100, 120, 140], 70, 140, 14, 150, v => v), hrMx: hrPts[hmI].x, hrMy: hrPts[hmI].y,
       ring: Math.round(Math.min(1, tSteps / 20000) * 100), steps: tSteps.toLocaleString('ko-KR'), left: Math.max(0, 20000 - tSteps).toLocaleString('ko-KR'),
       metrics: [
         { k: 'DISTANCE', label: '걸은 거리', v: tW.toFixed(1), u: 'km', sub: '목표 ' + tdd.dist + 'km', bg: '#E4F8EA', c: '#20A85A', g: '↗', p: Math.round(Math.min(1, tW / Math.max(.1, tdd.dist)) * 100), bar: 'linear-gradient(135deg,#37C878,#9BEA9C)' },

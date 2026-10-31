@@ -980,6 +980,23 @@ _rep("y: sc(v, 70, 140, 14, 150) }));\n    const hmI", "y: sc(Math.max(70, Math.
 _rep("hrAvg: 92, hrMin:", "hrAvg: hrAvgV, x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin:")
 _rep('<text x="34" y="166" font-size="11" fill="#85859A">08시</text><text x="200" y="166" text-anchor="middle" font-size="11" fill="#85859A">09시</text><text x="372" y="166" text-anchor="end" font-size="11" fill="#85859A">10시</text>',
      '<text x="34" y="166" font-size="11" fill="#85859A">{{ hov.x0 }}</text><text x="200" y="166" text-anchor="middle" font-size="11" fill="#85859A">{{ hov.x1 }}</text><text x="372" y="166" text-anchor="end" font-size="11" fill="#85859A">{{ hov.x2 }}</text>')
+
+# ---- 시간대별 걸음: 삼성이 하루 합계를 15분마다 똑같이 쪼개 보내는 경우(평평한 값)는 걷기 운동 기록으로 대체 ----
+_rep("hourly: v.hourly || null, series:", "hourly: v.hourly || null, sessions: v.sessions || null, series:")
+_rep("const hv = hcT0 && hcT0.hourly ? Math.round(+hcT0.hourly[hh2] || 0) : null;", "const hv = hcH ? Math.round(hcH.map[hh2] || 0) : null;")
+_rep("    const hrsArr = [];", """    const hcH = (() => {
+      if (!hcT0) return null;
+      const ks = Object.keys(hcT0.hourly || {}).map(Number).sort((a, b) => a - b), body = ks.slice(0, -1).map(k => hcT0.hourly[k]);
+      const flat = ks.length >= 4 && Math.max.apply(null, body) - Math.min.apply(null, body) <= 1;
+      if (ks.length && !flat) return { map: hcT0.hourly, note: '' };
+      const m = {}, ss = (hcT0.sessions || []).filter(x => x.s && x.e);
+      ss.forEach(x => { const a = +x.s.slice(0, 2) * 60 + +x.s.slice(3, 5), b = Math.max(a + 1, +x.e.slice(0, 2) * 60 + +x.e.slice(3, 5)), st = x.steps != null ? x.steps : Math.round((x.km || 0) * 1340); for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m[h] = (m[h] || 0) + st * ov / (b - a); } });
+      return ss.length ? { map: m, note: '걷기 운동 기록 기준' } : { map: {}, note: '시간별 기록 없음 · 워치에서 걷기 운동을 시작하면 표시' };
+    })();
+    const hrsArr = [];""")
+_rep("const tlPins = (hcT0 && hcT0.hourly ? [] : stopEvs).map(", "const tlPins = (hcH ? [] : stopEvs).map(")
+_rep("언제 가장 많이 걸었을까요?", "언제 가장 많이 걸었을까요?{{ hov.hourNote }}")
+_rep("hrAvg: hrAvgV, x0:", "hrAvg: hrAvgV, hourNote: hcH && hcH.note ? ' · ' + hcH.note : '', x0:")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

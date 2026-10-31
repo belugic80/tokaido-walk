@@ -925,6 +925,7 @@ _rep("const w = { ts: Date.now(), src, now: j.current.temperature_2m, code: j.cu
 _rep("{{ wxw.place }} 인근 · {{ wxw.cond }}", "{{ wxw.place }} · {{ wxw.cond }}")
 _rep("place: wxPlace, now: 9,", "place: wxPlace + ' 인근', now: 9,")
 _rep("wxw.place = WL.src === 'gps' ? '내 위치' : wxPlace;", "wxw.place = WL.src === 'gps' ? (WL.name || '내 위치') : wxPlace + ' 인근';")
+_rep("*{overscroll-behavior:none}</style>", "*{overscroll-behavior:none}[data-hscroll] image-slot{pointer-events:none}</style>")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

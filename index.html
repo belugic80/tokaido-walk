@@ -1809,7 +1809,15 @@ class Component extends DCLogic {
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
-    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19 }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); (function () {
+      var E = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+      var clean = L.layerGroup([L.tileLayer(E + 'Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, maxNativeZoom: 16 }), L.tileLayer(E + 'Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, maxNativeZoom: 16 })]);
+      var base = { '깔끔': clean, '일반': L.tileLayer(GSI, { maxZoom: 19 }), '위성': L.tileLayer(E + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }), '지형': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, subdomains: 'abc' }) };
+      var cur = '깔끔'; try { var sv = localStorage.getItem('tk-trkmap'); if (sv && base[sv]) cur = sv; } catch (e) {}
+      base[cur].addTo(el._map);
+      L.control.layers(base, null, { position: 'topright', collapsed: true }).addTo(el._map);
+      el._map.on('baselayerchange', function (ev) { try { localStorage.setItem('tk-trkmap', ev.name); } catch (e) {} });
+    })(); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
     if (!pts.length) {

@@ -169,7 +169,7 @@ dc = open(os.path.join(DESIGN, 'Tokaido Today v15.dc.html'), encoding='utf-8').r
 FRAME = [
     ('<div style="min-height:100vh;display:flex;flex-direction:column;align-items:safe center;justify-content:safe center;gap:14px;padding:36px 24px;box-sizing:border-box;overflow-x:auto">',
      '<div style="min-height:100vh;display:flex;justify-content:center;box-sizing:border-box">'),
-    ('width:1000px;height:960px;flex:none;border-radius:34px;', 'width:100%;max-width:1000px;height:100dvh;flex:none;border-radius:0;'),
+    ('width:1000px;height:960px;flex:none;border-radius:34px;', 'width:100%;max-width:1000px;height:100lvh;flex:none;border-radius:0;'),
     ('box-shadow:0 0 0 9px #15181B,0 0 0 10px #3B4147,0 36px 80px rgba(23,43,61,.3);', ''),
 ]
 for a_, b_ in FRAME:
@@ -205,7 +205,7 @@ assert dc.count(INFO_OLD) == 1
 dc = dc.replace(INFO_OLD, INFO_NEW)
 SC_OLD = '<div style="flex:none;height:400px;background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))'
 assert dc.count(SC_OLD) == 1
-dc = dc.replace(SC_OLD, '<div data-showcard="1" style="cursor:pointer;flex:none;height:max(420px,calc(100dvh - 790px));background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))')
+dc = dc.replace(SC_OLD, '<div data-showcard="1" style="cursor:pointer;flex:none;height:max(420px,calc(100lvh - 790px));background:linear-gradient(135deg,rgba(24,43,61,.94),rgba(45,23,111,.86))')
 assert dc.count('길에서 바로 보여주세요</span>') == 1
 dc = dc.replace('길에서 바로 보여주세요</span>', '눌러서 화면 가득 보여주기</span>')
 # ── 일본어 탭: 보여주기 카드 10문장 + 오늘 숙소 카드 (예전 사이트 기능을 v15 일본어 탭으로) ──
@@ -284,7 +284,7 @@ SC_JS = """<script>(function () {
 # 한눈에 탭: 사진 영역을 화면 높이에 맞춰 키워서, 사진·통계·역참 진행이 한 화면에 꽉 차게
 G_OLD = 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:96px 96px;gap:8px'
 assert dc.count(G_OLD) == 1
-dc = dc.replace(G_OLD, 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:repeat(2,max(96px,calc((100dvh - GAPPX)/2)));gap:8px'.replace('GAPPX', '820px'))
+dc = dc.replace(G_OLD, 'grid-template-columns:2fr 1fr 1fr;grid-template-rows:repeat(2,max(96px,calc((100lvh - GAPPX)/2)));gap:8px'.replace('GAPPX', '820px'))
 M_OLD = '<div style="position:relative;height:430px;border-radius:16px;overflow:hidden;background:#F3F6FA">\n<div ref="{{ mapRef }}"'
 assert dc.count(M_OLD) == 1
 dc = dc.replace(M_OLD, M_OLD.replace('<div style="position:relative;height:430px', '<div data-h0="430" style="position:relative;height:430px'))

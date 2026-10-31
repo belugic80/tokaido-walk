@@ -1068,14 +1068,20 @@ _rep("hrAvg: hrAvgV, hourNote:", "trk: ((this.state.track || {})[recIso] || []).
 _MAP = '<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><div><div style="font:700 var(--f12,12px) \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:.08em;color:#85859A">MY TRACK · 걸은 위치</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">이 날 걸은 길 (폰 GPS)</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 {{ hov.trkN }}점</span></div><div data-trkmap="1" data-trk="{{ hov.trk }}" style="position:relative;height:340px;margin-top:10px;border-radius:16px;overflow:hidden;background:#EAF0F6;touch-action:none"></div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:8px;line-height:1.5">앱을 켜 두고 걸을 때 20m마다 폰 위치를 기록해요. 앱을 닫으면 기록되지 않아요. 워치 GPS 경로는 아직 가져올 수 없어요.</div></div>\n'
 _rep(_row + _H, _row + _MAP + _H)
 dc = dc.replace('</body>', """<script>(function () {
-  var GSI = 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png';
+  var GSI = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
-    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 18 }).addTo(el._map); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19, subdomains: 'abcd' }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
-    if (!pts.length) { return; }
+    if (!pts.length) {
+      if (!el._msg) { el._msg = document.createElement('div'); el._msg.style.cssText = 'position:absolute;left:12px;right:12px;bottom:12px;z-index:1000;background:rgba(255,255,255,.95);border-radius:12px;padding:10px 12px;font:600 14px Noto Sans KR,sans-serif;color:#20202A;text-align:center'; el.appendChild(el._msg); }
+      el._msg.textContent = '이 날은 기록된 위치가 없어요'; el._msg.style.display = 'block';
+      if (!el._cur && navigator.geolocation) { el._cur = 1; navigator.geolocation.getCurrentPosition(function (p) { try { var q = [p.coords.latitude, p.coords.longitude]; el._map.setView(q, 16); L.circleMarker(q, { radius: 8, color: '#fff', weight: 3, fillColor: '#2F7CF6', fillOpacity: 1 }).addTo(el._map); } catch (e) {} }, function () {}, { timeout: 15000, maximumAge: 120000 }); }
+      return;
+    }
+    if (el._msg) el._msg.style.display = 'none';
     L.polyline(pts, { color: '#673DE6', weight: 5, opacity: .9 }).addTo(el._lay);
     L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(el._lay);
     L.circleMarker(pts[pts.length - 1], { radius: 8, color: '#fff', weight: 3, fillColor: '#E8453C', fillOpacity: 1 }).addTo(el._lay);

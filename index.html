@@ -855,7 +855,7 @@ const PH = [
 ["숫자","十 (10)","쥬-","숫자 10",0],
 ["사교","私は1980年生まれの47歳です。","와타시와 센큐-햐쿠 하치쥬-넨 우마레노 욘쥬-나나 사이데스.","저는 1980년생 47살입니다.",0]
 ];
-const GSI = 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png';
+const GSI = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const LODGES = { 11: '시마다 역 앞 호텔', 12: '가케가와 역 앞 료칸' };
 const lodgeName = d => LODGES[d] || (dayData(d).lodge + ' · 숙소 미정');
 const FN = { '편': '#EA580C', '화': '#4F82E8', '역': '#0891B2', '약': '#DC2626' };
@@ -1799,11 +1799,11 @@ class Component extends DCLogic {
     var h = new Date().getHours(); el.scrollLeft = h <= 8 ? 0 : Math.max(0, (Math.min(h, 23) - 6 - 2) * 56);
   }); }, 700);
 })();</script><script>(function () {
-  var GSI = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  var GSI = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
-    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19, subdomains: 'abcd' }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19 }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
     if (!pts.length) {

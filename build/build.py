@@ -1072,11 +1072,11 @@ _rep("const hc = { days, snaps: j.snaps || [], at: Date.now() };", "const hc = {
 _MAP = '<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><div><div style="font:700 var(--f12,12px) \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:.08em;color:#85859A">MY TRACK · 걸은 위치</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">이 날 걸은 길 (폰 GPS)</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 {{ hov.trkN }}점</span></div><div data-trkmap="1" data-trk="{{ hov.trk }}" style="position:relative;height:340px;margin-top:10px;border-radius:16px;overflow:hidden;background:#EAF0F6;touch-action:none"></div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:8px;line-height:1.5">폰의 위치 기록 앱(OwnTracks 등)이 보낸 점과, 이 앱을 켜 두고 걸은 점을 합쳐 보여줘요. 워치 GPS 경로는 아직 가져올 수 없어요.</div></div>\n'
 _rep(_row + _H, _row + _MAP + _H)
 dc = dc.replace('</body>', """<script>(function () {
-  var GSI = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  var GSI = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
-    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19, subdomains: 'abcd' }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19 }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
     if (!pts.length) {
@@ -1102,6 +1102,10 @@ dc = dc[:_st] + dc[_en:]
 _anchor = '</div>\n</div>\n</div>\n</sc-if>\n<sc-if value="{{ tabProg }}"'
 assert dc.count(_anchor) == 1
 dc = dc.replace(_anchor, '</div>\n</div>\n' + _card + '\n</div>\n</sc-if>\n<sc-if value="{{ tabProg }}"')
+
+# ---- 지도 타일: 일본 전용(GSI) → 전 세계 OSM (한국에서도 보이게) ----
+assert dc.count("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png") >= 1
+dc = dc.replace("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
 
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",

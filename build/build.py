@@ -413,7 +413,7 @@ _P = [
 for a_, b_ in _P:
     assert dc.count(a_) == 1, a_
     dc = dc.replace(a_, b_)
-dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}header{gap:8px!important;padding-left:16px!important;padding-right:12px!important}header>div:nth-child(3)>span:last-child{display:none}header>*{flex-shrink:1;min-width:0}nav[data-screen-label="Action rail"]>div{overflow-y:auto;scrollbar-width:none}@media (max-height:860px){nav[data-screen-label="Action rail"]>div{zoom:.74;padding-top:6px!important;padding-bottom:6px!important}}@media (max-height:700px){nav[data-screen-label="Action rail"]>div{zoom:.6}}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}</style>' + open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'slotstore.html'),encoding='utf-8').read() + '<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">')
+dc = dc.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=1000, user-scalable=no"><style>[data-theme="dark"] [data-screen-label="Today hero"]{box-shadow:0 -14px 0 0 #171522,0 12px 0 0 #171522,0 16px 40px rgba(0,0,0,.4)!important}header{gap:8px!important;padding-left:16px!important;padding-right:12px!important}header>div:nth-child(3)>span:last-child{display:none}header>*{flex-shrink:1;min-width:0}nav[data-screen-label="Action rail"]>div{overflow-y:auto;scrollbar-width:none}@media (max-height:860px){nav[data-screen-label="Action rail"]>div{zoom:.74;padding-top:6px!important;padding-bottom:6px!important}}@media (max-height:700px){nav[data-screen-label="Action rail"]>div{zoom:.6}}:fullscreen header{padding-top:32px!important}@media (display-mode: fullscreen){header{padding-top:32px!important}}html,body{overflow:hidden;overscroll-behavior:none;max-width:100%;height:100%}body{position:fixed;inset:0;width:100%}*{overscroll-behavior:none}</style>' + open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'slotstore.html'),encoding='utf-8').read() + '<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#F7F7FB"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="도카이도">')
 _T='<span style="display:{{ s.tagDisplay }};height:20px;padding:0 8px;'
 assert dc.count(_T)==1
 dc=dc.replace(_T,'<span style="display:none;height:20px;padding:0 8px;')
@@ -647,16 +647,17 @@ for _n in range(1, 32):
         if _t[0] in _seen: continue
         _seen.add(_t[0]); _lst.append([_t[0], _t[1], _t[2] if len(_t) > 2 else ''])
     if _lst: _px[_n] = _lst
+_spots = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spots.json'), encoding='utf-8'))
 _rep("    places: d === 12 ? PLACES12 : []\n",
-"""    places: d === 12 ? PLACES12 : (PLACESX[d] || []).map((sp, i, arr) => {
-      const t = (i + 1) / (arr.length + 1), km = +(dist * t).toFixed(1);
+"""    places: (o12 ? PLACES12 : SPOTS.filter(sp => sp.km >= base - 0.05 && sp.km <= base + dist + 0.05).map(sp => {
+      const km = +Math.max(0, sp.km - base).toFixed(1);
       let ll = rel[rel.length - 1].ll;
       for (let k = 1; k < rel.length; k++) { if (km <= rel[k].rel || k === rel.length - 1) { const a0 = rel[k - 1], b0 = rel[k], f = b0.rel === a0.rel ? 0 : Math.min(1, Math.max(0, (km - a0.rel) / (b0.rel - a0.rel))); ll = [a0.ll[0] + (b0.ll[0] - a0.ll[0]) * f, a0.ll[1] + (b0.ll[1] - a0.ll[1]) * f]; break; } }
       if (rel.length === 1) ll = rel[0].ll;
-      return { name: sp[0], km, ll, desc: sp[2] || sp[1], q: sp[1], long: sp[2] ? sp[2] + '. 오늘 코스 근처에서 들러볼 만한 곳이에요.' : sp[0] + '(' + sp[1] + ') — 오늘 코스 근처에서 들러볼 만한 곳이에요. 위치는 대략적이니 구글 지도로 정확한 길을 확인하세요.' };
-    })
+      return { name: sp.ko, km, ll, desc: sp.cat + ' · ' + sp.desc, q: sp.jp, long: '[' + sp.cat + '] ' + sp.desc + '. 위치는 대략적이니 구글 지도로 정확한 길을 확인하고, 영업일은 방문 전에 확인하세요.' };
+    }))
 """)
-_rep("const PLACES12 = [", "const PLACESX = " + json.dumps(_px, ensure_ascii=False) + ";\nconst PLACES12 = [")
+_rep("const PLACES12 = [", "const SPOTS = " + json.dumps(_spots, ensure_ascii=False, separators=(',', ':')) + ";\nconst PLACES12 = [")
 
 
 # ---- 기록: 수면/체중 카드 위아래 간격 (고정 높이 때문에 글자가 겹치던 것) ----
@@ -826,7 +827,6 @@ _rep("  if (d === 12) stops = [ST[22], ST[23], SAYO, ST[24], ST[25]];", "  const
 _rep("const route = d === 12 ? ROUTE12", "const route = o12 ? ROUTE12")
 _rep("const stopIdx = d === 12 ? [0, 4, 10, 12, 14]", "const stopIdx = o12 ? [0, 4, 10, 12, 14]")
 _rep("lodgeNote: d === 12 ? '도착 지점 · 역 앞 료칸'", "lodgeNote: o12 ? '도착 지점 · 역 앞 료칸'")
-_rep("places: d === 12 ? PLACES12 :", "places: o12 ? PLACES12 :")
 
 
 _rep("    title: `${first.ko.replace(/\\(.*\\)/, '')}에서 ${last.ko.replace(/\\(.*\\)/, '')}까지`,", "    title: dist === 0 ? `${first.ko.replace(/\\(.*\\)/, '')}에서 휴식` : `${first.ko.replace(/\\(.*\\)/, '')}에서 ${last.ko.replace(/\\(.*\\)/, '')}까지`,")

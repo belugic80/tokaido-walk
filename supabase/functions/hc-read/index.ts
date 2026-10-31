@@ -24,11 +24,12 @@ Deno.serve(async (req) => {
   const from = u.searchParams.get("from"), to = u.searchParams.get("to");
   if (!isDate(from) || !isDate(to)) return new Response("from/to 필요", { status: 400, headers: cors });
 
-  const [{ data: days, error }, { data: last }, { data: snaps }] = await Promise.all([
+  const [{ data: days, error }, { data: last }, { data: snaps }, { data: dist }] = await Promise.all([
     db.rpc("hc_daily", { d_from: from, d_to: to }),
     db.from("hc_payloads").select("received_at, counts").order("id", { ascending: false }).limit(1),
     db.from("hc_snap").select("day, at, steps, km").gte("day", from!).lte("day", to!).order("at", { ascending: true }).limit(2000),
+    db.rpc("hc_hourly_dist", { d_from: from, d_to: to }),
   ]);
   if (error) return new Response("db error: " + error.message, { status: 500, headers: cors });
-  return Response.json({ days, last: last?.[0] ?? null, snaps: snaps ?? [] }, { headers: { ...cors, "Cache-Control": "no-store" } });
+  return Response.json({ days, last: last?.[0] ?? null, snaps: snaps ?? [], dist: dist ?? {} }, { headers: { ...cors, "Cache-Control": "no-store" } });
 });

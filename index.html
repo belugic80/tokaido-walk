@@ -912,7 +912,7 @@ class Component extends DCLogic {
     const to = new Date(), from = to >= new Date(2026, 11, 4) ? new Date(2026, 11, 4) : new Date(to.getTime() - 9 * 864e5);
     fetch('https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/hc-read?from=' + iso(from) + '&to=' + iso(to), { headers: { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' }, cache: 'no-store' })
       .then(r => { if (!r.ok) throw 0; return r.json(); })
-      .then(j => { const days = {}; Object.entries(j.days || {}).forEach(([k, v]) => { days[k] = { km: Math.max(+v.km || 0, +v.exKm || 0), steps: v.steps || 0, min: v.min == null ? null : v.min, kcal: v.kcal == null ? (v.kcalActive == null ? null : v.kcalActive) : v.kcal, hr: v.hr || null, hrMax: v.hrMax || null, hourly: v.hourly || null, sessions: v.sessions || null, series: v.series || null, synced: v.synced || '' }; }); const hc = { days, snaps: j.snaps || [], at: Date.now() }; this.setState({ hc }); try { localStorage.setItem('tk-hc3', JSON.stringify(hc)); } catch (e) {} })
+      .then(j => { const days = {}; Object.entries(j.days || {}).forEach(([k, v]) => { days[k] = { km: Math.max(+v.km || 0, +v.exKm || 0), steps: v.steps || 0, min: v.min == null ? null : v.min, kcal: v.kcal == null ? (v.kcalActive == null ? null : v.kcalActive) : v.kcal, hr: v.hr || null, hrMax: v.hrMax || null, hourly: v.hourly || null, sessions: v.sessions || null, series: v.series || null, synced: v.synced || '' }; }); Object.keys(days).forEach(k => { days[k].hdist = (j.dist || {})[k] || null; }); const hc = { days, snaps: j.snaps || [], at: Date.now() }; this.setState({ hc }); try { localStorage.setItem('tk-hc3', JSON.stringify(hc)); } catch (e) {} })
       .catch(() => { this.setState(s => ({ hc: Object.assign({}, s.hc || {}, { err: true }) })); });
     clearTimeout(this._hcT); this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);
   }
@@ -1449,6 +1449,8 @@ class Component extends DCLogic {
       const m = {}, ss = (hcT0.sessions || []).filter(x => x.s && x.e);
       ss.forEach(x => { const a = +x.s.slice(0, 2) * 60 + +x.s.slice(3, 5), b = Math.max(a + 1, +x.e.slice(0, 2) * 60 + +x.e.slice(3, 5)), st = x.steps != null ? x.steps : Math.round((x.km || 0) * 1340); for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m[h] = (m[h] || 0) + st * ov / (b - a); } });
       if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };
+      const hd = hcT0.hdist || {}, hdSum = Object.keys(hd).reduce((a, h) => a + (+hd[h] || 0), 0);
+      if (hdSum > 50 && hcT0.steps) { const m3 = {}; Object.keys(hd).forEach(h => { m3[h] = hcT0.steps * (+hd[h] || 0) / hdSum; }); return { map: m3, note: '시간별 이동 거리 비율 기준' }; }
       const sn = ((this.state.hc || {}).snaps || []).filter(x => x.day === _iso).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)), m2 = {};
       for (let i = 1; i < sn.length; i++) { const t0 = Date.parse(sn[i - 1].at), t1 = Date.parse(sn[i].at), d = sn[i].steps - sn[i - 1].steps; if (d <= 0 || t1 <= t0) continue; const a = Math.floor(((t0 + 324e5) % 864e5) / 6e4), b = Math.floor(((t1 + 324e5) % 864e5) / 6e4); if (b <= a) continue; for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m2[h] = (m2[h] || 0) + d * ov / (b - a); } }
       if (Object.keys(m2).length) return { map: m2, note: '워치 동기화 간 증가분 기준(대략)' };

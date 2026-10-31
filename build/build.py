@@ -1019,6 +1019,12 @@ _rep("  loadHc() {", """  watchGps() {
     } catch (e) {}
   }
   loadHc() {""")
+
+# ---- 시간대별 걸음: 시간별 이동 거리(실제 시각별로 기록됨)의 비율로 하루 걸음 수를 배분 ----
+_rep("const hc = { days, snaps: j.snaps || [], at: Date.now() };", "Object.keys(days).forEach(k => { days[k].hdist = (j.dist || {})[k] || null; }); const hc = { days, snaps: j.snaps || [], at: Date.now() };")
+_rep("      const sn = ((this.state.hc || {}).snaps || [])", """      const hd = hcT0.hdist || {}, hdSum = Object.keys(hd).reduce((a, h) => a + (+hd[h] || 0), 0);
+      if (hdSum > 50 && hcT0.steps) { const m3 = {}; Object.keys(hd).forEach(h => { m3[h] = hcT0.steps * (+hd[h] || 0) / hdSum; }); return { map: m3, note: '시간별 이동 거리 비율 기준' }; }
+      const sn = ((this.state.hc || {}).snaps || [])""")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

@@ -1089,6 +1089,16 @@ dc = dc.replace('</body>', """<script>(function () {
     setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 200);
   }); }, 800);
 })();</script></body>""", 1)
+# ---- 기념 배지: 기록 탭 → 역참 스탬프 탭으로 이동 ----
+_k = dc.index('ACHIEVEMENT · 기념 배지')
+_st = dc.rfind('<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px', 0, _k)
+_en = dc.index('</sc-for>', _k) + len('</sc-for>') + len('\n</div>\n</div>')
+_card = dc[_st:_en]
+dc = dc[:_st] + dc[_en:]
+_anchor = '</div>\n</div>\n</div>\n</sc-if>\n<sc-if value="{{ tabProg }}"'
+assert dc.count(_anchor) == 1
+dc = dc.replace(_anchor, '</div>\n</div>\n' + _card + '\n</div>\n</sc-if>\n<sc-if value="{{ tabProg }}"')
+
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

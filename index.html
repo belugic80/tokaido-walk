@@ -407,12 +407,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 
 
-<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">ACHIEVEMENT · 기념 배지</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">모은 배지 {{ badgeCount }} / 15</div></div></div>
-<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px">
-<sc-for list="{{ badges }}" as="g" hint-placeholder-count="15"><div title="{{ g.s }}" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;border-radius:16px;padding:8px 6px;background:{{ g.bg }};border:1px solid {{ g.border }};min-width:0"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:800;line-height:1.25;color:{{ g.c }};word-break:keep-all;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f12,12px);line-height:1.3;color:{{ g.sc }};word-break:keep-all;max-width:100%">{{ g.s }}</div></div></sc-for>
-</div>
-</div>
+
 </div>
 </sc-if>
 <sc-if value="{{ tabManage }}" hint-placeholder-val="{{ false }}">
@@ -574,6 +569,12 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <sc-if value="{{ st.isW }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:7px;top:7px;width:20px;height:20px;border-radius:50%;background:#B7791F;color:#fff;font-size:var(--f11,11px);font-weight:800;display:grid;place-items:center">✓</span></sc-if>
 </button>
 </sc-for>
+</div>
+</div>
+<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">ACHIEVEMENT · 기념 배지</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">모은 배지 {{ badgeCount }} / 15</div></div></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px">
+<sc-for list="{{ badges }}" as="g" hint-placeholder-count="15"><div title="{{ g.s }}" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;border-radius:16px;padding:8px 6px;background:{{ g.bg }};border:1px solid {{ g.border }};min-width:0"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ g.ic }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ g.icon }}"></path></svg><div style="font-size:var(--f13,13px);font-weight:800;line-height:1.25;color:{{ g.c }};word-break:keep-all;max-width:100%">{{ g.t }}</div><div style="font-size:var(--f12,12px);line-height:1.3;color:{{ g.sc }};word-break:keep-all;max-width:100%">{{ g.s }}</div></div></sc-for>
 </div>
 </div>
 </div>

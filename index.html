@@ -1464,9 +1464,12 @@ class Component extends DCLogic {
       const ks = Object.keys(hcR.hourly || {}).map(Number).sort((a, b) => a - b), body = ks.slice(0, -1).map(k => hcR.hourly[k]);
       const flat = ks.length >= 4 && Math.max.apply(null, body) - Math.min.apply(null, body) <= 1;
       if (ks.length && !flat) return { map: hcR.hourly, note: '' };
-      const m = {}, ss = (hcR.sessions || []).filter(x => x.s && x.e);
-      ss.forEach(x => { const a = +x.s.slice(0, 2) * 60 + +x.s.slice(3, 5), b = Math.max(a + 1, +x.e.slice(0, 2) * 60 + +x.e.slice(3, 5)), st = x.steps != null ? x.steps : Math.round((x.km || 0) * 1340); for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m[h] = (m[h] || 0) + st * ov / (b - a); } });
-      if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };
+      const _spk = (hcR.steps > 500 && hcR.km > 0.3) ? Math.min(1700, Math.max(900, hcR.steps / hcR.km)) : 1340, m = {}, ss = (hcR.sessions || []).filter(x => x.s && x.e);
+      ss.forEach(x => { const a = +x.s.slice(0, 2) * 60 + +x.s.slice(3, 5), b = Math.max(a + 1, +x.e.slice(0, 2) * 60 + +x.e.slice(3, 5)), st = x.km > 0 ? Math.round(x.km * _spk) : (x.steps != null ? x.steps : 0); for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m[h] = (m[h] || 0) + st * ov / (b - a); } });
+      const gk = {}; let g0 = null; for (let i = 1; i < _tp.length; i++) { const A = _tp[i - 1], B = _tp[i], dk = hav([A[0], A[1]], [B[0], B[1]]), dt = Math.max(1, B[2] - A[2]); if (g0 === null) g0 = new Date(A[2] * 1000).getHours(); if (dk / (dt / 3600) >= 12 || dt > 900) continue; const hh = new Date(B[2] * 1000).getHours(); gk[hh] = (gk[hh] || 0) + dk; }
+      const nowH = recOff === 0 ? new Date().getHours() : 23; let gUsed = false;
+      if (g0 !== null) for (let h = g0 + 1; h <= nowH; h++) { m[h] = Math.round((gk[h] || 0) * _spk); gUsed = true; }
+      if (ss.length || gUsed) return { map: m, note: gUsed ? '걷기 운동 기록 + 위치 기록 기준' : '걷기 운동 기록 기준' };
       const hd = hcR.hdist || {}, hdSum = Object.keys(hd).reduce((a, h) => a + (+hd[h] || 0), 0);
       if (hdSum > 50 && hcR.steps) { const m3 = {}; Object.keys(hd).forEach(h => { m3[h] = hcR.steps * (+hd[h] || 0) / hdSum; }); return { map: m3, note: '시간별 이동 거리 비율 기준' }; }
       const sn = ((this.state.hc || {}).snaps || []).filter(x => x.day === recIso).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)), m2 = {};

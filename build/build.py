@@ -1143,6 +1143,22 @@ _rep("    this.drawnKey = m.key;\n    this.declutter();", """    try { if (m.wal
 
 _rep("    if (m.key === this.drawnKey) return;\n    if (this.fitKey", "    const _wk = m.key + '#' + (m.walk ? m.walk.length : 0); if (_wk === this.drawnKey) return;\n    if (this.fitKey")
 _rep("    this.drawnKey = m.key;\n    this.declutter();", "    this.drawnKey = _wk;\n    this.declutter();") if False else None
+# ---- 시간대별 걸음 보정: 워치의 운동 '걸음수'는 신뢰 불가(4.4km인데 858걸음) → 거리 기반으로 환산, 위치 기록(GPS)이 있는 시간은 GPS 걸은 거리로 대체 ----
+_i = dc.rindex("const m = {}, ss =", 0, dc.index("(hcR.sessions || []).filter(x => x.s && x.e);"))
+_j = dc.index("if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };", _i)
+_seg = dc[_i:_j + len("if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };")]
+_o1 = "st = x.steps != null ? x.steps : Math.round((x.km || 0) * 1340)"
+assert _seg.count(_o1) == 1
+_seg2 = _seg.replace(_o1, "st = x.km > 0 ? Math.round(x.km * _spk) : (x.steps != null ? x.steps : 0)")
+_seg2 = _seg2.replace("const m = {}, ss =", "const _spk = (hcR.steps > 500 && hcR.km > 0.3) ? Math.min(1700, Math.max(900, hcR.steps / hcR.km)) : 1340, m = {}, ss =") if "const m = {}, ss =" in _seg2 else _seg2
+assert "_spk = " in _seg2
+_ov = """const gk = {}; let g0 = null; for (let i = 1; i < _tp.length; i++) { const A = _tp[i - 1], B = _tp[i], dk = hav([A[0], A[1]], [B[0], B[1]]), dt = Math.max(1, B[2] - A[2]); if (g0 === null) g0 = new Date(A[2] * 1000).getHours(); if (dk / (dt / 3600) >= 12 || dt > 900) continue; const hh = new Date(B[2] * 1000).getHours(); gk[hh] = (gk[hh] || 0) + dk; }
+      const nowH = recOff === 0 ? new Date().getHours() : 23; let gUsed = false;
+      if (g0 !== null) for (let h = g0 + 1; h <= nowH; h++) { m[h] = Math.round((gk[h] || 0) * _spk); gUsed = true; }
+      if (ss.length || gUsed) return { map: m, note: gUsed ? '걷기 운동 기록 + 위치 기록 기준' : '걷기 운동 기록 기준' };"""
+_seg2 = _seg2.replace("if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };", _ov)
+dc = dc[:_i] + _seg2 + dc[_j + len("if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };"):]
+
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

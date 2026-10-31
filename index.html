@@ -125,6 +125,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:var(--f12,12px);color:#555568">
 <span style="display:flex;align-items:center;gap:8px"><span style="width:28px;border-top:4px solid #18A96B;border-radius:8px"></span>지나온 길 · 실제 GPS 기록</span>
 <span style="display:flex;align-items:center;gap:8px"><span style="width:28px;border-top:4px solid #2585F5;border-radius:8px"></span>앞으로 갈 길 · 다음 거점부터 목적지</span>
+<span style="display:{{ trLegend }};align-items:center;gap:8px"><span style="width:28px;border-top:4px dashed #0891B2"></span>교통 구간 · {{ trLegendText }}</span>
 <span style="flex:1"></span><span style="color:#85859A">{{ routeNote }}</span>
 </div>
 </div>
@@ -929,6 +930,7 @@ class Component extends DCLogic {
     const lay = this.lay; lay.clearLayers();
     try { L.polyline(m.route, { renderer: this.svgR, color: '#2585F5', weight: 5, opacity: .9, lineCap: 'round', lineJoin: 'round' }).addTo(lay); } catch (e) {}
     try { if (m.done.length > 1) L.polyline(m.done, { renderer: this.svgR, color: '#18A96B', weight: 5, opacity: .95, lineCap: 'round', lineJoin: 'round' }).addTo(lay); } catch (e) {}
+    try { if (m.trans && m.trans.length > 1) L.polyline(m.trans, { renderer: this.svgR, color: '#0891B2', weight: 6, opacity: 1, dashArray: '10 9', lineCap: 'butt' }).bindTooltip('🚆 ' + m.trKind + ' 구간', { sticky: true }).addTo(lay); } catch (e) {}
     m.amen.forEach(a => L.marker(a.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: amenHtml(a.g) }), zIndexOffset: 100 }).bindTooltip(a.name, { direction: 'top', offset: [0, -10] }).addTo(lay));
     this.placeMs = m.places.map(p => L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: placeHtml(p.n, p.passed) }), zIndexOffset: 200 }).on('click', () => this.setState({ pop: p.n - 1 })).addTo(lay));
     this.stopMs = m.stops.map((s, i) => L.marker(s.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: s.html }), zIndexOffset: 300 + (i === 0 || i === m.stops.length - 1 ? 50 : 0) }).bindTooltip(s.name, { direction: 'top', offset: [0, -14] }).addTo(lay));
@@ -1115,7 +1117,8 @@ class Component extends DCLogic {
       return { ll: s.ll, name: s.ko + ' ' + s.jp, html: pinHtml(p[0], p[1], p[2], p[3], st || en ? 34 : 31) };
     });
     const placeMarks = places.map(p => ({ ll: p.ll, n: p.n, passed: p.passed }));
-    this._m = { key: [view, cutI, route.length, JSON.stringify(amenOn), amC ? 1 : 0, meLL ? meLL.join() : ''].join('|'), fitKey: view + ':' + route.length, route, done: route.slice(0, cutI + 1), me: meLL, stops: stopMarks, places: placeMarks, amen: amenList };
+    let trans = []; const _tr = TRN[view]; if (_tr && route.length > 1) { let i0 = nearestIdx(route, ST[_tr.a].ll), i1 = nearestIdx(route, ST[_tr.b].ll); if (i0 > i1) { const q = i0; i0 = i1; i1 = q; } trans = route.slice(i0, i1 + 1); }
+    this._m = { trans, trKind: _tr ? ({ train: '기차', bus: '버스', taxi: '택시' }[_tr.k] || '교통') : '', key: [view, cutI, route.length, trans.length, _tr ? _tr.a + '-' + _tr.b : '', JSON.stringify(amenOn), amC ? 1 : 0, meLL ? meLL.join() : ''].join('|'), fitKey: view + ':' + route.length, route, done: route.slice(0, cutI + 1), me: meLL, stops: stopMarks, places: placeMarks, amen: amenList };
     const llq = ll => ll[0].toFixed(5) + ',' + ll[1].toFixed(5);
     const gmapsDir = 'https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=' + llq(dd.stops[0].ll) + '&destination=' + llq(dd.stops[n - 1].ll) + (n > 2 ? '&waypoints=' + encodeURIComponent(dd.stops.slice(1, -1).map(s => llq(s.ll)).join('|')) : '');
     const routeNote = rc ? '실제 도보 경로 ' + rc.km + ' km' : rc === false ? '대략 경로' : '경로 불러오는 중…';
@@ -1471,6 +1474,7 @@ class Component extends DCLogic {
       saveExp: () => this.setState({ expSaved: true }), expBtn: this.state.expSaved ? '저장됨 ✓' : '저장', expBtnBg: this.state.expSaved ? '#20A85A' : BRAND,
       wInOpen: !!this.state.wIn, toggleW: () => this.setState(s => ({ wIn: !s.wIn })), wInput: this.state.wInput ?? '', onWInput: e => this.setState({ wInput: e.target.value }),
       saveW: () => { const v = parseFloat(this.state.wInput); if (v > 30 && v < 200) this.setState({ wToday: v, wIn: false }); },
+      trLegend: TRN[view] ? 'flex' : 'none', trLegendText: TRN[view] ? ({ train: '기차', bus: '버스', taxi: '택시' }[TRN[view].k] || '교통') + ' ' + nm(ST[TRN[view].a]) + '→' + nm(ST[TRN[view].b]) : '',
       tabToday: tab === 0, tabRecord: tab === 1, tabSchedule: tab === 6, tabManage: tab === 2, fx, tl, hov, tlTabs, diary: this._diary || [], glance: [{ v: jr.km, u: 'km', l: '걸은 거리' }, { v: today, u: '/ 31일', l: '걸은 날' }, { v: jr.stats[0].value, u: '/ 53', l: '지난 역참' }, { v: badges.filter(x => x.c === '#8A5A12').length, u: '/ 15', l: '모은 배지' }, { v: expCum, u: '원', l: '누적 지출' }], tlIsB: true, dayPrompt: this._prompt || (this._prompt = ['오늘 가장 기억에 남는 순간은?', '오늘의 나에게 해주고 싶은 말은?', '내일은 어떤 마음으로 걸을까?'][Math.floor(Math.random() * 3)]),
       dayNote: (this.state.dayNotes || {})[today] || '', onDayNote: e => { const v_ = e.target.value; this.setState(s_ => ({ dayNotes: Object.assign({}, s_.dayNotes || {}, { [today]: v_ }), dayNoteSaved: false })); },
       saveDayNote: () => this.setState({ dayNoteSaved: true }), dayNoteBtn: this.state.dayNoteSaved ? '저장됨 ✓' : '저장', dayNoteBg: this.state.dayNoteSaved ? '#20A85A' : BRAND,

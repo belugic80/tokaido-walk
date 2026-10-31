@@ -866,6 +866,13 @@ _rep("const eta = START_MIN + dd.dist * MIN_PER_KM + 30;", "const eta = START_MI
 _rep("const hrs = Math.max(1, Math.round(dd.dist * MIN_PER_KM / 30) / 2);", "const hrs = Math.max(1, Math.round(dd.walkKm * MIN_PER_KM / 30) / 2);")
 _rep("value: '약 ' + Math.max(1, Math.round(dd.dist * MIN_PER_KM / 30) / 2) + '시간' }", "value: '약 ' + Math.max(1, Math.round(dd.walkKm * MIN_PER_KM / 30) / 2) + '시간' }")
 
+
+# ---- 지도: 교통 구간을 다른 색(청록 점선)으로 ----
+_rep("    this._m = { key: [view, cutI, route.length, JSON.stringify(amenOn), amC ? 1 : 0, meLL ? meLL.join() : ''].join('|'),", "    let trans = []; const _tr = TRN[view]; if (_tr && route.length > 1) { let i0 = nearestIdx(route, ST[_tr.a].ll), i1 = nearestIdx(route, ST[_tr.b].ll); if (i0 > i1) { const q = i0; i0 = i1; i1 = q; } trans = route.slice(i0, i1 + 1); }\n    this._m = { trans, trKind: _tr ? ({ train: '기차', bus: '버스', taxi: '택시' }[_tr.k] || '교통') : '', key: [view, cutI, route.length, trans.length, _tr ? _tr.a + '-' + _tr.b : '', JSON.stringify(amenOn), amC ? 1 : 0, meLL ? meLL.join() : ''].join('|'),")
+_rep("    m.amen.forEach(a => L.marker(a.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: amenHtml(a.g) })", "    try { if (m.trans && m.trans.length > 1) L.polyline(m.trans, { renderer: this.svgR, color: '#0891B2', weight: 6, opacity: 1, dashArray: '10 9', lineCap: 'butt' }).bindTooltip('🚆 ' + m.trKind + ' 구간', { sticky: true }).addTo(lay); } catch (e) {}\n    m.amen.forEach(a => L.marker(a.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: amenHtml(a.g) })")
+_rep("앞으로 갈 길 · 다음 거점부터 목적지</span>\n", "앞으로 갈 길 · 다음 거점부터 목적지</span>\n<span style=\"display:{{ trLegend }};align-items:center;gap:8px\"><span style=\"width:28px;border-top:4px dashed #0891B2\"></span>교통 구간 · {{ trLegendText }}</span>\n")
+_rep("      tabToday: tab === 0,", "      trLegend: TRN[view] ? 'flex' : 'none', trLegendText: TRN[view] ? ({ train: '기차', bus: '버스', taxi: '택시' }[TRN[view].k] || '교통') + ' ' + nm(ST[TRN[view].a]) + '→' + nm(ST[TRN[view].b]) : '',\n      tabToday: tab === 0,")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):

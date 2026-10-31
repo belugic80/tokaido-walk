@@ -883,7 +883,7 @@ class Component extends DCLogic {
   popMapRef = React.createRef();
   routeCache = {};
   amenCache = {};
-  componentDidMount() { this.loadFx(); this.loadWx(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
+  componentDidMount() { this.loadFx(); this.loadWx(); this.loadHc(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
   componentDidUpdate() { try { const _d = {}; ['smode', 'exp', 'body', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
   loadWx() {
     try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
@@ -896,6 +896,16 @@ class Component extends DCLogic {
     const fb = () => { const ll = this._wxLL || [34.97, 138.38]; apply(ll[0], ll[1], 'trip'); };
     try { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => apply(p.coords.latitude, p.coords.longitude, 'gps'), fb, { timeout: 6000, maximumAge: 600000 }); else fb(); } catch (e) { fb(); }
     clearTimeout(this._wxT); this._wxT = setTimeout(() => this.loadWx(), 30 * 6e4);
+  }
+  loadHc() {
+    try { const c = JSON.parse(localStorage.getItem('tk-hc3') || 'null'); if (c && !this.state.hc) this.setState({ hc: c }); } catch (e) {}
+    const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const to = new Date(), from = new Date(to.getTime() - 9 * 864e5);
+    fetch('https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/hc-read?from=' + iso(from) + '&to=' + iso(to), { headers: { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' }, cache: 'no-store' })
+      .then(r => { if (!r.ok) throw 0; return r.json(); })
+      .then(j => { const days = {}; Object.entries(j.days || {}).forEach(([k, v]) => { days[k] = { km: Math.max(+v.km || 0, +v.exKm || 0), steps: v.steps || 0, min: v.min == null ? null : v.min, kcal: v.kcal == null ? (v.kcalActive == null ? null : v.kcalActive) : v.kcal, hr: v.hr || null, hrMax: v.hrMax || null, synced: v.synced || '' }; }); const hc = { days, at: Date.now() }; this.setState({ hc }); try { localStorage.setItem('tk-hc3', JSON.stringify(hc)); } catch (e) {} })
+      .catch(() => { this.setState(s => ({ hc: Object.assign({}, s.hc || {}, { err: true }) })); });
+    clearTimeout(this._hcT); this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);
   }
   loadFx() {
     fetch('https://open.er-api.com/v6/latest/JPY').then(r => r.json()).then(j => { const k = j && j.rates && j.rates.KRW; if (!k) throw 0; const d = new Date(); this.setState({ fxAuto: { r: +(k * 100).toFixed(2), t: (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }, fxErr: false }); }).catch(() => this.setState({ fxErr: true }));
@@ -1032,6 +1042,8 @@ class Component extends DCLogic {
     const accent = '#673DE6', ink = '#172B3D', BRAND = 'linear-gradient(120deg,#3979E8 0%,#55A9F5 52%,#8AD8E8 100%)';
     applyPlan(this.state.mg);
     const today = this.today(), view = this.view();
+    const _n = new Date(), _iso = _n.getFullYear() + '-' + String(_n.getMonth() + 1).padStart(2, '0') + '-' + String(_n.getDate()).padStart(2, '0');
+    const hcT0 = ((this.state.hc || {}).days || {})[_iso] || null, hcT = view === today ? hcT0 : null;
     const dd = dayData(view);
     const n = dd.stops.length, stage = this.stageFor(view, n), reached = stage - 1, done = stage >= n;
     const isToday = view === today, isPast = view < today;
@@ -1041,7 +1053,7 @@ class Component extends DCLogic {
     const barStart = Math.min(BAR_TOTAL, dd.startKm);
     const pct = k => k / BAR_TOTAL * 100;
     const stationsDone = Math.min(53, ST.filter(s => s.i <= 52 && s.km <= posKmF + .01).length);
-    const steps = Math.round(walked * 1340), mins = Math.round(walked * MIN_PER_KM);
+    const steps = hcT ? hcT.steps : Math.round(walked * 1340), mins = hcT ? (hcT.min != null ? hcT.min : Math.round(hcT.km * MIN_PER_KM)) : Math.round(walked * MIN_PER_KM);
     const eta = START_MIN + dd.walkKm * MIN_PER_KM + 30;
     const dt = new Date(2026, 11, 3 + view);
     const dateLabel = `${dt.getMonth() + 1}/${dt.getDate()} (${'일월화수목금토'[dt.getDay()]})`;
@@ -1054,7 +1066,7 @@ class Component extends DCLogic {
       clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2'
     };
     const stats = [
-      { label: '걸은 거리', icon: I.pin, fill: 'none', stroke: accent, value: walked.toFixed(1), unit: 'km', color: accent, sub1: '목표', sub2: dd.dist + 'km', pct: Math.round(walked / dd.dist * 100), bar: accent, top: accent },
+      { label: '걸은 거리', icon: I.pin, fill: 'none', stroke: accent, value: (hcT ? hcT.km : walked).toFixed(1), unit: 'km', color: accent, sub1: '목표', sub2: dd.dist + 'km', pct: Math.round(walked / dd.dist * 100), bar: accent, top: accent },
       { label: '남은 거리', icon: I.flag, fill: 'none', stroke: accent, value: remain.toFixed(1), unit: 'km', color: '#2F6FE0', sub1: '도착 예정', sub2: hhmm(eta), pct: Math.round(remain / dd.dist * 100), bar: '#2F6FE0', top: '#2F6FE0' },
       { label: '걸음 수', icon: I.foot, fill: '#673DE6', stroke: 'none', value: steps.toLocaleString('ko-KR'), unit: '보', color: '#1E9E57', sub1: '목표 2만 보', sub2: Math.min(100, Math.round(steps / 200)) + '%', pct: Math.min(100, Math.round(steps / 200)), bar: '#1E9E57', top: '#1E9E57' },
       { label: '걸은 시간', icon: I.clock, fill: 'none', stroke: accent, value: String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0'), unit: '', color: '#D9602F', sub1: '남은 예상', sub2: Math.floor(Math.round(remain * MIN_PER_KM) / 60) + '시간 ' + String(Math.round(remain * MIN_PER_KM) % 60).padStart(2, '0') + '분', pct: Math.min(100, Math.round(mins / (dd.dist * MIN_PER_KM) * 100)), bar: '#D9602F', top: '#D9602F' }
@@ -1225,9 +1237,9 @@ class Component extends DCLogic {
     const tdd = dayData(today), tn = tdd.stops.length, tst = this.stageFor(today, tn), tW = tst <= 0 ? 0 : tdd.stops[Math.min(tst - 1, tn - 1)].rel;
     const rnd = s => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
     const fmtHM = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.round(m) % 60).padStart(2, '0');
-    const tSteps = Math.round(tW * 1340), tMin = Math.round(tW * 19.5);
+    const tSteps = hcT0 ? hcT0.steps : Math.round(tW * 1340), tMin = hcT0 ? (hcT0.min != null ? hcT0.min : Math.round(hcT0.km * MIN_PER_KM)) : Math.round(tW * 19.5);
     const ringC = 2 * Math.PI * 20, ringPct = Math.min(1, tSteps / 20000);
-    const rt = { km: tW.toFixed(1), sub: tW > 0 ? tdd.stops[Math.min(tst - 1, tn - 1)].ko + '까지 걸음' : '아직 출발 전', steps: tSteps.toLocaleString('ko-KR'), stepPct: Math.round(ringPct * 100), ringDash: (ringC * ringPct).toFixed(1) + ' ' + ringC.toFixed(1), hr: 92, hrMax: 127, hrRest: 61, time: fmtHM(tMin), pace: '1km당 19분 30초' };
+    const rt = { km: hcT0 ? hcT0.km.toFixed(1) : tW.toFixed(1), sub: hcT0 ? '갤럭시 워치 기록' : tW > 0 ? tdd.stops[Math.min(tst - 1, tn - 1)].ko + '까지 걸음' : '아직 출발 전', steps: tSteps.toLocaleString('ko-KR'), stepPct: Math.round(ringPct * 100), ringDash: (ringC * ringPct).toFixed(1) + ' ' + ringC.toFixed(1), hr: hcT0 && hcT0.hr ? hcT0.hr : 92, hrMax: hcT0 && hcT0.hrMax ? hcT0.hrMax : 127, hrRest: 61, time: fmtHM(tMin), pace: '1km당 19분 30초' };
     const sc = (v, vmin, vmax, t, b) => +(t + (1 - (v - vmin) / (vmax - vmin)) * (b - t)).toFixed(1);
     const sx = (i, N, l, r) => +(l + (N <= 1 ? 0 : i / (N - 1)) * (r - l)).toFixed(1);
     const path = pts => pts.map((p, i) => (i ? 'L' : 'M') + p.x + ',' + p.y).join(' ');
@@ -1516,8 +1528,8 @@ class Component extends DCLogic {
       toggleLodge: e => { if (e && e.stopPropagation) e.stopPropagation(); if (isPast) return; const wasOk = (lodgeOf(view).st === 'ok') || (lodgeOk && isToday); setM(m => { m.lodge[view] = Object.assign({}, m.lodge[view], { st: wasOk ? 'cand' : 'ok' }); }); if (isToday) this.setState({ lodgeOk: false }); },
       openAgoda: e => { e.stopPropagation(); const st = dd.stops[n - 1], dt = new Date(2026, 11, 3 + view), ymd = x => x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'), dt2 = new Date(dt.getTime() + 864e5); window.open('https://www.agoda.com/ko-kr/search?textToSearch=' + encodeURIComponent(st.jp + ' ' + st.ko.replace(/\(.*\)/, '')) + '&checkIn=' + ymd(dt) + '&los=1&rooms=1&adults=1&locale=ko-kr&currencyCode=KRW', '_blank', 'noopener'); },
       syncTap: () => { const st = this.state.sync ?? ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok'); if (st !== 'fail') return; this.setState({ sync: 'busy' }); clearTimeout(this._syncT); this._syncT = setTimeout(() => this.setState({ sync: 'ok' }), 1400); },
-      ...(() => { const st = this.state.sync ?? ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok');
-        const T = { ok: ['동기화 완료', '#E4F8EC', '#20A85A', '#FFFFFF', '#E8E7EF', '#555568', 'linear-gradient(125deg,#5128E8 0%,#7544ED 52%,#A16AF5 100%)', 'none', 'default', '마지막 동기화 10:42'],
+      ...(() => { const st = this.state.sync ?? ((this.state.hc || {}).err && !hcT0 ? 'fail' : ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok'));
+        const T = { ok: ['동기화 완료', '#E4F8EC', '#20A85A', '#FFFFFF', '#E8E7EF', '#555568', 'linear-gradient(125deg,#5128E8 0%,#7544ED 52%,#A16AF5 100%)', 'none', 'default', '마지막 동기화 ' + (hcT0 && hcT0.synced ? hcT0.synced : '—')],
           busy: ['동기화 중', '#EAF0FF', '#4F82E8', '#FFFFFF', '#E8E7EF', '#555568', 'linear-gradient(125deg,#5128E8 0%,#7544ED 52%,#A16AF5 100%)', 'tkblue 1.2s ease-out infinite', 'default', '워치에서 기록을 가져오는 중'],
           fail: ['동기화 실패', '#FDE9EC', '#E35D70', '#FFF7F8', '#F6C9D0', '#555568', '#A6A6B5', 'none', 'pointer', '워치 연결을 확인한 뒤 눌러서 다시 시도'] }[st];
         return { syncLabel: T[0], syncPillBg: T[1], syncPillC: T[2], syncBg: T[3], syncBd: T[4], syncC: T[5], syncIconBg: T[6], syncAnim: T[7], syncCursor: T[8], syncTitle: T[9], syncFailed: st === 'fail' }; })(),

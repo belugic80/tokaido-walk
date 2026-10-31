@@ -926,6 +926,31 @@ _rep("{{ wxw.place }} 인근 · {{ wxw.cond }}", "{{ wxw.place }} · {{ wxw.cond
 _rep("place: wxPlace, now: 9,", "place: wxPlace + ' 인근', now: 9,")
 _rep("wxw.place = WL.src === 'gps' ? '내 위치' : wxPlace;", "wxw.place = WL.src === 'gps' ? (WL.name || '내 위치') : wxPlace + ' 인근';")
 _rep("*{overscroll-behavior:none}</style>", "*{overscroll-behavior:none}[data-hscroll] image-slot{pointer-events:none}</style>")
+
+# ---- 갤럭시 워치(삼성 헬스) 데이터 연동: hc-read → 오늘 통계/동기화 배지 ----
+_rep("this.loadFx(); this.loadWx();", "this.loadFx(); this.loadWx(); this.loadHc();")
+_rep("  loadFx() {", """  loadHc() {
+    try { const c = JSON.parse(localStorage.getItem('tk-hc3') || 'null'); if (c && !this.state.hc) this.setState({ hc: c }); } catch (e) {}
+    const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const to = new Date(), from = new Date(to.getTime() - 9 * 864e5);
+    fetch('https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/hc-read?from=' + iso(from) + '&to=' + iso(to), { headers: { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' }, cache: 'no-store' })
+      .then(r => { if (!r.ok) throw 0; return r.json(); })
+      .then(j => { const days = {}; Object.entries(j.days || {}).forEach(([k, v]) => { days[k] = { km: Math.max(+v.km || 0, +v.exKm || 0), steps: v.steps || 0, min: v.min == null ? null : v.min, kcal: v.kcal == null ? (v.kcalActive == null ? null : v.kcalActive) : v.kcal, hr: v.hr || null, hrMax: v.hrMax || null, synced: v.synced || '' }; }); const hc = { days, at: Date.now() }; this.setState({ hc }); try { localStorage.setItem('tk-hc3', JSON.stringify(hc)); } catch (e) {} })
+      .catch(() => { this.setState(s => ({ hc: Object.assign({}, s.hc || {}, { err: true }) })); });
+    clearTimeout(this._hcT); this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);
+  }
+  loadFx() {""")
+_rep("    const today = this.today(), view = this.view();\n", """    const today = this.today(), view = this.view();
+    const _n = new Date(), _iso = _n.getFullYear() + '-' + String(_n.getMonth() + 1).padStart(2, '0') + '-' + String(_n.getDate()).padStart(2, '0');
+    const hcT0 = ((this.state.hc || {}).days || {})[_iso] || null, hcT = view === today ? hcT0 : null;
+""")
+_rep("const steps = Math.round(walked * 1340), mins = Math.round(walked * MIN_PER_KM);", "const steps = hcT ? hcT.steps : Math.round(walked * 1340), mins = hcT ? (hcT.min != null ? hcT.min : Math.round(hcT.km * MIN_PER_KM)) : Math.round(walked * MIN_PER_KM);")
+_rep("value: walked.toFixed(1), unit: 'km'", "value: (hcT ? hcT.km : walked).toFixed(1), unit: 'km'")
+_rep("const tSteps = Math.round(tW * 1340), tMin = Math.round(tW * 19.5);", "const tSteps = hcT0 ? hcT0.steps : Math.round(tW * 1340), tMin = hcT0 ? (hcT0.min != null ? hcT0.min : Math.round(hcT0.km * MIN_PER_KM)) : Math.round(tW * 19.5);")
+_rep("const rt = { km: tW.toFixed(1), sub: tW > 0 ?", "const rt = { km: hcT0 ? hcT0.km.toFixed(1) : tW.toFixed(1), sub: hcT0 ? '갤럭시 워치 기록' : tW > 0 ?")
+_rep("hr: 92, hrMax: 127, hrRest: 61,", "hr: hcT0 && hcT0.hr ? hcT0.hr : 92, hrMax: hcT0 && hcT0.hrMax ? hcT0.hrMax : 127, hrRest: 61,")
+_rep("'마지막 동기화 10:42'", "'마지막 동기화 ' + (hcT0 && hcT0.synced ? hcT0.synced : '—')")
+_rep("const st = this.state.sync ?? ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok');\n        const T", "const st = this.state.sync ?? ((this.state.hc || {}).err && !hcT0 ? 'fail' : ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok'));\n        const T")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

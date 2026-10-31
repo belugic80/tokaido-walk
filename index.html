@@ -71,11 +71,11 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:4px 20px 100px 24px;display:flex;flex-direction:column;gap:12px">
-<div data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:330px;border-radius:28px;overflow:hidden;background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat"></div><div style="position:absolute;inset:0;background:linear-gradient(90deg,#101A2B 0%,#101A2B 18%,rgba(16,26,43,.97) 24%,rgba(16,26,43,.9) 30%,rgba(16,26,43,.78) 36%,rgba(16,26,43,.62) 43%,rgba(16,26,43,.44) 50%,rgba(16,26,43,.27) 58%,rgba(16,26,43,.12) 67%,rgba(16,26,43,0) 78%)"></div>
+<div data-screen-label="Today hero" style="position:sticky;top:4px;z-index:1100;flex:none;height:330px;border-radius:28px;overflow:hidden;background:#101A2B;box-shadow:0 -14px 0 0 #F7F7FB,0 12px 0 0 #F7F7FB,0 16px 40px rgba(15,42,74,.16)"><div style="position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat"></div><div style="position:absolute;top:14px;left:16px;z-index:5;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.94);color:#4E27C5;font:800 var(--f16,17px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.02em;box-shadow:0 4px 14px rgba(15,42,74,.25)">{{ ddayText }}</div><div style="position:absolute;inset:0;background:linear-gradient(90deg,#101A2B 0%,#101A2B 18%,rgba(16,26,43,.97) 24%,rgba(16,26,43,.9) 30%,rgba(16,26,43,.78) 36%,rgba(16,26,43,.62) 43%,rgba(16,26,43,.44) 50%,rgba(16,26,43,.27) 58%,rgba(16,26,43,.12) 67%,rgba(16,26,43,0) 78%)"></div>
 <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.42) 0%,rgba(15,23,42,0) 34%,rgba(15,23,42,.18) 52%,rgba(15,23,42,.86) 100%)"></div>
 <div style="position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(115,67,235,.32),transparent 36%)"></div>
 <div style="position:absolute;left:20px;right:20px;top:18px;display:flex;justify-content:space-between;align-items:center;gap:10px">
-<span style="height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap">TODAY'S JOURNEY · DAY {{ view }}</span>
+<span style="height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap;margin-left:96px">TODAY'S JOURNEY · DAY {{ view }}</span>
 <div style="position:fixed;left:calc(50% - 46px);bottom:2px;transform:translateX(-50%);z-index:1500;display:flex;align-items:center;gap:8px;padding:8px;border-radius:24px;background:rgba(24,43,61,.94);box-shadow:0 10px 28px rgba(15,42,74,.35)">
 <sc-if value="{{ notToday }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goToday }}" style="height:68px;padding:0 20px;border:0;border-radius:16px;background:#FFFFFF;color:#4E27C5;font-size:var(--f13,13px);font-weight:700;cursor:pointer">오늘로</button></sc-if>
 <button onClick="{{ prevDay }}" style="width:62px;height:68px;border-radius:16px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:{{ prevOp }}">‹</button>
@@ -870,9 +870,10 @@ const C0 = '#FFFFFF';
 class Component extends DCLogic {
   placesRef = React.createRef();
   state = { theme: null, railOpen: true, sync: null, stage: 2, lodgeOk: false, tab: (() => { try { const v = +localStorage.getItem('tk-v15-tab'); return v >= 0 && v <= 7 ? v : 0; } catch (e) { return 0; } })(), moreSub: (() => { try { return localStorage.getItem('tk-v15-sub') || undefined; } catch (e) { return undefined; } })(), mapMode: 'route', view: (() => { try { const v = +localStorage.getItem('tk-v15-view'); return v >= 1 && v <= 31 ? v : null; } catch (e) { return null; } })(), schedFilter: 'all', visited: null, stFilter: 'all', cat: '필수', phrase: 0, copied: false, amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };
-  today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }
+  today() { return this.dayInfo().day; }
+  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }
   view() { return this.state.view ?? this.today(); }
-  stageFor(d, n) { const t = this.today(); return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }
+  stageFor(d, n) { const t = this.today(); if (this.dayInfo().diff < 0) return 0; return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }
 
   selectPlace(i) { this.setState(s => ({ mapMode: s.mapMode === 'p' + i ? 'route' : 'p' + i })); }
   setMode(m) { this.setState(s => ({ mapMode: s.mapMode === m ? 'route' : m })); }
@@ -1490,6 +1491,7 @@ class Component extends DCLogic {
       prevPhrase: () => { const k = phIdx.indexOf(curP); this.setState({ phrase: phIdx[(k - 1 + phIdx.length) % phIdx.length], copied: false }); },
       nextPhrase: () => { const k = phIdx.indexOf(curP); this.setState({ phrase: phIdx[(k + 1) % phIdx.length], copied: false }); },
       dd, view, dateLabel, stats, stops, places, tabs, wx, sunBg: wx.sun ? '#F59E0B' : '#D5D3E0',
+      ddayText: (() => { const df = this.dayInfo().diff; return df < 0 ? 'D-' + (-df) : df > 30 ? '여행 완료' : df === 0 ? 'D-DAY' : 'D+' + df; })(),
       hasPlaces: places.length > 0,
       tagLabel: isToday ? '오늘' : isPast ? '지난 날' : '예정',
       tagColor: isToday ? '#fff' : '#555568', tagBg: isToday ? accent : '#E8E7EF',

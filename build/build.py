@@ -876,6 +876,18 @@ _rep("    m.amen.forEach(a => L.marker(a.ll, { icon: L.divIcon({ className: '', 
 _rep("앞으로 갈 길 · 다음 거점부터 목적지</span>\n", "앞으로 갈 길 · 다음 거점부터 목적지</span>\n<span style=\"display:{{ trLegend }};align-items:center;gap:8px\"><span style=\"width:28px;border-top:4px dashed #0891B2\"></span>교통 구간 · {{ trLegendText }}</span>\n")
 _rep("      tabToday: tab === 0,", "      trLegend: TRN[view] ? 'flex' : 'none', trLegendText: TRN[view] ? ({ train: '기차', bus: '버스', taxi: '택시' }[TRN[view].k] || '교통') + ' ' + nm(ST[TRN[view].a]) + '→' + nm(ST[TRN[view].b]) : '',\n      tabToday: tab === 0,")
 
+_rep("stageFor(d, n) { const t = this.today(); return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }",
+"stageFor(d, n) { const t = this.today(); if (this.dayInfo().diff < 0) return 0; return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }")
+_rep("background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap\">TODAY'S JOURNEY",
+"background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap;margin-left:96px\">TODAY'S JOURNEY")
+# ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
+_rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
+"today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")
+_rep('<div data-screen-label="Today hero"', '<div data-screen-label="Today hero"')
+_rep("<div style=\"position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat\"></div>",
+"<div style=\"position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat\"></div><div style=\"position:absolute;top:14px;left:16px;z-index:5;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.94);color:#4E27C5;font:800 var(--f16,17px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.02em;box-shadow:0 4px 14px rgba(15,42,74,.25)\">{{ ddayText }}</div>")
+_rep("      hasPlaces: places.length > 0,", "      ddayText: (() => { const df = this.dayInfo().diff; return df < 0 ? 'D-' + (-df) : df > 30 ? '여행 완료' : df === 0 ? 'D-DAY' : 'D+' + df; })(),\n      hasPlaces: places.length > 0,")
+
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)
 import shutil as _sh
 for f in ('support.js', 'image-slot.js'):
@@ -907,3 +919,4 @@ for name, tab in OLD_TABS.items():
 
 print('days', len(days), 'tips', len(tips), 'ja', len(ja), 'routes', sum(1 for d in days if d['route']))
 print('wrote index.html (v15) +', len(OLD_TABS), 'old_*.html')
+

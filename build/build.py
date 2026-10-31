@@ -406,7 +406,7 @@ _A='color:#B7791F">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font
 assert dc.count(_A)==1
 dc=dc.replace(_A,'color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px;white-space:nowrap">53역참 중 {{ stCount }}</div>')
 # ---- 저장(유실 방지): 입력값을 이 기기에 자동 저장, 사진은 IndexedDB ----
-PERSIST_KEYS = ['smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
+PERSIST_KEYS = ['passed','smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
 _P = [
  ("heroImg: (this.props.heroImg && !/^assets\\//.test(this.props.heroImg)) ? this.props.heroImg : 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop',", "heroImg: 'assets/dayhero/' + view + '.jpg', heroPos: (Number(view)===31 ? '50% 86%' : '50% 40%'),"),
  ("amenOn: {}, pop: -1 };", "amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };"),
@@ -997,6 +997,28 @@ _rep("    const hrsArr = [];", """    const hcH = (() => {
 _rep("const tlPins = (hcT0 && hcT0.hourly ? [] : stopEvs).map(", "const tlPins = (hcH ? [] : stopEvs).map(")
 _rep("언제 가장 많이 걸었을까요?", "언제 가장 많이 걸었을까요?{{ hov.hourNote }}")
 _rep("hrAvg: hrAvgV, x0:", "hrAvg: hrAvgV, hourNote: hcH && hcH.note ? ' · ' + hcH.note : '', x0:")
+
+# ---- GPS 통과 기록(지점 300m 이내) + 걸음 증가분(워치 동기화 간격) 기반 시간대별 걸음 ----
+_rep("PERSIST_KEYS = ['smode',", "PERSIST_KEYS = ['passed','smode',") if False else None
+_rep("const hc = { days, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], at: Date.now() };")
+_rep("return ss.length ? { map: m, note: '걷기 운동 기록 기준' } :", """if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };
+      const sn = ((this.state.hc || {}).snaps || []).filter(x => x.day === _iso).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)), m2 = {};
+      for (let i = 1; i < sn.length; i++) { const t0 = Date.parse(sn[i - 1].at), t1 = Date.parse(sn[i].at), d = sn[i].steps - sn[i - 1].steps; if (d <= 0 || t1 <= t0) continue; const a = Math.floor(((t0 + 324e5) % 864e5) / 6e4), b = Math.floor(((t1 + 324e5) % 864e5) / 6e4); if (b <= a) continue; for (let h = 0; h < 24; h++) { const ov = Math.max(0, Math.min(b, (h + 1) * 60) - Math.max(a, h * 60)); if (ov > 0) m2[h] = (m2[h] || 0) + d * ov / (b - a); } }
+      if (Object.keys(m2).length) return { map: m2, note: '워치 동기화 간 증가분 기준(대략)' };
+      return ss.length ? { map: m, note: '' } :""")
+_rep("const tlPins = (hcH ? [] : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = i <= tlReached;",
+"const passEvs = Object.entries(((this.state.passed || {})[_iso]) || {}).map(([name, time]) => ({ name, time })).sort((a, b) => a.time.localeCompare(b.time));\n    const tlPins = (hcH ? passEvs : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = hcH ? true : i <= tlReached;")
+_rep("this.loadFx(); this.loadWx(); this.loadHc();", "this.loadFx(); this.loadWx(); this.loadHc(); this.watchGps();")
+_rep("  loadHc() {", """  watchGps() {
+    try {
+      if (!navigator.geolocation || this._gw) return;
+      this._gw = navigator.geolocation.watchPosition(pos => {
+        const ll = [pos.coords.latitude, pos.coords.longitude], n = new Date(), iso = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'), tm = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
+        ST.forEach(t => { if (hav(ll, t.ll) < 0.3) { const nm = t.ko.replace(/\\(.*\\)/, ''); const cur = ((this.state.passed || {})[iso]) || {}; if (!cur[nm]) this.setState(s => ({ passed: Object.assign({}, s.passed || {}, { [iso]: Object.assign({}, ((s.passed || {})[iso]) || {}, { [nm]: tm }) }) })); } });
+      }, () => {}, { enableHighAccuracy: false, maximumAge: 60000, timeout: 30000 });
+    } catch (e) {}
+  }
+  loadHc() {""")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

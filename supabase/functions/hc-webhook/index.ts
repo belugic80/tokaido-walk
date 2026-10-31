@@ -62,6 +62,7 @@ async function save(body: Record<string, unknown>) {
   const del = Array.isArray(body.deleted) ? (body.deleted as { type: string; id: string }[]) : [];
   if (del.length) await db.from("hc_records").delete().in("id", del.map((d) => `${d.type}:${d.id}`));
   await db.from("hc_payloads").insert({ app_version: body.app_version ?? null, counts: { ...counts, deleted: del.length } });
+  try { await db.rpc("hc_snap_now"); } catch (e) { console.error("snap", e); }
 
   return Response.json({ ok: true, saved: uniq.length, deleted: del.length });
 }

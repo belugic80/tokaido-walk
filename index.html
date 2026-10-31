@@ -873,7 +873,7 @@ const IC_FOOT = 'M8 3.5c1.7 0 3 2 3 4.5s-1.3 4.5-3 4.5-3-2-3-4.5 1.3-4.5 3-4.5zM
 const C0 = '#FFFFFF';
 class Component extends DCLogic {
   placesRef = React.createRef();
-  state = { theme: null, railOpen: true, sync: null, stage: 2, lodgeOk: false, tab: (() => { try { const v = +localStorage.getItem('tk-v15-tab'); return v >= 0 && v <= 7 ? v : 0; } catch (e) { return 0; } })(), moreSub: (() => { try { return localStorage.getItem('tk-v15-sub') || undefined; } catch (e) { return undefined; } })(), mapMode: 'route', view: (() => { try { const v = +localStorage.getItem('tk-v15-view'); return v >= 1 && v <= 31 ? v : null; } catch (e) { return null; } })(), schedFilter: 'all', visited: null, stFilter: 'all', cat: '필수', phrase: 0, copied: false, amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };
+  state = { theme: null, railOpen: true, sync: null, stage: 2, lodgeOk: false, tab: (() => { try { const v = +localStorage.getItem('tk-v15-tab'); return v >= 0 && v <= 7 ? v : 0; } catch (e) { return 0; } })(), moreSub: (() => { try { return localStorage.getItem('tk-v15-sub') || undefined; } catch (e) { return undefined; } })(), mapMode: 'route', view: null, schedFilter: 'all', visited: null, stFilter: 'all', cat: '필수', phrase: 0, copied: false, amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };
   today() { return this.dayInfo().day; }
   dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }
   view() { return this.state.view ?? this.today(); }
@@ -1823,16 +1823,7 @@ class Component extends DCLogic {
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
-    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); (function () {
-      var E = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
-      var clean = L.tileLayer(E + 'World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-      var base = { '도로': clean, '일반': L.tileLayer(GSI, { maxZoom: 19 }), '위성': L.tileLayer(E + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }), '지형': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, subdomains: 'abc' }) };
-      var cur = '일반'; try { var sv = localStorage.getItem('tk-trkmap3'); if (sv && base[sv]) cur = sv; } catch (e) {}
-      base[cur].addTo(el._map);
-      L.control.layers(base, null, { position: 'topright', collapsed: true }).addTo(el._map);
-      var bad = 0, good = 0; Object.keys(base).forEach(function (k) { if (k === '일반') return; var lyr = base[k]; (lyr.getLayers ? lyr.getLayers() : [lyr]).forEach(function (t) { t.on('tileerror', function () { bad++; if (bad >= 4 && !good && cur === k) { try { el._map.removeLayer(base[k]); base['일반'].addTo(el._map); cur = '일반'; } catch (e) {} } }); t.on('tileload', function () { good++; }); }); });
-      el._map.on('baselayerchange', function (ev) { try { localStorage.setItem('tk-trkmap3', ev.name); } catch (e) {} });
-    })(); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19 }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1], +a[2]]; }) : [];
     if (!pts.length) {

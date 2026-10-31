@@ -1087,16 +1087,7 @@ dc = dc.replace('</body>', """<script>(function () {
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
-    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); (function () {
-      var E = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
-      var clean = L.tileLayer(E + 'World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-      var base = { '도로': clean, '일반': L.tileLayer(GSI, { maxZoom: 19 }), '위성': L.tileLayer(E + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }), '지형': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, subdomains: 'abc' }) };
-      var cur = '일반'; try { var sv = localStorage.getItem('tk-trkmap3'); if (sv && base[sv]) cur = sv; } catch (e) {}
-      base[cur].addTo(el._map);
-      L.control.layers(base, null, { position: 'topright', collapsed: true }).addTo(el._map);
-      var bad = 0, good = 0; Object.keys(base).forEach(function (k) { if (k === '일반') return; var lyr = base[k]; (lyr.getLayers ? lyr.getLayers() : [lyr]).forEach(function (t) { t.on('tileerror', function () { bad++; if (bad >= 4 && !good && cur === k) { try { el._map.removeLayer(base[k]); base['일반'].addTo(el._map); cur = '일반'; } catch (e) {} } }); t.on('tileload', function () { good++; }); }); });
-      el._map.on('baselayerchange', function (ev) { try { localStorage.setItem('tk-trkmap3', ev.name); } catch (e) {} });
-    })(); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19 }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1], +a[2]]; }) : [];
     if (!pts.length) {
@@ -1159,6 +1150,9 @@ _ov = """const gk = {}; let g0 = null; for (let i = 1; i < _tp.length; i++) { co
       if (ss.length || gUsed) return { map: m, note: gUsed ? '걷기 운동 기록 + 위치 기록 기준' : '걷기 운동 기록 기준' };"""
 _seg2 = _seg2.replace("if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };", _ov)
 dc = dc[:_i] + _seg2 + dc[_j + len("if (ss.length) return { map: m, note: '걷기 운동 기록 기준' };"):]
+
+# ---- 앱을 열 때마다 항상 '오늘'로 시작 (예전에 보던 날짜가 저장돼 있어 오늘 걸음수가 안 보이던 문제) ----
+_rep("view: (() => { try { const v = +localStorage.getItem('tk-v15-view'); return v >= 1 && v <= 31 ? v : null; } catch (e) { return null; } })()", "view: null")
 
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",

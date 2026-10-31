@@ -916,6 +916,7 @@ PTR_JS = r"""<script>(function () {
 """
 dc = dc.replace('</body>', PTR_JS + '</body>')
 _rep('<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{ d.ic }}" stroke-width="1.8"', '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="{{ d.ic }}" stroke-width="1.6"')
+_rep('<span style="color:#85859A;font-weight:500;font-size:19px"> {{ d.lo }}°</span>', '<span style="color:#85859A;font-weight:800;font-size:25px"> {{ d.lo }}°</span>')
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

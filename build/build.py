@@ -879,7 +879,7 @@ _rep("      tabToday: tab === 0,", "      trLegend: TRN[view] ? 'flex' : 'none',
 _rep("stageFor(d, n) { const t = this.today(); return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }",
 "stageFor(d, n) { const t = this.today(); if (this.dayInfo().diff < 0) return 0; return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }")
 _rep("background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap\">TODAY'S JOURNEY",
-"background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap;margin-left:96px\">TODAY'S JOURNEY")
+"background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font:700 var(--f12,12px) 'DM Sans',sans-serif;letter-spacing:.15em;display:flex;align-items:center;white-space:nowrap\">TODAY'S JOURNEY")
 PTR_JS = r"""<script>(function () {
   /* 위에서 아래로 당기면 새로고침 (맨 위에서만, 지도·입력창·팝업 제외) */
   var bar = document.createElement('div');
@@ -921,7 +921,7 @@ _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 1
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")
 _rep('<div data-screen-label="Today hero"', '<div data-screen-label="Today hero"')
 _rep("<div style=\"position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat\"></div>",
-"<div style=\"position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat\"></div><div style=\"position:absolute;top:14px;left:16px;z-index:5;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.94);color:#4E27C5;font:800 var(--f16,17px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.02em;box-shadow:0 4px 14px rgba(15,42,74,.25)\">{{ ddayText }}</div>")
+"<div style=\"position:absolute;top:0;bottom:0;right:0;width:80%;background:url({{ heroImg }}) {{ heroPos }}/cover no-repeat\"></div><div style=\"position:absolute;top:14px;right:16px;z-index:5;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.94);color:#4E27C5;font:800 var(--f16,17px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.02em;box-shadow:0 4px 14px rgba(15,42,74,.25)\">{{ ddayText }}</div>")
 _rep("      hasPlaces: places.length > 0,", "      ddayText: (() => { const df = this.dayInfo().diff; return df < 0 ? 'D-' + (-df) : df > 30 ? '여행 완료' : df === 0 ? 'D-DAY' : 'D+' + df; })(),\n      hasPlaces: places.length > 0,")
 
 open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8').write(dc)

@@ -1037,6 +1037,26 @@ dc = dc.replace('</body>', """<script>(function () {
     var h = new Date().getHours(); el.scrollLeft = h <= 8 ? 0 : Math.max(0, (Math.min(h, 23) - 6 - 2) * 56);
   }); }, 700);
 })();</script></body>""", 1)
+
+# ---- 기록 탭: 날짜별 워치 기록(어제·그제 …) 보기 ----
+_RS = "    const tdd = dayData(today), tn = tdd.stops.length"
+_RE = "    const tlV = this.state.tlV || 'a';"
+assert dc.count(_RS) == 1 and dc.count(_RE) == 1
+_a = dc.index(_RS); _b = dc.index(_RE)
+_reg = dc[_a:_b].replace('hcT0', 'hcR').replace('_iso', 'recIso')
+_reg = _reg.replace("HRS.map(a => a[1]) : [88,", "HRS.map(a => a[1]) : hcR ? [hcR.hr || 90, hcR.hr || 90] : [88,")
+_pre = """    const _td0 = new Date(_n.getFullYear(), _n.getMonth(), _n.getDate()), _fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const recMin = Math.min.apply(null, [0].concat(Object.keys((this.state.hc || {}).days || {}).map(k => Math.round((new Date(k + 'T00:00:00') - _td0) / 864e5))));
+    const recOff = Math.max(recMin, Math.min(0, this.state.recOff || 0)), recD = new Date(_td0.getTime() + recOff * 864e5), recIso = _fmt(recD);
+    const hcR = recOff === 0 ? hcT0 : (((this.state.hc || {}).days || {})[recIso] || { km: 0, steps: 0, min: null, hr: null, hrMax: null, hourly: {}, series: null, sessions: null, hdist: {} });
+    const recLabel = (recD.getMonth() + 1) + '/' + recD.getDate() + ' (' + '일월화수목금토'[recD.getDay()] + ')' + (recOff === 0 ? ' · 오늘' : recOff === -1 ? ' · 어제' : recOff === -2 ? ' · 그제' : '');
+"""
+dc = dc[:_a] + _pre + _reg + dc[_b:]
+_rep("hrAvg: hrAvgV, hourNote:", "recLabel, recPrev: () => this.setState({ recOff: recOff - 1 }), recNext: () => this.setState({ recOff: recOff + 1 }), recToday: () => this.setState({ recOff: 0 }), recPrevOp: recOff <= recMin ? .35 : 1, recNextOp: recOff >= 0 ? .35 : 1, hrAvg: hrAvgV, hourNote:")
+_H = '<div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">\n<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:.08em;color:#85859A">HOURLY STEPS'
+_bs = 'style="width:56px;height:52px;border:1px solid #DDE5EC;border-radius:16px;background:#fff;color:#23374A;font-size:26px;cursor:pointer;opacity:{{ %s }}"'
+_row = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:-4px"><button onClick="{{ hov.recPrev }}" ' + (_bs % 'hov.recPrevOp') + '>‹</button><div style="flex:1;text-align:center;font:800 var(--f16,17px) \'DM Sans\',\'Noto Sans KR\',sans-serif;color:#20202A;padding:10px 0;border-radius:16px;background:#F1F1F7">{{ hov.recLabel }}</div><button onClick="{{ hov.recNext }}" ' + (_bs % 'hov.recNextOp') + '>›</button><button onClick="{{ hov.recToday }}" style="height:52px;padding:0 18px;border:0;border-radius:16px;background:#673DE6;color:#fff;font:700 var(--f14,15px) \'Noto Sans KR\',sans-serif;cursor:pointer">오늘</button></div>\n'
+_rep(_H, _row + _H)
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

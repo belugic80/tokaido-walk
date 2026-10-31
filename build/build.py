@@ -1069,9 +1069,20 @@ _rep("hrAvg: hrAvgV, hourNote:", "trk: _tp.map(q => q[0] + ',' + q[1] + ',' + q[
 _rep("    const hcR = recOff === 0 ?", """    const _tp = (() => { const a = (((this.state.track || {})[recIso]) || []).concat((((this.state.hc || {}).locs || {})[recIso]) || []).sort((x, y) => x[2] - y[2]), o = []; a.forEach(q => { const l = o[o.length - 1]; if (!l || hav([l[0], l[1]], [q[0], q[1]]) > 0.02) o.push(q); }); return o; })();
     const hcR = recOff === 0 ?""")
 _rep("const hc = { days, snaps: j.snaps || [], at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };") if False else None
-_MAP = '<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><div><div style="font:700 var(--f12,12px) \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:.08em;color:#85859A">MY TRACK · 걸은 위치</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">이 날 걸은 길 (폰 GPS)</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 {{ hov.trkN }}점</span></div><div data-trkmap="1" data-trk="{{ hov.trk }}" style="position:relative;height:340px;margin-top:10px;border-radius:16px;overflow:hidden;background:#EAF0F6;touch-action:none"></div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:8px;line-height:1.5">폰의 위치 기록 앱(OwnTracks 등)이 보낸 점과, 이 앱을 켜 두고 걸은 점을 합쳐 보여줘요. 워치 GPS 경로는 아직 가져올 수 없어요.</div></div>\n'
+_MAP = '<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><div><div style="font:700 var(--f12,12px) \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:.08em;color:#85859A">MY TRACK · 걸은 위치</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">이 날 걸은 길 (폰 GPS)</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 {{ hov.trkN }}점</span></div><div data-trkmap="1" data-trk="{{ hov.trk }}" style="position:relative;height:340px;margin-top:10px;border-radius:16px;overflow:hidden;background:#EAF0F6;touch-action:none"></div><div data-trkleg="1" style="font-size:var(--f13,13px);font-weight:700;color:#20202A;margin-top:8px"></div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:4px;line-height:1.5">폰의 위치 기록 앱(OwnTracks 등)이 보낸 점과, 이 앱을 켜 두고 걸은 점을 합쳐 보여줘요. 워치 GPS 경로는 아직 가져올 수 없어요.</div></div>\n'
 _rep(_row + _H, _row + _MAP + _H)
 dc = dc.replace('</body>', """<script>(function () {
+  window.tkSeg = function (pts) {
+    var n = pts.length, R = Math.PI / 180, d = [], t = [], i, j;
+    for (i = 1; i < n; i++) { var a = pts[i - 1], b = pts[i], x = Math.sin((b[0] - a[0]) * R / 2), y = Math.sin((b[1] - a[1]) * R / 2); d[i] = 12742 * Math.asin(Math.sqrt(x * x + Math.cos(a[0] * R) * Math.cos(b[0] * R) * y * y)); t[i] = Math.max(1, (b[2] || 0) - (a[2] || 0)); }
+    var mode = [];
+    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } mode[i] = sd / (st / 3600) >= 12 ? 'v' : 'w'; }
+    var runs = [], cur = null;
+    for (i = 1; i < n; i++) { if (!cur || cur.m !== mode[i]) { cur = { m: mode[i], pts: [pts[i - 1]], km: 0 }; runs.push(cur); } cur.pts.push(pts[i]); cur.km += d[i]; }
+    runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });
+    var out = []; runs.forEach(function (r) { var l = out[out.length - 1]; if (l && l.m === r.m) { l.pts = l.pts.concat(r.pts.slice(1)); l.km += r.km; } else out.push({ m: r.m, pts: r.pts.slice(), km: r.km }); });
+    return out;
+  };
   var GSI = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
     if (typeof L === 'undefined') return;
@@ -1087,7 +1098,7 @@ dc = dc.replace('</body>', """<script>(function () {
       el._map.on('baselayerchange', function (ev) { try { localStorage.setItem('tk-trkmap3', ev.name); } catch (e) {} });
     })(); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
     if (el._k === k) return; el._k = k; el._lay.clearLayers();
-    var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
+    var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1], +a[2]]; }) : [];
     if (!pts.length) {
       if (!el._msg) { el._msg = document.createElement('div'); el._msg.style.cssText = 'position:absolute;left:12px;right:12px;bottom:12px;z-index:1000;background:rgba(255,255,255,.95);border-radius:12px;padding:10px 12px;font:600 14px Noto Sans KR,sans-serif;color:#20202A;text-align:center'; el.appendChild(el._msg); }
       el._msg.textContent = '이 날은 기록된 위치가 없어요'; el._msg.style.display = 'block';
@@ -1095,7 +1106,8 @@ dc = dc.replace('</body>', """<script>(function () {
       return;
     }
     if (el._msg) el._msg.style.display = 'none';
-    L.polyline(pts, { color: '#673DE6', weight: 5, opacity: .9 }).addTo(el._lay);
+    var runs = window.tkSeg(pts), vk = 0; runs.forEach(function (r) { if (r.m === 'v') vk += r.km; L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 6, opacity: .95, dashArray: '2 9', lineCap: 'round' } : { color: '#673DE6', weight: 5, opacity: .9 }).addTo(el._lay); });
+    var lg = el.parentNode && el.parentNode.querySelector('[data-trkleg]'); if (lg) lg.textContent = vk > 0.15 ? '보라 실선 = 걸음 · 주황 점선 = 차량·전철 이동 추정 (' + vk.toFixed(1) + 'km)' : '보라 실선 = 걸음';
     L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(el._lay);
     L.circleMarker(pts[pts.length - 1], { radius: 8, color: '#fff', weight: 3, fillColor: '#E8453C', fillOpacity: 1 }).addTo(el._lay);
     try { el._map.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 17 }); } catch (e) {}
@@ -1120,12 +1132,12 @@ dc = dc.replace("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", "ht
 _rep("  drawMain() {\n", """  trackPts(iso) {
     const a = (((this.state.track || {})[iso]) || []).concat((((this.state.hc || {}).locs || {})[iso]) || []).sort((x, y) => x[2] - y[2]), o = [];
     a.forEach(q => { const l = o[o.length - 1]; if (!l || hav([l[0], l[1]], [q[0], q[1]]) > 0.02) o.push(q); });
-    return o.map(q => [q[0], q[1]]);
+    return o;
   }
   drawMain() {
 """)
 _rep("key: [view, cutI, route.length,", "walk: (() => { if (view !== this.today()) return []; const n3 = new Date(); return this.trackPts(n3.getFullYear() + '-' + String(n3.getMonth() + 1).padStart(2, '0') + '-' + String(n3.getDate()).padStart(2, '0')); })(), key: [view, cutI, route.length,")
-_rep("    this.drawnKey = m.key;\n    this.declutter();", """    try { if (m.walk && m.walk.length > 1) { L.polyline(m.walk, { renderer: this.svgR, color: '#673DE6', weight: 5, opacity: .95, lineCap: 'round', lineJoin: 'round' }).bindTooltip('걸어온 길', { sticky: true }).addTo(lay); L.circleMarker(m.walk[0], { radius: 6, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(lay); } } catch (e) {}
+_rep("    this.drawnKey = m.key;\n    this.declutter();", """    try { if (m.walk && m.walk.length > 1) { (window.tkSeg ? window.tkSeg(m.walk) : [{ m: 'w', pts: m.walk }]).forEach(r => L.polyline(r.pts, r.m === 'v' ? { renderer: this.svgR, color: '#F08A24', weight: 6, opacity: .95, dashArray: '2 9', lineCap: 'round' } : { renderer: this.svgR, color: '#673DE6', weight: 5, opacity: .95, lineCap: 'round', lineJoin: 'round' }).bindTooltip(r.m === 'v' ? '차량·전철 이동' : '걸어온 길', { sticky: true }).addTo(lay)); L.circleMarker(m.walk[0], { radius: 6, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(lay); } } catch (e) {}
     this.drawnKey = _wk;
     this.declutter();""")
 

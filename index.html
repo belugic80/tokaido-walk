@@ -1838,10 +1838,11 @@ class Component extends DCLogic {
     if (!pts.length) {
       if (!el._msg) { el._msg = document.createElement('div'); el._msg.style.cssText = 'position:absolute;left:12px;right:12px;bottom:12px;z-index:1000;background:rgba(255,255,255,.95);border-radius:12px;padding:10px 12px;font:600 14px Noto Sans KR,sans-serif;color:#20202A;text-align:center'; el.appendChild(el._msg); }
       el._msg.textContent = '이 날은 기록된 위치가 없어요'; el._msg.style.display = 'block';
-      if (!el._cur && navigator.geolocation) { el._cur = 1; navigator.geolocation.getCurrentPosition(function (p) { try { var q = [p.coords.latitude, p.coords.longitude]; el._map.setView(q, 16); L.circleMarker(q, { radius: 8, color: '#fff', weight: 3, fillColor: '#2F7CF6', fillOpacity: 1 }).addTo(el._map); } catch (e) {} }, function () {}, { timeout: 15000, maximumAge: 120000 }); }
+      if (!el._cur && navigator.geolocation) { el._cur = 1; navigator.geolocation.getCurrentPosition(function (p) { try { if (el._k) return; var q = [p.coords.latitude, p.coords.longitude]; el._map.setView(q, 16); el._curMk = L.circleMarker(q, { radius: 8, color: '#fff', weight: 3, fillColor: '#2F7CF6', fillOpacity: 1 }).addTo(el._map); } catch (e) {} }, function () {}, { timeout: 15000, maximumAge: 120000 }); }
       return;
     }
     if (el._msg) el._msg.style.display = 'none';
+    if (el._curMk) { try { el._map.removeLayer(el._curMk); } catch (e) {} el._curMk = null; }
     var runs = window.tkSeg(pts), vk = 0; runs.forEach(function (r) { if (r.m === 'v') vk += r.km; L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 6, opacity: .95, dashArray: '2 9', lineCap: 'round' } : { color: '#673DE6', weight: 5, opacity: .9 }).addTo(el._lay); });
     var lg = el.parentNode && el.parentNode.querySelector('[data-trkleg]'); if (lg) lg.textContent = vk > 0.15 ? '보라 실선 = 걸음 · 주황 점선 = 차량·전철 이동 추정 (' + vk.toFixed(1) + 'km)' : '보라 실선 = 걸음';
     L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(el._lay);

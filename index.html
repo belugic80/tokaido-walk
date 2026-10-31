@@ -1542,6 +1542,9 @@ class Component extends DCLogic {
   var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   var auto = function () { document.removeEventListener('pointerup', auto, true); if (!inApp && !document.fullscreenElement) goFs(); };
   document.addEventListener('pointerup', auto, true);
+  /* 뒤로가기 제스처: 앱이 닫히거나 전체 화면이 풀려 상단이 내려오지 않게 기록을 하나 더 쌓아 막고, 풀렸으면 다음 터치에 다시 전체 화면 */
+  try { history.pushState({ tk: 1 }, '', location.href); window.addEventListener('popstate', function () { try { history.pushState({ tk: 1 }, '', location.href); } catch (e) {} }); } catch (e) {}
+  document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement) { var re = function () { document.removeEventListener('pointerup', re, true); if (!document.fullscreenElement) goFs(); }; document.addEventListener('pointerup', re, true); } });
   /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
   document.addEventListener('click', function (e) {
     var card = e.target.closest && e.target.closest('[data-showcard]');

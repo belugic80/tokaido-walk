@@ -282,7 +282,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <sc-if value="{{ tlIsB }}" hint-placeholder-val="{{ true }}">
 <div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">HOURLY STEPS · 시간대별 걸음 수</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">언제 가장 많이 걸었을까요?{{ hov.hourNote }}</div></div><span style="font:700 24px 'DM Sans',sans-serif;letter-spacing:-.03em;color:#20202A">{{ hov.steps }}<small style="font:500 var(--f12,12px) 'Noto Sans KR',sans-serif;color:#85859A;margin-left:4px">걸음</small></span></div>
-<div style="position:relative;height:230px;margin-top:10px">
+<div data-hscroll="1" data-hrs="1" style="overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-top:10px"><div style="position:relative;height:230px;width:1008px">
 <div style="position:absolute;left:0;right:0;top:56px;bottom:22px;display:flex;align-items:flex-end;gap:6px">
 <sc-for list="{{ tl.hours }}" as="b" hint-placeholder-count="13"><div style="flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">
 <span style="font-size:var(--f11,11px);font-weight:700;color:#555568;margin-bottom:3px;white-space:nowrap;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ b.lab }}</span>
@@ -291,6 +291,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 <sc-for list="{{ tl.pins }}" as="p" hint-placeholder-count="5"><div style="position:absolute;left:{{ p.x }}%;top:{{ p.top }}px;bottom:22px;width:0;pointer-events:none"><div style="position:absolute;left:0;top:20px;bottom:0;border-left:1.5px dashed {{ p.color }};opacity:.5"></div><div style="position:absolute;left:0;top:0;transform:translateX(-50%);height:22px;padding:0 9px;border-radius:999px;background:{{ p.bg }};color:#fff;font-size:var(--f12,12px);font-weight:700;white-space:nowrap;display:flex;align-items:center">{{ p.name }} {{ p.time }}</div></div></sc-for>
 <div style="position:absolute;left:0;right:0;bottom:0;display:flex;gap:6px"><sc-for list="{{ tl.hours }}" as="b" hint-placeholder-count="13"><span style="flex:1;text-align:center;font-size:var(--f11,11px);color:#85859A;font-family:'DM Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums">{{ b.h }}</span></sc-for></div>
+</div>
 </div>
 </div>
 </sc-if>
@@ -1456,12 +1457,12 @@ class Component extends DCLogic {
       if (Object.keys(m2).length) return { map: m2, note: '워치 동기화 간 증가분 기준(대략)' };
       return ss.length ? { map: m, note: '' } : { map: {}, note: '시간별 기록 없음 · 워치에서 걷기 운동을 시작하면 표시' };
     })();
-    const hrsArr = []; for (let hh2 = 6; hh2 <= 18; hh2++) { let dn = 0, pl = 0; walks.forEach(w => { const ov = Math.max(0, Math.min(w.to, (hh2 + 1) * 60) - Math.max(w.from, hh2 * 60)); if (ov > 0) { const st = w.steps * ov / (w.to - w.from); pl += st; if (w.done) dn += st; } }); const hv = hcH ? Math.round(hcH.map[hh2] || 0) : null; hrsArr.push(hv != null ? { h: hh2 + '시', dn: hv, pl: hv } : { h: hh2 + '시', dn: Math.round(dn), pl: Math.round(pl) }); }
+    const hrsArr = []; for (let hh2 = 6; hh2 <= 23; hh2++) { let dn = 0, pl = 0; walks.forEach(w => { const ov = Math.max(0, Math.min(w.to, (hh2 + 1) * 60) - Math.max(w.from, hh2 * 60)); if (ov > 0) { const st = w.steps * ov / (w.to - w.from); pl += st; if (w.done) dn += st; } }); const hv = hcH ? Math.round(hcH.map[hh2] || 0) : null; hrsArr.push(hv != null ? { h: hh2 + '시', dn: hv, pl: hv } : { h: hh2 + '시', dn: Math.round(dn), pl: Math.round(pl) }); }
     const hpMax = Math.max.apply(null, hrsArr.map(x => x.pl).concat([1]));
     const tlHours = hrsArr.map(x => ({ h: x.h, planPct: Math.round(x.pl / hpMax * 100), doneRel: x.pl ? Math.round(x.dn / x.pl * 100) : 0, bg: '#7544ED', lab: x.dn ? (x.dn >= 1000 ? (x.dn / 1000).toFixed(1) + '천' : String(x.dn)) : '' }));
     const stopEvs = evs.filter(e => e.isStop);
     const passEvs = Object.entries(((this.state.passed || {})[_iso]) || {}).map(([name, time]) => ({ name, time })).sort((a, b) => a.time.localeCompare(b.time));
-    const tlPins = (hcH ? passEvs : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = hcH ? true : i <= tlReached; return { x: Math.max(4, Math.min(96, ((hh3 * 60 + mm3) - 360) / 780 * 100)).toFixed(1), top: i % 2 ? 26 : 0, name: e.name, time: e.time, bg: done ? '#20A85A' : i === tlReached + 1 ? accent : '#A6A6B5', color: done ? '#20A85A' : '#A6A6B5' }; });
+    const tlPins = (hcH ? passEvs : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = hcH ? true : i <= tlReached; return { x: Math.max(4, Math.min(96, ((hh3 * 60 + mm3) - 360) / 1080 * 100)).toFixed(1), top: i % 2 ? 26 : 0, name: e.name, time: e.time, bg: done ? '#20A85A' : i === tlReached + 1 ? accent : '#A6A6B5', color: done ? '#20A85A' : '#A6A6B5' }; });
     const tlDt = new Date(2026, 11, 3 + today);
     const hrArea = path(hrPts) + ' L' + hrPts[hrPts.length - 1].x + ',150 L' + hrPts[0].x + ',150 Z';
     const hov = { hrD: path(hrPts), hrArea, hrAvg: hrAvgV, hourNote: hcH && hcH.note ? ' · ' + hcH.note : '', x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin: Math.min.apply(null, HRV), hrMax: Math.max.apply(null, HRV), hrGrid: grid([80, 100, 120, 140], 70, 140, 14, 150, v => v), hrMx: hrPts[hmI].x, hrMy: hrPts[hmI].y,
@@ -1781,5 +1782,10 @@ class Component extends DCLogic {
   document.addEventListener('touchend', end, { passive: true });
   document.addEventListener('touchcancel', function () { on = false; bar.style.transform = 'translate(-50%,-70px)'; }, { passive: true });
 })();</script>
-</body>
+<script>(function () {
+  setInterval(function () { document.querySelectorAll('[data-hrs]').forEach(function (el) {
+    if (el._init || el.scrollWidth <= el.clientWidth) return; el._init = 1;
+    var h = new Date().getHours(); el.scrollLeft = h <= 8 ? 0 : Math.max(0, (Math.min(h, 23) - 6 - 2) * 56);
+  }); }, 700);
+})();</script></body>
 </html>

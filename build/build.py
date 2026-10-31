@@ -1025,6 +1025,18 @@ _rep("const hc = { days, snaps: j.snaps || [], at: Date.now() };", "Object.keys(
 _rep("      const sn = ((this.state.hc || {}).snaps || [])", """      const hd = hcT0.hdist || {}, hdSum = Object.keys(hd).reduce((a, h) => a + (+hd[h] || 0), 0);
       if (hdSum > 50 && hcT0.steps) { const m3 = {}; Object.keys(hd).forEach(h => { m3[h] = hcT0.steps * (+hd[h] || 0) / hdSum; }); return { map: m3, note: '시간별 이동 거리 비율 기준' }; }
       const sn = ((this.state.hc || {}).snaps || [])""")
+
+# ---- 시간대별 걸음 그래프: 6시~23시, 좌우 스크롤(스크롤바 없이) ----
+_rep('<div style="position:relative;height:230px;margin-top:10px">', '<div data-hscroll="1" data-hrs="1" style="overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-top:10px"><div style="position:relative;height:230px;width:1008px">')
+_rep("{{ b.h }}</span></sc-for></div>\n</div>\n</div>", "{{ b.h }}</span></sc-for></div>\n</div>\n</div>\n</div>")
+_rep("for (let hh2 = 6; hh2 <= 18; hh2++)", "for (let hh2 = 6; hh2 <= 23; hh2++)")
+_rep("((hh3 * 60 + mm3) - 360) / 780 * 100", "((hh3 * 60 + mm3) - 360) / 1080 * 100")
+dc = dc.replace('</body>', """<script>(function () {
+  setInterval(function () { document.querySelectorAll('[data-hrs]').forEach(function (el) {
+    if (el._init || el.scrollWidth <= el.clientWidth) return; el._init = 1;
+    var h = new Date().getHours(); el.scrollLeft = h <= 8 ? 0 : Math.max(0, (Math.min(h, 23) - 6 - 2) * 56);
+  }); }, 700);
+})();</script></body>""", 1)
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

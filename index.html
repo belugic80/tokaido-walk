@@ -281,6 +281,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ tlIsB }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:-4px"><button onClick="{{ hov.recPrev }}" style="width:56px;height:52px;border:1px solid #DDE5EC;border-radius:16px;background:#fff;color:#23374A;font-size:26px;cursor:pointer;opacity:{{ hov.recPrevOp }}">‹</button><div style="flex:1;text-align:center;font:800 var(--f16,17px) 'DM Sans','Noto Sans KR',sans-serif;color:#20202A;padding:10px 0;border-radius:16px;background:#F1F1F7">{{ hov.recLabel }}</div><button onClick="{{ hov.recNext }}" style="width:56px;height:52px;border:1px solid #DDE5EC;border-radius:16px;background:#fff;color:#23374A;font-size:26px;cursor:pointer;opacity:{{ hov.recNextOp }}">›</button><button onClick="{{ hov.recToday }}" style="height:52px;padding:0 18px;border:0;border-radius:16px;background:#673DE6;color:#fff;font:700 var(--f14,15px) 'Noto Sans KR',sans-serif;cursor:pointer">오늘</button></div>
+<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><div><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">MY TRACK · 걸은 위치</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">이 날 걸은 길 (폰 GPS)</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 {{ hov.trkN }}점</span></div><div data-trkmap="1" data-trk="{{ hov.trk }}" style="position:relative;height:340px;margin-top:10px;border-radius:16px;overflow:hidden;background:#EAF0F6;touch-action:none"></div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:8px;line-height:1.5">앱을 켜 두고 걸을 때 20m마다 폰 위치를 기록해요. 앱을 닫으면 기록되지 않아요. 워치 GPS 경로는 아직 가져올 수 없어요.</div></div>
 <div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">HOURLY STEPS · 시간대별 걸음 수</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">언제 가장 많이 걸었을까요?{{ hov.hourNote }}</div></div><span style="font:700 24px 'DM Sans',sans-serif;letter-spacing:-.03em;color:#20202A">{{ hov.steps }}<small style="font:500 var(--f12,12px) 'Noto Sans KR',sans-serif;color:#85859A;margin-left:4px">걸음</small></span></div>
 <div data-hscroll="1" data-hrs="1" style="overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-top:10px"><div style="position:relative;height:230px;width:1008px">
@@ -886,7 +887,7 @@ class Component extends DCLogic {
   routeCache = {};
   amenCache = {};
   componentDidMount() { this.loadFx(); this.loadWx(); this.loadHc(); this.watchGps(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
-  componentDidUpdate() { try { const _d = {}; ['passed', 'smode', 'exp', 'body', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
+  componentDidUpdate() { try { const _d = {}; ['track', 'passed', 'smode', 'exp', 'body', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
   loadWx() {
     try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
     const apply = (lat, lon, src) => {
@@ -903,6 +904,8 @@ class Component extends DCLogic {
     try {
       if (!navigator.geolocation || this._gw) return;
       this._gw = navigator.geolocation.watchPosition(pos => {
+        if (pos.coords.accuracy && pos.coords.accuracy > 150) return;
+        { const lat0 = pos.coords.latitude, lon0 = pos.coords.longitude, nn = new Date(), iso0 = nn.getFullYear() + '-' + String(nn.getMonth() + 1).padStart(2, '0') + '-' + String(nn.getDate()).padStart(2, '0'); const tr = (this.state.track || {})[iso0] || [], lastp = tr[tr.length - 1]; if (!lastp || hav([lastp[0], lastp[1]], [lat0, lon0]) > 0.02) { this.setState(s => { const T = Object.assign({}, s.track || {}); const arr = (T[iso0] || []).concat([[+lat0.toFixed(5), +lon0.toFixed(5), Math.round(Date.now() / 1000)]]); T[iso0] = arr.length > 3000 ? arr.slice(arr.length - 3000) : arr; Object.keys(T).sort().slice(0, -12).forEach(k => delete T[k]); return { track: T }; }); } }
         const ll = [pos.coords.latitude, pos.coords.longitude], n = new Date(), iso = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'), tm = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
         ST.forEach(t => { if (hav(ll, t.ll) < 0.3) { const nm = t.ko.replace(/\(.*\)/, ''); const cur = ((this.state.passed || {})[iso]) || {}; if (!cur[nm]) this.setState(s => ({ passed: Object.assign({}, s.passed || {}, { [iso]: Object.assign({}, ((s.passed || {})[iso]) || {}, { [nm]: tm }) }) })); } });
       }, () => {}, { enableHighAccuracy: false, maximumAge: 60000, timeout: 30000 });
@@ -1471,7 +1474,7 @@ class Component extends DCLogic {
     const tlPins = (hcH ? passEvs : stopEvs).map((e, i) => { const [hh3, mm3] = e.time.split(':').map(Number); const done = hcH ? true : i <= tlReached; return { x: Math.max(4, Math.min(96, ((hh3 * 60 + mm3) - 360) / 1080 * 100)).toFixed(1), top: i % 2 ? 26 : 0, name: e.name, time: e.time, bg: done ? '#20A85A' : i === tlReached + 1 ? accent : '#A6A6B5', color: done ? '#20A85A' : '#A6A6B5' }; });
     const tlDt = new Date(2026, 11, 3 + today);
     const hrArea = path(hrPts) + ' L' + hrPts[hrPts.length - 1].x + ',150 L' + hrPts[0].x + ',150 Z';
-    const hov = { hrD: path(hrPts), hrArea, recLabel, recPrev: () => this.setState({ recOff: recOff - 1 }), recNext: () => this.setState({ recOff: recOff + 1 }), recToday: () => this.setState({ recOff: 0 }), recPrevOp: recOff <= recMin ? .35 : 1, recNextOp: recOff >= 0 ? .35 : 1, hrAvg: hrAvgV, hourNote: hcH && hcH.note ? ' · ' + hcH.note : '', x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin: Math.min.apply(null, HRV), hrMax: Math.max.apply(null, HRV), hrGrid: grid([80, 100, 120, 140], 70, 140, 14, 150, v => v), hrMx: hrPts[hmI].x, hrMy: hrPts[hmI].y,
+    const hov = { hrD: path(hrPts), hrArea, recLabel, recPrev: () => this.setState({ recOff: recOff - 1 }), recNext: () => this.setState({ recOff: recOff + 1 }), recToday: () => this.setState({ recOff: 0 }), recPrevOp: recOff <= recMin ? .35 : 1, recNextOp: recOff >= 0 ? .35 : 1, trk: ((this.state.track || {})[recIso] || []).map(q => q[0] + ',' + q[1] + ',' + q[2]).join(';'), trkN: ((this.state.track || {})[recIso] || []).length, hrAvg: hrAvgV, hourNote: hcH && hcH.note ? ' · ' + hcH.note : '', x0: hrX[0], x1: hrX[1], x2: hrX[2], hrMin: Math.min.apply(null, HRV), hrMax: Math.max.apply(null, HRV), hrGrid: grid([80, 100, 120, 140], 70, 140, 14, 150, v => v), hrMx: hrPts[hmI].x, hrMy: hrPts[hmI].y,
       ring: Math.round(Math.min(1, tSteps / 20000) * 100), steps: tSteps.toLocaleString('ko-KR'), left: Math.max(0, 20000 - tSteps).toLocaleString('ko-KR'),
       metrics: [
         { k: 'DISTANCE', label: '걸은 거리', v: tW.toFixed(1), u: 'km', sub: '목표 ' + tdd.dist + 'km', bg: '#E4F8EA', c: '#20A85A', g: '↗', p: Math.round(Math.min(1, tW / Math.max(.1, tdd.dist)) * 100), bar: 'linear-gradient(135deg,#37C878,#9BEA9C)' },
@@ -1793,5 +1796,20 @@ class Component extends DCLogic {
     if (el._init || el.scrollWidth <= el.clientWidth) return; el._init = 1;
     var h = new Date().getHours(); el.scrollLeft = h <= 8 ? 0 : Math.max(0, (Math.min(h, 23) - 6 - 2) * 56);
   }); }, 700);
+})();</script><script>(function () {
+  var GSI = 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png';
+  setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
+    if (typeof L === 'undefined') return;
+    var k = el.getAttribute('data-trk') || '';
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 18 }).addTo(el._map); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (el._k === k) return; el._k = k; el._lay.clearLayers();
+    var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
+    if (!pts.length) { return; }
+    L.polyline(pts, { color: '#673DE6', weight: 5, opacity: .9 }).addTo(el._lay);
+    L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(el._lay);
+    L.circleMarker(pts[pts.length - 1], { radius: 8, color: '#fff', weight: 3, fillColor: '#E8453C', fillOpacity: 1 }).addTo(el._lay);
+    try { el._map.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 17 }); } catch (e) {}
+    setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 200);
+  }); }, 800);
 })();</script></body>
 </html>

@@ -406,7 +406,7 @@ _A='color:#B7791F">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font
 assert dc.count(_A)==1
 dc=dc.replace(_A,'color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px;white-space:nowrap">53역참 중 {{ stCount }}</div>')
 # ---- 저장(유실 방지): 입력값을 이 기기에 자동 저장, 사진은 IndexedDB ----
-PERSIST_KEYS = ['passed','smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
+PERSIST_KEYS = ['track','passed','smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
 _P = [
  ("heroImg: (this.props.heroImg && !/^assets\\//.test(this.props.heroImg)) ? this.props.heroImg : 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop',", "heroImg: 'assets/dayhero/' + view + '.jpg', heroPos: (Number(view)===31 ? '50% 86%' : '50% 40%'),"),
  ("amenOn: {}, pop: -1 };", "amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };"),
@@ -1057,6 +1057,32 @@ _H = '<div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);bor
 _bs = 'style="width:56px;height:52px;border:1px solid #DDE5EC;border-radius:16px;background:#fff;color:#23374A;font-size:26px;cursor:pointer;opacity:{{ %s }}"'
 _row = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:-4px"><button onClick="{{ hov.recPrev }}" ' + (_bs % 'hov.recPrevOp') + '>‹</button><div style="flex:1;text-align:center;font:800 var(--f16,17px) \'DM Sans\',\'Noto Sans KR\',sans-serif;color:#20202A;padding:10px 0;border-radius:16px;background:#F1F1F7">{{ hov.recLabel }}</div><button onClick="{{ hov.recNext }}" ' + (_bs % 'hov.recNextOp') + '>›</button><button onClick="{{ hov.recToday }}" style="height:52px;padding:0 18px;border:0;border-radius:16px;background:#673DE6;color:#fff;font:700 var(--f14,15px) \'Noto Sans KR\',sans-serif;cursor:pointer">오늘</button></div>\n'
 _rep(_H, _row + _H)
+
+# ---- 기록 탭: 걸은 위치(폰 GPS 궤적) 지도 ----
+s_hav = None
+_rep("PERSIST_KEYS = ['passed',", "PERSIST_KEYS = ['track','passed',") if False else None
+_rep("        const ll = [pos.coords.latitude, pos.coords.longitude], n = new Date(),", """        if (pos.coords.accuracy && pos.coords.accuracy > 150) return;
+        { const lat0 = pos.coords.latitude, lon0 = pos.coords.longitude, nn = new Date(), iso0 = nn.getFullYear() + '-' + String(nn.getMonth() + 1).padStart(2, '0') + '-' + String(nn.getDate()).padStart(2, '0'); const tr = (this.state.track || {})[iso0] || [], lastp = tr[tr.length - 1]; if (!lastp || hav([lastp[0], lastp[1]], [lat0, lon0]) > 0.02) { this.setState(s => { const T = Object.assign({}, s.track || {}); const arr = (T[iso0] || []).concat([[+lat0.toFixed(5), +lon0.toFixed(5), Math.round(Date.now() / 1000)]]); T[iso0] = arr.length > 3000 ? arr.slice(arr.length - 3000) : arr; Object.keys(T).sort().slice(0, -12).forEach(k => delete T[k]); return { track: T }; }); } }
+        const ll = [pos.coords.latitude, pos.coords.longitude], n = new Date(),""")
+_rep("hrAvg: hrAvgV, hourNote:", "trk: ((this.state.track || {})[recIso] || []).map(q => q[0] + ',' + q[1] + ',' + q[2]).join(';'), trkN: ((this.state.track || {})[recIso] || []).length, hrAvg: hrAvgV, hourNote:")
+_MAP = '<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><div><div style="font:700 var(--f12,12px) \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:.08em;color:#85859A">MY TRACK · 걸은 위치</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">이 날 걸은 길 (폰 GPS)</div></div><span style="font-size:var(--f12,12px);color:#85859A">기록 {{ hov.trkN }}점</span></div><div data-trkmap="1" data-trk="{{ hov.trk }}" style="position:relative;height:340px;margin-top:10px;border-radius:16px;overflow:hidden;background:#EAF0F6;touch-action:none"></div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:8px;line-height:1.5">앱을 켜 두고 걸을 때 20m마다 폰 위치를 기록해요. 앱을 닫으면 기록되지 않아요. 워치 GPS 경로는 아직 가져올 수 없어요.</div></div>\n'
+_rep(_row + _H, _row + _MAP + _H)
+dc = dc.replace('</body>', """<script>(function () {
+  var GSI = 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png';
+  setInterval(function () { document.querySelectorAll('[data-trkmap]').forEach(function (el) {
+    if (typeof L === 'undefined') return;
+    var k = el.getAttribute('data-trk') || '';
+    if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 18 }).addTo(el._map); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
+    if (el._k === k) return; el._k = k; el._lay.clearLayers();
+    var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }) : [];
+    if (!pts.length) { return; }
+    L.polyline(pts, { color: '#673DE6', weight: 5, opacity: .9 }).addTo(el._lay);
+    L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(el._lay);
+    L.circleMarker(pts[pts.length - 1], { radius: 8, color: '#fff', weight: 3, fillColor: '#E8453C', fillOpacity: 1 }).addTo(el._lay);
+    try { el._map.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 17 }); } catch (e) {}
+    setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 200);
+  }); }, 800);
+})();</script></body>""", 1)
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

@@ -951,6 +951,24 @@ _rep("const rt = { km: tW.toFixed(1), sub: tW > 0 ?", "const rt = { km: hcT0 ? h
 _rep("hr: 92, hrMax: 127, hrRest: 61,", "hr: hcT0 && hcT0.hr ? hcT0.hr : 92, hrMax: hcT0 && hcT0.hrMax ? hcT0.hrMax : 127, hrRest: 61,")
 _rep("'마지막 동기화 10:42'", "'마지막 동기화 ' + (hcT0 && hcT0.synced ? hcT0.synced : '—')")
 _rep("const st = this.state.sync ?? ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok');\n        const T", "const st = this.state.sync ?? ((this.state.hc || {}).err && !hcT0 ? 'fail' : ({ '완료': 'ok', '실패': 'fail', '동기화 중': 'busy' }[this.props.syncState] || 'ok'));\n        const T")
+
+# ---- 워치 데이터: 모든 일차 화면(전체 여정 실제 기록, 누적, 한눈에, 홈 과거일)으로 확대 ----
+_rep("from = new Date(to.getTime() - 9 * 864e5);", "from = to >= new Date(2026, 11, 4) ? new Date(2026, 11, 4) : new Date(to.getTime() - 9 * 864e5);")
+_rep("hcT = view === today ? hcT0 : null;", "hcD = d => ((this.state.hc || {}).days || {})[(dd0 => dd0.getFullYear() + '-' + String(dd0.getMonth() + 1).padStart(2, '0') + '-' + String(dd0.getDate()).padStart(2, '0'))(new Date(2026, 11, 3 + d))] || null;\n    const hcT = view === today ? hcT0 : (view < today ? hcD(view) : null);")
+_rep("    const hcT0 = ((this.state.hc", "    const hcT0 = ((this.state.hc")
+_rep("    else if (view === today && walked > 0) { aKm = walked; aMin = Math.round(walked * MIN_PER_KM); }\n",
+"""    else if (view === today && walked > 0) { aKm = walked; aMin = Math.round(walked * MIN_PER_KM); }
+    let aSteps = null;
+    if (hcT) { aKm = +hcT.km.toFixed(1); aMin = hcT.min != null ? hcT.min : Math.round(hcT.km * MIN_PER_KM); aSteps = hcT.steps; }
+""")
+_rep("value: aKm == null ? '—' : Math.round(aKm * 1340).toLocaleString('ko-KR') + '보'", "value: aKm == null ? '—' : (aSteps != null ? aSteps : Math.round(aKm * 1340)).toLocaleString('ko-KR') + '보'")
+_rep("    const cumSteps = Math.round(cumNow * 1340);\n", """    const hcSum = Array.from({ length: today }, (_, i) => hcD(i + 1)).filter(Boolean);
+    const cumSteps = hcSum.length ? hcSum.reduce((a, v) => a + v.steps, 0) : Math.round(cumNow * 1340);
+    const cumKmW = hcSum.length ? hcSum.reduce((a, v) => a + v.km, 0) : null, hrs0 = hcSum.filter(v => v.hr), cumHr = hrs0.length ? Math.round(hrs0.reduce((a, v) => a + v.hr, 0) / hrs0.length) : 98;
+""")
+_rep("{ label: '실제 걸은 거리', value: cumNow.toFixed(1), unit: 'km',", "{ label: '실제 걸은 거리', value: (cumKmW != null ? cumKmW : cumNow).toFixed(1), unit: 'km',")
+_rep("{ label: '걷기 평균 심박', value: 98, unit: 'bpm'", "{ label: '걷기 평균 심박', value: cumHr, unit: 'bpm'")
+_rep("km: x.dist, note: (this.state.dayNotes", "km: hcD(d) ? +hcD(d).km.toFixed(1) : x.dist, note: (this.state.dayNotes")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

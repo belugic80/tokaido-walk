@@ -406,7 +406,7 @@ _A='color:#B7791F">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font
 assert dc.count(_A)==1
 dc=dc.replace(_A,'color:#B7791F;white-space:nowrap">ACHIEVEMENT · 스탬프</div><div style="font-size:16px;font-weight:700;color:#20202A;margin-top:3px;white-space:nowrap">53역참 중 {{ stCount }}</div>')
 # ---- 저장(유실 방지): 입력값을 이 기기에 자동 저장, 사진은 IndexedDB ----
-PERSIST_KEYS = ['track','passed','smode','exp','body','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
+PERSIST_KEYS = ['track','passed','smode','exp','body','bodyLog','wToday','mg','mgSaved','note','memoSaved','dayNotes','dayNoteSaved','expSaved','theme','stage','lodgeOk','amenOn','fxRate','fxAmt','fxDir']
 _P = [
  ("heroImg: (this.props.heroImg && !/^assets\\//.test(this.props.heroImg)) ? this.props.heroImg : 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop',", "heroImg: 'assets/dayhero/' + view + '.jpg', heroPos: (Number(view)===31 ? '50% 86%' : '50% 40%'),"),
  ("amenOn: {}, pop: -1 };", "amenOn: {}, pop: -1, ...(() => { try { return JSON.parse(localStorage.getItem('tk-v15-data') || '{}'); } catch (e) { return {}; } })() };"),
@@ -1076,7 +1076,7 @@ dc = dc.replace('</body>', """<script>(function () {
     var n = pts.length, R = Math.PI / 180, d = [], t = [], i, j;
     for (i = 1; i < n; i++) { var a = pts[i - 1], b = pts[i], x = Math.sin((b[0] - a[0]) * R / 2), y = Math.sin((b[1] - a[1]) * R / 2); d[i] = 12742 * Math.asin(Math.sqrt(x * x + Math.cos(a[0] * R) * Math.cos(b[0] * R) * y * y)); t[i] = Math.max(1, (b[2] || 0) - (a[2] || 0)); }
     var mode = [];
-    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } mode[i] = sd / (st / 3600) >= 12 ? 'v' : 'w'; }
+    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } mode[i] = (sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }
     var runs = [], cur = null;
     for (i = 1; i < n; i++) { if (!cur || cur.m !== mode[i]) { cur = { m: mode[i], pts: [pts[i - 1]], km: 0 }; runs.push(cur); } cur.pts.push(pts[i]); cur.km += d[i]; }
     runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });
@@ -1154,6 +1154,18 @@ dc = dc[:_i] + _seg2 + dc[_j + len("if (ss.length) return { map: m, note: '걷�
 # ---- 앱을 열 때마다 항상 '오늘'로 시작 (예전에 보던 날짜가 저장돼 있어 오늘 걸음수가 안 보이던 문제) ----
 _rep("view: (() => { try { const v = +localStorage.getItem('tk-v15-view'); return v >= 1 && v <= 31 ? v : null; } catch (e) { return null; } })()", "view: null")
 
+# ---- 몸 상태: 날짜별 기록(기본 0) + 최근 5일 흐름은 실제 기록만 ----
+_rep("    const body = this.state.body || { foot: 1, back: 0, tired: 2 };", """    const _bz = n => n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+    const _bn = new Date(), _bIso = _bz(_bn);
+    const bodyLog = Object.assign({}, this.state.bodyLog || (this.state.body ? { '2026-10-31': this.state.body } : {}));
+    const body = bodyLog[_bIso] || { foot: 0, back: 0, tired: 0 };""")
+_rep("onClick: () => this.setState({ body: Object.assign({}, body, { [k]: v }) })", "onClick: () => this.setState({ bodyLog: Object.assign({}, bodyLog, { [_bIso]: Object.assign({}, body, { [k]: v }) }) })")
+_rep("    const hd = []; for (let d = Math.max(1, today - 4); d <= today; d++) hd.push(d);\n", "    const hd = []; for (let i = 4; i >= 0; i--) { const dd = new Date(_bn.getFullYear(), _bn.getMonth(), _bn.getDate() - i); hd.push({ iso: _bz(dd), t: (dd.getMonth() + 1) + '/' + dd.getDate() }); }\n")
+_rep("    const histDays = hd.map(d => ({ t: d + '일', w: d === today ? 800 : 500, c: d === today ? accent : '#85859A' }));", "    const histDays = hd.map((d, i) => ({ t: d.t, w: i === 4 ? 800 : 500, c: i === 4 ? accent : '#85859A' }));")
+_rep("const histRows = BODY.map(([k, label], j) => ({ label, cells: hd.map(d => { const v = d === today ? body[k] : Math.min(5, Math.floor(rnd(d * 7 + j) * 3) + (k === 'foot' && d > 3 ? 1 : 0)); return { v, bg: LV[v] }; }) }));", "const histRows = BODY.map(([k, label]) => ({ label, cells: hd.map(d => { const e = bodyLog[d.iso], v = e && e[k] != null ? e[k] : null; return { v: v === null ? '–' : v, bg: v === null ? '#F1F1F7' : LV[v] }; }) }));")
+# ---- 체중 입력: 숫자만 누르면 소수점 자동 (775 → 77.5, 77 → 77) ----
+_rep('<input type="number" step="0.1" value="{{ wInput }}" onChange="{{ onWInput }}" placeholder="kg"', '<input type="text" inputmode="numeric" pattern="[0-9]*" value="{{ wInput }}" onChange="{{ onWInput }}" placeholder="예: 775 → 77.5kg"')
+_rep("onWInput: e => this.setState({ wInput: e.target.value }),", "onWInput: e => { const dg = String(e.target.value).replace(/\\D/g, '').slice(0, 4); this.setState({ wInput: dg.length > 2 ? dg.slice(0, -1) + '.' + dg.slice(-1) : dg }); },")
 # ---- 오늘 = 실제 날짜 (여행 12/4~1/3). 여행 전이면 1일차 미리보기 + D-day ----
 _rep("today() { return Math.max(1, Math.min(31, Math.round(this.props.today ?? 12))); }",
 "today() { return this.dayInfo().day; }\n  dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }")

@@ -374,7 +374,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div></sc-for>
 <div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;display:flex;flex-direction:column">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;min-height:62px;padding-bottom:6px"><div style="min-width:0"><div style="font:700 var(--f12,12px) 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:.08em;color:#85859A">WEIGHT HISTORY · 체중 변화</div><div style="font-size:var(--f16,16px);font-weight:700;color:#20202A;margin-top:3px">체중 변화 추이</div><div style="font-size:var(--f12,12px);color:#85859A;margin-top:2px">기준 77kg 대비 · 직접 입력·연동 체중계</div></div><button onClick="{{ toggleW }}" style="height:40px;padding:0 14px;font-size:var(--f13,13px);border:1px solid #E5DBFF;border-radius:13px;background:#F1ECFF;color:#3E1FA0;font-weight:700;cursor:pointer;flex:none">체중 입력</button></div>
-<sc-if value="{{ wInOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:6px;margin-top:10px"><input type="number" step="0.1" value="{{ wInput }}" onChange="{{ onWInput }}" placeholder="kg" style="flex:1;height:44px;border-radius:12px;border:1px solid #D5D3E0;background:#FFFFFF;padding:0 14px;font:700 var(--f14,14px) 'DM Sans',sans-serif;outline:none"></input><button onClick="{{ saveW }}" style="width:84px;height:44px;font-size:var(--f13,13px);border:0;border-radius:13px;background:linear-gradient(120deg,#3979E8 0%,#55A9F5 52%,#8AD8E8 100%);color:#fff;font-weight:700;cursor:pointer;box-shadow:0 5px 12px rgba(57,121,232,.22)">저장</button></div></sc-if>
+<sc-if value="{{ wInOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:6px;margin-top:10px"><input type="text" inputmode="numeric" pattern="[0-9]*" value="{{ wInput }}" onChange="{{ onWInput }}" placeholder="예: 775 → 77.5kg" style="flex:1;height:44px;border-radius:12px;border:1px solid #D5D3E0;background:#FFFFFF;padding:0 14px;font:700 var(--f14,14px) 'DM Sans',sans-serif;outline:none"></input><button onClick="{{ saveW }}" style="width:84px;height:44px;font-size:var(--f13,13px);border:0;border-radius:13px;background:linear-gradient(120deg,#3979E8 0%,#55A9F5 52%,#8AD8E8 100%);color:#fff;font-weight:700;cursor:pointer;box-shadow:0 5px 12px rgba(57,121,232,.22)">저장</button></div></sc-if>
 <div style="display:flex;align-items:center;gap:8px;margin-top:14px;min-height:40px;flex-wrap:nowrap"><strong style="font:700 30px/1 'DM Sans',sans-serif;letter-spacing:-.04em;color:#20202A;white-space:nowrap">{{ wt.now }}<small style="font-size:var(--f13,13px);margin-left:2px">kg 현재</small></strong><span style="font-size:var(--f12,12px);font-weight:700;padding:4px 9px;border-radius:999px;background:#E4F8EC;color:#15803D;white-space:nowrap">77kg 대비 {{ wt.diff }}kg</span></div>
 <svg viewBox="0 0 354 250" style="width:100%;height:auto;display:block;margin-top:6px">
 <sc-for list="{{ wt.grid }}" as="g" hint-placeholder-count="5"><line x1="36" x2="348" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#E8E7EF" stroke-width="1"></line><text x="30" y="{{ g.ty }}" text-anchor="end" font-size="11" fill="#85859A">{{ g.label }}</text></sc-for>
@@ -888,7 +888,7 @@ class Component extends DCLogic {
   routeCache = {};
   amenCache = {};
   componentDidMount() { this.loadFx(); this.loadWx(); this.loadHc(); this.watchGps(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
-  componentDidUpdate() { try { const _d = {}; ['track', 'passed', 'smode', 'exp', 'body', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
+  componentDidUpdate() { try { const _d = {}; ['track', 'passed', 'smode', 'exp', 'body', 'bodyLog', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
   loadWx() {
     try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
     const apply = (lat, lon, src) => {
@@ -1286,13 +1286,16 @@ class Component extends DCLogic {
     const hmax = Math.max.apply(null, HV);
     const hourly = HV.map((v, i) => ({ h: (6 + i) + '시', pct: Math.round(v / hmax * 82), lab: v >= 1000 ? (v / 1000).toFixed(1) + '천' : v ? String(v) : '', bg: v === hmax ? accent : ink }));
     const BODY = [['foot', '발·무릎'], ['back', '허리·어깨'], ['tired', '피로']];
-    const body = this.state.body || { foot: 1, back: 0, tired: 2 };
+    const _bz = n => n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+    const _bn = new Date(), _bIso = _bz(_bn);
+    const bodyLog = Object.assign({}, this.state.bodyLog || (this.state.body ? { '2026-10-31': this.state.body } : {}));
+    const body = bodyLog[_bIso] || { foot: 0, back: 0, tired: 0 };
     const LV = ['#E4F8EC', '#EEF8DC', '#FFF3D8', '#FFEBD6', '#FDE9EC', '#F9D4DA'];
-    const bodyRows = BODY.map(([k, label]) => ({ label, opts: [0, 1, 2, 3, 4, 5].map(v => { const on = body[k] === v; return { v, bg: on ? ink : '#F1F1F7', color: on ? '#fff' : '#555568', border: on ? ink : '#E8E7EF', onClick: () => this.setState({ body: Object.assign({}, body, { [k]: v }) }) }; }) }));
+    const bodyRows = BODY.map(([k, label]) => ({ label, opts: [0, 1, 2, 3, 4, 5].map(v => { const on = body[k] === v; return { v, bg: on ? ink : '#F1F1F7', color: on ? '#fff' : '#555568', border: on ? ink : '#E8E7EF', onClick: () => this.setState({ bodyLog: Object.assign({}, bodyLog, { [_bIso]: Object.assign({}, body, { [k]: v }) }) }) }; }) }));
     const bodySum = BODY.reduce((s, [k]) => s + body[k], 0);
-    const hd = []; for (let d = Math.max(1, today - 4); d <= today; d++) hd.push(d);
-    const histDays = hd.map(d => ({ t: d + '일', w: d === today ? 800 : 500, c: d === today ? accent : '#85859A' }));
-    const histRows = BODY.map(([k, label], j) => ({ label, cells: hd.map(d => { const v = d === today ? body[k] : Math.min(5, Math.floor(rnd(d * 7 + j) * 3) + (k === 'foot' && d > 3 ? 1 : 0)); return { v, bg: LV[v] }; }) }));
+    const hd = []; for (let i = 4; i >= 0; i--) { const dd = new Date(_bn.getFullYear(), _bn.getMonth(), _bn.getDate() - i); hd.push({ iso: _bz(dd), t: (dd.getMonth() + 1) + '/' + dd.getDate() }); }
+    const histDays = hd.map((d, i) => ({ t: d.t, w: i === 4 ? 800 : 500, c: i === 4 ? accent : '#85859A' }));
+    const histRows = BODY.map(([k, label]) => ({ label, cells: hd.map(d => { const e = bodyLog[d.iso], v = e && e[k] != null ? e[k] : null; return { v: v === null ? '–' : v, bg: v === null ? '#F1F1F7' : LV[v] }; }) }));
     const memoSlots = [1, 2, 3].map(x => ({ id: 'memo-' + today + '-' + x, ph: '사진 ' + x }));
     const dt0 = new Date(2026, 11, 3 + today);
     const exp = this.state.exp || { tr: { c: 'jpy', v: 330 }, lo: { c: 'jpy', v: 6500 }, fo: { c: 'jpy', v: 3434 }, et: { c: 'jpy', v: 1081 } };
@@ -1542,7 +1545,7 @@ class Component extends DCLogic {
       note: this.state.note || '', onNote: e => this.setState({ note: e.target.value, memoSaved: false }),
       saveMemo: () => this.setState({ memoSaved: true }), memoBtn: this.state.memoSaved ? '저장됨 ✓' : '저장', memoBtnBg: this.state.memoSaved ? '#20A85A' : BRAND,
       saveExp: () => this.setState({ expSaved: true }), expBtn: this.state.expSaved ? '저장됨 ✓' : '저장', expBtnBg: this.state.expSaved ? '#20A85A' : BRAND,
-      wInOpen: !!this.state.wIn, toggleW: () => this.setState(s => ({ wIn: !s.wIn })), wInput: this.state.wInput ?? '', onWInput: e => this.setState({ wInput: e.target.value }),
+      wInOpen: !!this.state.wIn, toggleW: () => this.setState(s => ({ wIn: !s.wIn })), wInput: this.state.wInput ?? '', onWInput: e => { const dg = String(e.target.value).replace(/\D/g, '').slice(0, 4); this.setState({ wInput: dg.length > 2 ? dg.slice(0, -1) + '.' + dg.slice(-1) : dg }); },
       saveW: () => { const v = parseFloat(this.state.wInput); if (v > 30 && v < 200) this.setState({ wToday: v, wIn: false }); },
       trLegend: TRN[view] ? 'flex' : 'none', trLegendText: TRN[view] ? ({ train: '기차', bus: '버스', taxi: '택시' }[TRN[view].k] || '교통') + ' ' + nm(ST[TRN[view].a]) + '→' + nm(ST[TRN[view].b]) : '',
       tabToday: tab === 0, tabRecord: tab === 1, tabSchedule: tab === 6, tabManage: tab === 2, fx, tl, hov, tlTabs, diary: this._diary || [], glance: [{ v: jr.km, u: 'km', l: '걸은 거리' }, { v: today, u: '/ 31일', l: '걸은 날' }, { v: jr.stats[0].value, u: '/ 53', l: '지난 역참' }, { v: badges.filter(x => x.c === '#8A5A12').length, u: '/ 15', l: '모은 배지' }, { v: expCum, u: '원', l: '누적 지출' }], tlIsB: true, dayPrompt: this._prompt || (this._prompt = ['오늘 가장 기억에 남는 순간은?', '오늘의 나에게 해주고 싶은 말은?', '내일은 어떤 마음으로 걸을까?'][Math.floor(Math.random() * 3)]),
@@ -1812,7 +1815,7 @@ class Component extends DCLogic {
     var n = pts.length, R = Math.PI / 180, d = [], t = [], i, j;
     for (i = 1; i < n; i++) { var a = pts[i - 1], b = pts[i], x = Math.sin((b[0] - a[0]) * R / 2), y = Math.sin((b[1] - a[1]) * R / 2); d[i] = 12742 * Math.asin(Math.sqrt(x * x + Math.cos(a[0] * R) * Math.cos(b[0] * R) * y * y)); t[i] = Math.max(1, (b[2] || 0) - (a[2] || 0)); }
     var mode = [];
-    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } mode[i] = sd / (st / 3600) >= 12 ? 'v' : 'w'; }
+    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } mode[i] = (sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }
     var runs = [], cur = null;
     for (i = 1; i < n; i++) { if (!cur || cur.m !== mode[i]) { cur = { m: mode[i], pts: [pts[i - 1]], km: 0 }; runs.push(cur); } cur.pts.push(pts[i]); cur.km += d[i]; }
     runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });

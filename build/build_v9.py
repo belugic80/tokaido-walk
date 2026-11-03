@@ -266,6 +266,20 @@ dc = dc[:_bk] + '<sc-if value="{{ sb2.jp }}" hint-placeholder-val="{{ false }}">
 # 목록이 하단 버튼에 가려지지 않게 여백
 _j = dc.index('<sc-if value="{{ sb2.jp }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">')
 dc = dc[:_j] + dc[_j:].replace('<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">', '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px 80px">', 1)
+# 날씨: 일출·일몰·지금·강수 타일을 크게(빈 여백 채움)
+_w0 = dc.rindex('<div style="flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><sc-for list="{{ wxd2 }}"')
+_w1 = dc.index('</sc-for></div>', _w0) + len('</sc-for></div>')
+_blk = dc[_w0:_w1]
+for _a, _b in [
+  ('gap:10px"><sc-for', 'grid-auto-rows:1fr;gap:12px"><sc-for'),
+  ('border-radius:20px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0', 'border-radius:22px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0'),
+  ('gap:5px;font-size:12px;font-weight:700;color:#4A5D78', 'gap:6px;font-size:15px;font-weight:700;color:#4A5D78'),
+  ("font-size:16px;color:#5B6FD4\">{{ x.icon }}", "font-size:26px;color:#5B6FD4\">{{ x.icon }}"),
+  ('font-size:20px;font-weight:800;letter-spacing:-.03em;white-space:nowrap">{{ x.v }}', 'font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1.05;white-space:nowrap">{{ x.v }}'),
+]:
+    assert _blk.count(_a) == 1, _a[:60]
+    _blk = _blk.replace(_a, _b)
+dc = dc[:_w0] + _blk + dc[_w1:]
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

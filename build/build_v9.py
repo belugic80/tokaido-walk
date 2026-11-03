@@ -167,8 +167,8 @@ _full = _inner.replace('<div style="display:flex;align-items:center;gap:12px;pad
 _full = _full.replace('<button onClick="{{ watchStart }}"', '<button onClick="{{ ctl.demo }}"', 1)
 dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '<sc-if value="{{ ctl.open }}" hint-placeholder-val="{{ false }}">' + _full + '</sc-if></sc-if>')
 # 홈 날짜 카드: 일정 변경 버튼을 아이콘만(제목 가림 방지)
-rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;width:44px;height:44px;padding:0;justify-content:center;border-radius:22px;')
-rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span></button>')
+rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px 0 8px;border-radius:22px;border:1.5px solid #C9D3FF;')
+rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span>목적지</button>')
 # 일본어 상단 카드 글자 키움 / 하단 걷기 바 높이 축소
 rep('<b style="font-size:{{ fr.jpFs }};font-weight:800;line-height:1.3;', '<b style="word-break:auto-phrase;overflow-wrap:anywhere;max-width:100%;font-size:{{ fr.jpFs }};font-weight:800;line-height:1.3;')
 rep('<b style="font-size:{{ fr.jpBig }};font-weight:800;line-height:1.25;', '<b style="word-break:auto-phrase;overflow-wrap:anywhere;max-width:100%;font-size:{{ fr.jpBig }};font-weight:800;line-height:1.25;')
@@ -182,6 +182,14 @@ _a = dc.index('<sc-for list="{{ wps }}"')
 _b = dc.index('</sc-for>', _a) + len('</sc-for>')
 dc = dc[:_a] + '<div style="height:226px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;flex:none">' + dc[_a:_b] + '</div>' + dc[_b:]
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
+# 일정 관리 화면: 하루 목적지 + 쉬는 날 선택 카드(디자인 마크업에 없어 추가)
+_k = dc.index('이동 방식</b>'); _c = dc.rindex('<div style="background:#fff', 0, _k)
+_card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
+  '<span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">DAY {{ pl2.n }} · {{ pl2.date }}</b><span style="font-size:13px;font-weight:700;color:#3B5BDB">{{ pl2.goal }}</span></span>'
+  '<span style="display:flex;padding:4px;border-radius:99px;background:#EEF0FA"><button onClick="{{ pl2.goWalk }}" style="flex:1;height:48px;border:0;border-radius:99px;background:{{ pl2.wBg }};color:{{ pl2.wFg }};box-shadow:{{ pl2.wSh }};font:800 16px Pretendard Variable,Pretendard,sans-serif;cursor:pointer">걷는 날</button><button onClick="{{ pl2.goRest }}" style="flex:1;height:48px;border:0;border-radius:99px;background:{{ pl2.rBg }};color:{{ pl2.rFg }};font:800 16px Pretendard Variable,Pretendard,sans-serif;cursor:pointer">쉬는 날</button></span>'
+  '<b style="font-size:14px;color:#4A5D78">어디까지 갈까요 (도착 역참)</b>'
+  '<div style="display:flex;flex-direction:column;gap:6px"><sc-for list="{{ pl2.ends }}" as="e" hint-placeholder-count="5"><button onClick="{{ e.pick }}" style="display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 14px;border-radius:16px;border:1.5px solid {{ e.bd }};background:{{ e.bg }};cursor:pointer;font-family:inherit;text-align:left"><i style="flex:none;width:22px;height:22px;border-radius:50%;border:{{ e.ring }};display:grid;place-items:center"><i style="width:12px;height:12px;border-radius:50%;background:{{ e.dot }}"></i></i><span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:17px;color:#18324F">{{ e.name }}</b><span style="font-size:12px;color:#6B7A90">{{ e.jp }}</span></span><b style="flex:none;font-size:15px;color:#3B5BDB">{{ e.km }}</b></button></sc-for></div></div>')
+dc = dc[:_c] + _card + dc[_c:]
 # 일정 변경 시트: 누르면 실제 동작
 _pi = dc.index('{{ p.bg }}'); _pb = dc.rindex('<button style="', 0, _pi)
 dc = dc[:_pb] + '<button onClick="{{ p.run }}" style="' + dc[_pb + len('<button style="'):]
@@ -194,6 +202,8 @@ OLD = rep('\n    return {\n      morePlaces:', '\n    return { _x: { dd, n, stag
 OLD = rep("synced: v.synced || '' };", "synced: v.synced || '', sleep: v.sleepMin == null ? null : v.sleepMin, weight: v.weight == null ? null : v.weight };", src=OLD)
 PERSIST_OLD = "'bodyLog', "
 OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
+OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, at: Date.now() };", src=OLD)
+OLD = rep("this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);", "this._hcT = setTimeout(() => this.loadHc(), 2 * 6e4);", src=OLD)
 OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
 NEWJS = open(os.path.join(HERE, 'v9_logic.js'), encoding='utf-8').read()
@@ -203,16 +213,23 @@ i0 = NEWJS.index('  renderVals() {')
 NINIT = NEWJS[:i0]
 RV = NEWJS[i0:]
 OLD = rep("  state = { theme: null,", "  state = { ...this.nInit(), theme: null,", src=OLD)
-OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } if (this.state.walk !== 'walking' && this.state.walk !== 'paused' && (this._ac = (this._ac || 0) + 1) % 10 === 0) this.autoWatch(); }, 1000); setTimeout(() => this.autoWatch(), 4000); setTimeout(() => this.loadSlots(), 1500); setInterval(() => this.loadSlots(), 20000); } catch (e) {}", src=OLD)
+OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } if ((this._ac = (this._ac || 0) + 1) % 10 === 0) this.autoWatch(); }, 1000); setTimeout(() => this.autoWatch(), 4000); setTimeout(() => this.loadSlots(), 1500); setInterval(() => this.loadSlots(), 20000); } catch (e) {}", src=OLD)
 METH = '''
   loadSlots() { try { fetch('.image-slots.state.json').then(r => r.ok ? r.json() : {}).then(async j => { const C = this._sb = this._sb || {}, m = {}; for (const k of Object.keys(j || {})) { const v = j[k], u = typeof v === 'string' ? v : v && v.u; if (!u) continue; if (!C[k] || C[k].n !== u.length) { try { const b = await (await fetch(u)).blob(); C[k] = { n: u.length, url: URL.createObjectURL(b) }; } catch (e) { continue; } } m[k] = C[k].url; } this.setState({ slotImgs: m }); }).catch(() => {}); } catch (e) {} }
   autoWatch() { try {
-    const S = this.state, iso = this.todayIso(); if (S.wNoAuto === iso) return;
-    if (S.stageDate === iso && S.stage > 0) return;
-    const h = S.hc && S.hc.days && S.hc.days[iso]; if (!h || !h.hourly || !S.hc.at || Date.now() - S.hc.at > 30 * 6e4) return;
-    const n = new Date(), hr = n.getHours(), hv = h.hourly, cur = +hv[hr] || 0, prev = n.getMinutes() < 25 ? (+hv[hr - 1] || 0) : 0;
-    if (cur + prev < 500) return;
-    this.setState({ walk: 'walking', wsrc: 'watch', wStart: Date.now() - 5 * 6e4, wPausedMs: 0, wPauseAt: null, wDay: iso, stageDate: iso, stage: Math.max(1, S.stage || 0), toast: { a: '와치 걷기 감지', b: '기록을 시작했어요' } }); setTimeout(() => this.setState({ toast: null }), 4000);
+    const S = this.state, iso = this.todayIso(), LV = S.hc && S.hc.live; if (!LV) return;
+    const hm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+    const ex = LV.last_exercise;
+    if (ex && ex.end) { let seen = null; try { seen = localStorage.getItem('tk-ex-seen'); } catch (e) {}
+      if (seen !== ex.end) { try { localStorage.setItem('tk-ex-seen', ex.end); } catch (e) {}
+        if (seen != null) { const running = (S.walk === 'walking' || S.walk === 'paused') && S.wStart && Date.parse(ex.end) > S.wStart;
+          this.setState({ toast: { a: '와치 걷기 기록 도착', b: hm(ex.start) + ' ~ ' + hm(ex.end) + ' · ' + Math.round((ex.sec || 0) / 60) + '분 · ' + (ex.steps || 0) + '걸음' + (running ? ' · 정지 버튼으로 마무리' : '') } }); setTimeout(() => this.setState({ toast: null }), 6000); return; } } }
+    if (S.walk === 'walking' || S.walk === 'paused') return;
+    if (S.wNoAuto === iso || (S.stageDate === iso && S.stage > 0)) return;
+    const recv = LV.last_recv ? Date.parse(LV.last_recv) : 0; if (!recv || Date.now() - recv > 40 * 6e4) return;
+    const lastStep = LV.last_step_at ? Date.parse(LV.last_step_at) : 0;
+    if ((LV.steps_30m || 0) < 150 || !lastStep || Date.now() - lastStep > 30 * 6e4) return;
+    this.setState({ walk: 'walking', wsrc: 'watch', wStart: Date.now() - 5 * 6e4, wPausedMs: 0, wPauseAt: null, wDay: iso, stageDate: iso, stage: Math.max(1, S.stage || 0), toast: { a: '와치 걷기 감지', b: '최근 30분 ' + (LV.steps_30m || 0) + '걸음 · 기록을 시작했어요' } }); setTimeout(() => this.setState({ toast: null }), 5000);
   } catch (e) {} }
   todayIso() { const q = new Date(); return q.getFullYear() + '-' + String(q.getMonth() + 1).padStart(2, '0') + '-' + String(q.getDate()).padStart(2, '0'); }
   closeSheet() { this.setState({ sheet: null }); }
@@ -289,6 +306,14 @@ dc = re.sub(r'(<button onClick="\{\{ [gp]\.pick \}\}"[^>]*>)<span style="font-fa
 _m2 = re.search(r'<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;font-size:13px;font-weight:700"><span[^>]*>photo_camera</span>장소 사진</span></div>', dc)
 if _m2: dc = dc.replace(_m2.group(0), '', 1)
 print('camera icons before/after', _n, len(re.findall(r'>photo_camera</span>', dc)))
+# 워치 안내 문구를 실제 상태로
+for _a, _b in [
+  ('와치 시작 대기</span>', '{{ ctl.cLabel }}</span>'),
+  ('<b style="font-size:15px">와치에서 걷기를 시작하세요</b>', '<b style="font-size:15px">{{ ctl.hint }}</b>'),
+  ('Galaxy Watch9 운동 앱 › 걷기를 누르면 이 앱이 자동으로 기록을 시작합니다', '{{ ctl.hint2 }}'),
+]:
+    assert dc.count(_a) == 1, _a
+    dc = dc.replace(_a, _b)
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

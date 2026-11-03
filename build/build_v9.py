@@ -457,6 +457,10 @@ dc = _re.sub(r'<(button|a)\b[^>]*>', lambda m: m.group(0).replace('height:36px',
 dc = dc.replace('flex:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)', 'flex:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)')
 dc = dc.replace('white-space:nowrap;height:36px;padding:0 12px;border-radius:99px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)', 'white-space:nowrap;height:44px;padding:0 14px;border-radius:99px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)')
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
+# 걷기/교통 구분: 위치 점이 드문드문(1~5분) 들어와도 구간 속도로 판정 — 5점 평균은 짧은 이동을 걷기로 희석함
+_OLDM = "mode[i] = (sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }"
+assert dc.count(_OLDM) == 1
+dc = dc.replace(_OLDM, "var sp = d[i] / (t[i] / 3600); mode[i] = ((sp >= 9 && t[i] <= 900) || sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }")
 
 os.makedirs(OUT, exist_ok=True)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)

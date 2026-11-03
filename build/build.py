@@ -1206,3 +1206,6 @@ for name, tab in OLD_TABS.items():
 print('days', len(days), 'tips', len(tips), 'ja', len(ja), 'routes', sum(1 for d in days if d['route']))
 print('wrote index.html (v15) +', len(OLD_TABS), 'old_*.html')
 
+# ── 새 디자인(v8) 화면도 함께 만들기: /new/ (기존 화면 로직·데이터 재사용) ──
+import subprocess as _sp
+_sp.run([sys.executable, os.path.join(HERE, 'build_v8.py')], check=True)

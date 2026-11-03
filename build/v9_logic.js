@@ -1,4 +1,4 @@
-  nInit() { return { walk: null, wsrc: 'watch', sheet: null, mode: false, toast: null, lo: 0, ntab: 'home', sub: null, dayN: null, dp: null, dpi: 0, jw: null, pd: null, trm: 'train', planSaved: false, jc: '필수', ji: 0, jpBig: false, condSaved: false, condEdit: false, cur: 'jpy', amt: '', ncat: '식비', sf: 'all', nfxDir: 'jk', fxv: '3,000', wtIn: '', dark: false, spot: null, spotImg: 0, done: false, mapFull: false, amen: null, lc: {}, tick: 0 }; }
+  nInit() { return { walk: null, wsrc: 'watch', sheet: null, mode: false, toast: null, lo: 0, ntab: 'home', sub: null, dayN: null, dp: null, dpi: 0, jw: null, pd: null, trm: 'train', planSaved: false, jc: '필수', ji: 0, jpBig: false, condSaved: false, condEdit: false, cur: 'jpy', amt: '', ncat: '식비', sf: 'all', nfxDir: 'jk', fxv: '3,000', wtIn: '', dark: false, spot: null, spotImg: 0, done: false, mapFull: false, ctlOpen: false, amen: null, lc: {}, tick: 0 }; }
   renderVals() {
     const O = this.oldVals(), X = O._x;
     const S = this.state, set = o => this.setState(o), F = __WIDE__;
@@ -79,7 +79,9 @@
     const syncOk = !!(S.hc && S.hc.at && !S.hc.err);
     const ST_ = walking ? { label:'GPS 기록 중', dot:'#2F9E44', halo:'rgba(47,158,68,.18)' } : wk === 'paused' ? { label:'일시 정지', dot:'#E0861A', halo:'rgba(224,134,26,.2)' } : syncOk ? { label:'워치 연결됨', dot:'#3B5BDB', halo:'rgba(59,91,219,.15)' } : { label:'연결 확인 중', dot:'#C5CCEE', halo:'rgba(197,204,238,.3)' };
     const toggle = () => { if (S.walk === 'paused') set({ walk:'walking', wPausedMs: (S.wPausedMs || 0) + (Date.now() - (S.wPauseAt || Date.now())), wPauseAt: null }); else set({ walk:'paused', wPauseAt: Date.now() }); };
-    const ctl = { ready: wk === 'ready', active: wk === 'walking' || wk === 'paused' || wk === 'done', dot: ST_.dot, halo: ST_.halo,
+    const ctlOpen = !!S.ctlOpen;
+    const ctlTog = () => { const o = !S.ctlOpen; set({ ctlOpen: o }); clearTimeout(this._ctlT); if (o) this._ctlT = setTimeout(() => this.setState({ ctlOpen: false }), 6000); };
+    const ctl = { ready: wk === 'ready', open: ctlOpen, compact: !ctlOpen, tog: ctlTog, demo: (e) => { if (e && e.stopPropagation) e.stopPropagation(); set({ ctlOpen: false }); this.setState({ walk:'walking', wsrc:'watch', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }); }, active: wk === 'walking' || wk === 'paused' || wk === 'done', dot: ST_.dot, halo: ST_.halo,
       label: wk === 'done' ? '오늘 걷기 완료 · '+timeStr : (walking ? '기록 중 · ' : '일시 정지 · ')+timeStr,
       sub: wk === 'done' ? '눌러서 하루 요약 보기' : walking ? SRC.sub0+' · 눌러서 걷기 모드' : '▶ 계속 걷기 · 와치·폰 어디서든', ...SRC, icon: wk === 'done' ? 'check' : walking ? 'pause' : 'play_arrow', toggle: wk === 'done' ? () => set({ done:true }) : toggle };
     const bars = (arr, hi, labels, full) => { const mx = Math.max(1, ...arr); return arr.map((v,k) => { const last = hi && k === arr.length-1; return { h: Math.max(6, Math.round(v/mx*(full ? 150 : 112)))+'px', c: last ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#3B5BDB)', sh: last ? '0 6px 14px rgba(112,72,232,.3)' : 'none', v: labels ? v.toLocaleString('ko-KR') : '', vc: last ? '#7048E8' : '#4A5D78', l: labels ? labels[k] : '', lc: last ? '#7048E8' : '#6B7A90', fw: last ? '800' : '600' }; }); };
@@ -306,13 +308,19 @@
       const lt2 = ((((S.hc||{}).locs||{})[isoOf(dateOf(dN))])||[]).concat(((S.track||{})[isoOf(dateOf(dN))])||[]).sort((a,b) => a[2]-b[2]);
       window.__v8 = { route: rc && rc.pts ? rc.pts : dd.route, stops: stops.map((t,k) => ({ ll:t.ll, past: isDone(k) })), trk: tkV, me: isT && tkV.length ? [tkV[tkV.length-1][0], tkV[tkV.length-1][1]] : null, amen: this._amenL, logTrk: lt2.map(q => [q[0], q[1], q[2]]), logC: dpl.stops[0].ll }; } catch (e) {}
     const FCx = [['cvs','편','편의점','#3B5BDB'],['wc','화','화장실','#1C7ED6'],['st','역','역','#7048E8'],['ph','약','약국','#2F9E44']], amS2 = S.amen || {cvs:true,wc:true,st:false,ph:false}, AMc2 = (this.amenCache || {})[VW] || null, AK2 = { cvs:'conv', wc:'wc', st:'sta', ph:'ph' };
-    const amen = { chips: FCx.map(([k,g,label,cc]) => { const on = !!amS2[k]; return { g, label, n: AMc2 ? ((AMc2[AK2[k]] || []).length)+'곳' : '—', dot: on ? cc : '#C5CCEE', bg: on ? '#fff' : 'rgba(255,255,255,.7)', fg: on ? '#18324F' : '#6B7A90', bd: on ? cc : 'rgba(255,255,255,.9)', pick: () => set({ amen:{...amS2,[k]:!on} }) }; }) };
+    const amen = { chips: FCx.map(([k,g,label,cc]) => { const on = !!amS2[k]; return { g, label, n: AMc2 ? ((AMc2[AK2[k]] || []).length)+'곳' : '—', dot: on ? cc : '#C5CCEE', bg: on ? '#fff' : 'rgba(255,255,255,.7)', fg: on ? '#18324F' : '#6B7A90', bd: on ? cc : 'rgba(255,255,255,.9)', pick: () => set({ amen:{...amS2,[k]:!on}, gq: on ? (S.gq === k ? null : S.gq) : k }) }; }) };
+    // 지도 전체 화면은 구글지도(임베드): 기본은 도보 경로, 편의점·화장실·역·약국을 켜면 그 주변 검색
+    const gmSrc = (() => { const ll = a => a[0].toFixed(5)+','+a[1].toFixed(5), me = window.__v8 && window.__v8.me, ST2 = stops.map(t => t.ll).filter(Boolean), GQ = { cvs:'コンビニ', wc:'公衆トイレ', st:'駅', ph:'薬局' };
+      if (S.gq && amS2[S.gq]) { const c = me || (ST2[Math.min(ST2.length-1, Math.max(0, (X.reached||1)))] || ST2[0]); return 'https://maps.google.com/maps?q='+encodeURIComponent(GQ[S.gq])+'&ll='+ll(c)+'&z=15&hl=ko&output=embed'; }
+      if (ST2.length < 2) return 'https://maps.google.com/maps?q='+encodeURIComponent((dd.stops[0] && dd.stops[0].jp) || '東海道')+'&z=12&hl=ko&output=embed';
+      const mid = ST2.slice(1, -1), keep = mid.length > 6 ? Array.from({length:6}, (x,k) => mid[Math.round(k*(mid.length-1)/5)]) : mid;
+      return 'https://maps.google.com/maps?saddr='+ll(ST2[0])+'&daddr='+[...keep, ST2[ST2.length-1]].map(ll).join('+to:')+'&dirflg=w&hl=ko&output=embed'; })();
 
     const DK = !!S.dark, DKF = 'invert(1) hue-rotate(180deg)';
     const SUBT = { day:'DAY '+dN+' 자세히', plan:'일정 관리', stamp:'스탬프 · 배지', diary:'사진 일기', jp:'일본어', info:'날씨 · 환율 · 연락처' };
     const mp = {};
     const toastT = S.toast || { a:'', b:'' };
-    const XT = { dpv, dpOpen: S.dp != null, lgc, dkRoot: DK ? DKF+' brightness(1.04) contrast(.96)' : 'none', dkImg: DK ? DKF : 'none', dkBlur: DK ? DKF+' blur(2.5px)' : 'blur(2.5px)', darkOn: DK, toggleDark: () => set({ dark:!DK }), amen, jn, dd2, pl2, stp2, diary2, jp2, wx2, wxd2, wxCard, fxLabel, fx2, sos, mo2, setRows, lg2, lgd, wm, dnC, toastT,
+    const XT = { dpv, dpOpen: S.dp != null, lgc, dkRoot: DK ? DKF+' brightness(1.04) contrast(.96)' : 'none', dkImg: DK ? DKF : 'none', dkBlur: DK ? DKF+' blur(2.5px)' : 'blur(2.5px)', darkOn: DK, toggleDark: () => set({ dark:!DK }), amen, gmSrc, jn, dd2, pl2, stp2, diary2, jp2, wx2, wxd2, wxCard, fxLabel, fx2, sos, mo2, setRows, lg2, lgd, wm, dnC, toastT,
       tabOn: S.ntab !== 'home' && !S.mapFull, tabLabel: {journey:'여정',log:'기록',more:'더보기'}[S.ntab] || '', tb: { journey: S.ntab === 'journey', log: S.ntab === 'log', more: S.ntab === 'more' },
       subOn: !!S.sub, subTitle: SUBT[S.sub] || '', subNavV: S.sub === 'day' ? 'visible' : 'hidden', sb2: { day:S.sub === 'day', plan:S.sub === 'plan', stamp:S.sub === 'stamp', diary:S.sub === 'diary', jp:S.sub === 'jp', info:S.sub === 'info' }, back2: () => this.closeSub() };
     const lodgeH = HT[VW] || HT[String(VW)], lodgeOk = !!(lodgeH && lodgeH.ko);

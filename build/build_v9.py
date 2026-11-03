@@ -126,7 +126,7 @@ tx('100엔 = 905원 · 예시', '{{ fxLabel }}')
 svgs = [x for x in re.finditer(r'<svg viewBox="0 0 360 (?:300|200)"[^>]*>.*?</svg>', dc, re.S)]
 assert len(svgs) == 3, len(svgs)
 kinds = ['<div data-v8map="home" data-k="home" style="position:absolute;inset:0;pointer-events:none"></div>',
-         '<div data-v8map="full" data-k="full" style="position:absolute;inset:0"></div>',
+         '<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
          '<div data-v8map="log" data-k="log" style="position:absolute;inset:0"></div>']
 for x, k in reversed(list(zip(svgs, kinds))):
     dc = dc[:x.start()] + k + dc[x.end():]
@@ -149,6 +149,23 @@ assert cta
 a_open = re.search(r'<a href="\{\{ sh\.href \}\}" target="_blank" style="([^"]*)"', cta.group(0)).group(1)
 dc = dc.replace(cta.group(0), cta.group(0) + '<sc-if value="{{ sh.hasCheck }}" hint-placeholder-val="{{ false }}"><button onClick="{{ sh.check }}" style="' + a_open.replace('background:', 'background:').rstrip(';') + ';border:0;cursor:pointer;font-family:inherit">도착 체크 ✓</button></sc-if>')
 # 날짜 칩(오늘/어제…): 누르면 오늘로
+
+# 하단 시작 영역: 평소엔 한 줄(작게), 와치 칸을 누르면 안내 카드가 펼쳐졌다가 6초 뒤 자동으로 접힘
+_m = re.search(r'<sc-if value="\{\{ ctl\.ready \}\}" hint-placeholder-val="\{\{ false \}\}">(.*?)</sc-if>', dc, re.S)
+assert _m
+_inner = _m.group(1)
+_ico = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
+_compact = ('<sc-if value="{{ ctl.compact }}" hint-placeholder-val="{{ true }}">'
+  '<div style="display:flex;align-items:center;gap:8px">'
+  '<button onClick="{{ ctl.tog }}" style="flex:1;min-width:0;height:54px;display:flex;align-items:center;gap:10px;padding:0 14px 0 10px;border-radius:27px;border:1px solid rgba(255,255,255,.95);background:#fff;box-shadow:0 8px 20px rgba(40,50,140,.14);cursor:pointer;font-family:inherit;color:#18324F;text-align:left">'
+  '<span style="flex:none;position:relative;width:34px;height:34px;border-radius:12px;background:#EDF0FF;display:grid;place-items:center"><span style="'+_ico+'font-size:20px;color:#3B5BDB">watch</span><i style="position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#2F9E44;border:2px solid #fff;animation:wpulse 1.6s ease-in-out infinite"></i></span>'
+  '<span style="flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">와치 시작 대기</span>'
+  '<span style="'+_ico+'font-size:22px;color:#8C96B0">expand_less</span></button>'
+  '<button onClick="{{ start }}" style="flex:none;height:54px;padding:0 20px 0 14px;border:0;border-radius:27px;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px;box-shadow:0 10px 22px rgba(59,91,219,.36);cursor:pointer;font-family:inherit"><span style="'+_ico+'font-size:24px;color:#fff">directions_walk</span>폰에서 시작</button>'
+  '</div></sc-if>')
+_full = _inner.replace('<div style="display:flex;align-items:center;gap:12px;padding:12px 14px', '<div onClick="{{ ctl.tog }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px', 1)
+_full = _full.replace('<button onClick="{{ watchStart }}"', '<button onClick="{{ ctl.demo }}"', 1)
+dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '<sc-if value="{{ ctl.open }}" hint-placeholder-val="{{ false }}">' + _full + '</sc-if></sc-if>')
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
 # 일정 변경 시트: 누르면 실제 동작
 _pi = dc.index('{{ p.bg }}'); _pb = dc.rindex('<button style="', 0, _pi)

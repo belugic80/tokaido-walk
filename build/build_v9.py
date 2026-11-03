@@ -219,7 +219,8 @@ _pp = """<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">
 <span style="flex:none;white-space:nowrap;height:28px;padding:0 12px;border-radius:99px;background:rgba(255,255,255,.95);display:flex;align-items:center;font-size:14px;font-weight:800;color:#3B5BDB;text-shadow:none">{{ plc.pop.badge }}</span>
 </div>
 </div>
-<p style="margin:0;font-size:16px;line-height:1.6;color:#3A4D68;text-wrap:pretty">{{ plc.pop.long }}</p>
+<p style="margin:0;text-align:center;font-size:16px;line-height:1.6;color:#3A4D68;text-wrap:pretty">{{ plc.pop.long }}</p>
+<div style="position:relative;height:150px;border-radius:18px;overflow:hidden;background:#E8EBF7;flex:none"><div data-v8map="pop" data-k="{{ plc.pop.mapKey }}" style="position:absolute;inset:0;z-index:0"></div><span style="position:absolute;left:10px;bottom:10px;z-index:500;max-width:calc(100% - 20px);height:32px;padding:0 12px;border-radius:99px;background:rgba(255,255,255,.95);box-shadow:0 4px 12px rgba(30,40,100,.2);display:flex;align-items:center;font-size:14px;font-weight:800;color:#18324F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ plc.pop.dist }}</span></div>
 <div style="display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid #EEF0F7">
 <button onClick="{{ plc.pop.prev }}" aria-label="이전 명물" style="position:relative;flex:none;width:72px;height:52px;border-radius:14px;border:0;padding:0;overflow:hidden;background:{{ plc.pop.pImg }};cursor:pointer;opacity:{{ plc.pop.pO }};box-shadow:0 4px 12px rgba(30,40,100,.18)"><span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.05),rgba(14,18,50,.55))"></span><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:2px"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:26px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)">chevron_left</span><b style="font-size:14px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">{{ plc.pop.pN }}</b></span></button>
 <span style="flex:1"></span>
@@ -361,6 +362,10 @@ dc = dc[:nb] + '\nwindow.TK_HOTELS = ' + json.dumps(_ho, ensure_ascii=False) + '
 # ───────────────────────── 6. 지도(Leaflet) + 기존 보조 기능 ─────────────────────────
 MAP_JS = v8src[v8src.index('MAP_JS = r"""') + len('MAP_JS = r"""'):]
 MAP_JS = MAP_JS[:MAP_JS.index('"""\n')]
+_PV = "      if (el.getAttribute('data-v8map') === 'pop') { if (D.popLL) { L.marker(D.popLL, { icon: L.divIcon({ className: '', html: pin('★', '#E8761F', '#fff', '#fff', 30), iconSize: [0, 0] }) }).addTo(el._lay); var bb = [D.popLL]; if (D.meAny) { L.circleMarker(D.meAny, { radius: 8, color: '#fff', weight: 3, fillColor: '#3B5BDB', fillOpacity: 1 }).addTo(el._lay); L.polyline([D.meAny, D.popLL], { color: '#3B5BDB', weight: 3, dashArray: '3 8' }).addTo(el._lay); bb.push(D.meAny); } try { if (bb.length > 1) el._map.fitBounds(L.latLngBounds(bb), { padding: [34, 34], maxZoom: 16 }); else el._map.setView(D.popLL, 15); } catch (e) {} } return; }\n"
+_PA = "      if (el.getAttribute('data-v8map') === 'log')"
+assert MAP_JS.count(_PA) == 1
+MAP_JS = MAP_JS.replace(_PA, _PV + _PA)
 MAP_JS = MAP_JS.replace("(D.me || (D.stops && D.stops[0] && D.stops[0].ll) || [35.62, 139.74])", "(D.logC || D.me || (D.stops && D.stops[0] && D.stops[0].ll) || [35.62, 139.74])")
 ns = {'old': old}
 ks = v8src.index('def old_script(marker):')

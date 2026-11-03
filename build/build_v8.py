@@ -70,6 +70,16 @@ rep('<span style="display:flex;flex-direction:column;gap:2px"><b style="font-siz
     '<span style="margin-top:auto;display:flex;flex-direction:column;gap:6px;width:100%;min-width:0"><b style="font-size:22px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.big }}</b>'
     '<span style="height:6px;border-radius:99px;background:rgba(91,111,212,.15);overflow:hidden;display:{{ m.barD }}"><i style="display:block;height:100%;width:{{ m.pct }};background:{{ m.grad }};border-radius:99px"></i></span>'
     '<span style="font-size:12px;color:#4A5D78;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ m.line }}</span></span>\n</button>')
+# 팝업(시트)·하위 화면: 열릴 때 올라오고/밀려 들어오고, 닫힐 때 내려가며 사라짐 + 뒤로 가기는 오른쪽 아래 둥근 버튼
+rep('display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s">', 'display:flex;align-items:flex-end;justify-content:center;animation:{{ anim.bg }}">')
+rep('animation:sheetIn .26s ease-out', 'animation:{{ anim.sh }}')
+rep('z-index:12;background:linear-gradient(165deg,#DCE2FF 0%,#EEF0FF 45%,#F9EEF7 100%);animation:fadeIn .2s"', 'z-index:12;background:linear-gradient(165deg,#DCE2FF 0%,#EEF0FF 45%,#F9EEF7 100%);animation:{{ anim.sub }}"')
+rep('<button onClick="{{ back }}" style="flex:none;width:44px;height:44px;', '<button onClick="{{ back }}" style="visibility:hidden;flex:none;width:44px;height:44px;')
+_si = dc.index('animation:{{ anim.sub }}"'); _si = dc.index('>', _si) + 1
+dc = dc[:_si] + ('<button onClick="{{ back }}" aria-label="뒤로 가기" style="position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:14;width:60px;height:60px;border-radius:50%;border:1px solid rgba(255,255,255,.95);background:linear-gradient(135deg,#3B5BDB,#6C8CF5);box-shadow:0 10px 24px rgba(59,91,219,.35);display:grid;place-items:center;cursor:pointer">'
+                 '<span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 500;font-size:28px;color:#fff;">arrow_back</span></button>') + dc[_si:]
+rep('@keyframes fadeIn{from{opacity:0}to{opacity:1}}', '@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{from{opacity:1}to{opacity:0}}@keyframes sheetOut{from{transform:none;opacity:1}to{transform:translateY(60px);opacity:0}}@keyframes subIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}@keyframes subOut{from{transform:none;opacity:1}to{transform:translateX(40px);opacity:0}}')
+rep('overflow-y:auto;scrollbar-width:none;padding-bottom:40px">', 'overflow-y:auto;scrollbar-width:none;padding-bottom:calc(env(safe-area-inset-bottom) + 100px)">')
 # 머리글 문구·날씨를 실제 값으로
 rep('<span style="font-size:13px;color:#4A5D78">도카이도 종주 · {{ todayN }}일째</span>', '<span style="font-size:13px;color:#4A5D78">{{ headSub }}</span>')
 rep("font-size:18px;color:#E0861A;\">sunny</span>18°</span>", "font-size:18px;color:{{ wxNow.c }};\">{{ wxNow.icon }}</span>{{ wxNow.t }}</span>")
@@ -196,9 +206,11 @@ R3 = [
     ("check: () => S.arr < 4 && set({ arr:S.arr+1 }), undo: () => S.arr > 2 && set({ arr:S.arr-1 }), undoO: S.arr > 2 ? '1' : '.4',",
      "check: () => { if (isT && !done) O.advance(); }, undo: () => { if (isT && X.stage > 1) this.setState(s => ({ stage: Math.max(1, Math.min(s.stage, STOPS.length) - 1) })); }, undoO: isT && X.stage > 1 ? '1' : '.4',"),
     ("todayN: TODAY+1,", "todayN: TODAY+1, headSub: (() => { const df = this.dayInfo().diff; return df < 0 ? '도카이도 종주 · 출발까지 D-'+(-df) : df > 30 ? '도카이도 종주 · 완주' : '도카이도 종주 · '+(df+1)+'일째'; })(), wxNow: (() => { const w = S.wlive; if (!w || w.now == null) return { icon:'partly_cloudy_day', t:'—', c:'#8C96C2' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud'; return { icon: ic, t: Math.round(w.now)+'°', c: ic==='sunny' ? '#E0861A' : ic==='rainy' ? '#1C7ED6' : '#8C96C2' }; })(), mapKey: VW+'|'+arr+'|'+((this.routeCache||{})[VW+1] ? 1 : 0),"),
-    ("isHome: S.t==='home',", "isHome: S.t==='home', rec, glHead: (() => { const df = this.dayInfo().diff; return df < 0 ? '시나가와 → 교토 · 출발 전' : '시나가와 → 교토 · '+Math.min(31, df+1)+'일째'; })(), glToday: this.dayInfo().diff < 0 ? '출발 전' : '오늘 '+(TODAY+1)+'일', jnStat: (() => { const df = this.dayInfo().diff, all = Array.from({length:31},(x,k)=>day(k)), w = df < 0 ? 0 : Math.min(31, df), r = all.filter(d => d.rest).length; return { w: w+'일', l: Math.max(0, 31-w-(df >= 0 && df <= 30 ? 1 : 0))+'일', r: r+'일' }; })(), wxCard: (() => { const w = S.wlive; if (!w || w.now == null) return { place:'지금', icon:'partly_cloudy_day', t:'—', desc:'날씨 불러오는 중' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', nm = { sunny:'맑음', partly_cloudy_day:'구름 조금', rainy:'비', cloud:'흐림' }[ic], d = w.d || {}; return { place: '지금 · '+(w.name || (w.src === 'gps' ? '내 위치' : '구간 날씨')), icon: ic, t: Math.round(w.now)+'°', desc: nm + (d.temperature_2m_max ? ' · 최고 '+Math.round(d.temperature_2m_max[0])+'° / 최저 '+Math.round(d.temperature_2m_min[0])+'°' : '') }; })(), fxLabel: '100엔 = '+Math.round(rate*100)+'원 · '+(S.fxAuto ? '자동 '+S.fxAuto.t : '기본값'),"),
+    ("isHome: S.t==='home',", "isHome: S.t==='home', rec, anim: S.closing==='sheet' ? { bg:'fadeOut .22s ease-in forwards', sh:'sheetOut .22s ease-in forwards', sub:'subIn .26s ease-out' } : S.closing==='sub' ? { bg:'fadeIn .2s', sh:'sheetIn .26s ease-out', sub:'subOut .22s ease-in forwards' } : { bg:'fadeIn .2s', sh:'sheetIn .26s ease-out', sub:'subIn .26s ease-out' }, glHead: (() => { const df = this.dayInfo().diff; return df < 0 ? '시나가와 → 교토 · 출발 전' : '시나가와 → 교토 · '+Math.min(31, df+1)+'일째'; })(), glToday: this.dayInfo().diff < 0 ? '출발 전' : '오늘 '+(TODAY+1)+'일', jnStat: (() => { const df = this.dayInfo().diff, all = Array.from({length:31},(x,k)=>day(k)), w = df < 0 ? 0 : Math.min(31, df), r = all.filter(d => d.rest).length; return { w: w+'일', l: Math.max(0, 31-w-(df >= 0 && df <= 30 ? 1 : 0))+'일', r: r+'일' }; })(), wxCard: (() => { const w = S.wlive; if (!w || w.now == null) return { place:'지금', icon:'partly_cloudy_day', t:'—', desc:'날씨 불러오는 중' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', nm = { sunny:'맑음', partly_cloudy_day:'구름 조금', rainy:'비', cloud:'흐림' }[ic], d = w.d || {}; return { place: '지금 · '+(w.name || (w.src === 'gps' ? '내 위치' : '구간 날씨')), icon: ic, t: Math.round(w.now)+'°', desc: nm + (d.temperature_2m_max ? ' · 최고 '+Math.round(d.temperature_2m_max[0])+'° / 최저 '+Math.round(d.temperature_2m_min[0])+'°' : '') }; })(), fxLabel: '100엔 = '+Math.round(rate*100)+'원 · '+(S.fxAuto ? '자동 '+S.fxAuto.t : '기본값'),"),
     ("onScroll: e => { const c = e.currentTarget.scrollTop > 60;", "onScroll: e => { const c = e.currentTarget.scrollTop > 56;"),
 ]
+R3 += [("close: () => set({ sheet:null }),", "close: () => this.closeSheet(),"),
+       ("back: () => set({ sub:null }),", "back: () => this.closeSub(),")]
 for a, b in R3:
     rv = rep(a, b, src=rv)
 rv = rep("    const F = " + WIDE, """    try { const q = dayData(VW+1), rc = (this.routeCache||{})[VW+1], iso = X.iso, tk = isT ? (((S.track||{})[iso])||[]).concat((((S.hc||{}).locs||{})[iso])||[]).sort((a,b) => a[2]-b[2]) : [];
@@ -367,7 +379,14 @@ OLD = rep("today, view, places },", "today, view, places, hcH, hcR, recLabel, re
 OLD = rep("  state = { theme: null,", "  state = { ...this.nInit(), theme: null,", src=OLD)
 # 기존 클래스 끝에 새 메서드 추가
 ce = OLD.rindex('}')
-OLD = OLD[:ce] + '\n' + st + '\n' + rv.rstrip() + '\n' + OLD[ce:]
+METH = '''
+  closeSheet() { if (this.state.closing || !this.state.sheet) return; this.setState({ closing: 'sheet' }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ sheet: null, closing: null }), 220); }
+  closeSub() { if (this.state.closing || !this.state.sub) return; this.setState({ closing: 'sub' }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ sub: null, closing: null }), 220); }
+  hwBack() { const s = this.state; if (s.sheet) this.closeSheet(); else if (s.sub) this.closeSub(); else if (s.t && s.t !== 'home') this.setState({ t: 'home' }); }
+'''
+OLD = OLD[:ce] + '\n' + st + '\n' + METH + rv.rstrip() + '\n' + OLD[ce:]
+# 폰 뒤로 가기(제스처·버튼): 팝업 → 하위 화면 → 오늘 탭 순으로 닫음
+OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {}", src=OLD)
 
 # 숙소 목록(HOTELS)을 전역으로
 _hi = old.index('var HOTELS = ') + len('var HOTELS = ')

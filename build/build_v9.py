@@ -166,6 +166,9 @@ _compact = ('<sc-if value="{{ ctl.compact }}" hint-placeholder-val="{{ true }}">
 _full = _inner.replace('<div style="display:flex;align-items:center;gap:12px;padding:12px 14px', '<div onClick="{{ ctl.tog }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px', 1)
 _full = _full.replace('<button onClick="{{ watchStart }}"', '<button onClick="{{ ctl.demo }}"', 1)
 dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '<sc-if value="{{ ctl.open }}" hint-placeholder-val="{{ false }}">' + _full + '</sc-if></sc-if>')
+# 홈 날짜 카드: 일정 변경 버튼을 아이콘만(제목 가림 방지)
+rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;width:44px;height:44px;padding:0;justify-content:center;border-radius:22px;')
+rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span></button>')
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
 # 일정 변경 시트: 누르면 실제 동작
 _pi = dc.index('{{ p.bg }}'); _pb = dc.rindex('<button style="', 0, _pi)

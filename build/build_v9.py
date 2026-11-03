@@ -74,6 +74,7 @@ rep('<meta name="viewport" content="width=device-width, initial-scale=1">',
 rep("background:#5B6FD4 url('assets/tk-fuji-sea.avif') center 30%/cover", "background:#5B6FD4 url('{{ hr.photo }}') center 40%/cover")
 rep('>DAY 12<span', '>DAY {{ hr.day }}<span')
 rep('>sunny</span>18°<span style="font-weight:600;opacity:.8;margin-left:2px">/ 최저 9°</span>', '>{{ hr.wx.icon }}</span>{{ hr.wx.t }}<span style="font-weight:600;opacity:.8;margin-left:2px">/ 최저 {{ hr.wx.lo }}</span>')
+tx('기록 저장', '닫기')
 tx('오늘 · 11월 3일 화요일', '{{ hr.when }}')
 tx('마리코 → 후지에다', '{{ hr.title }}', cnt=2) if False else None
 rep('line-height:1.12">마리코 → 후지에다</b>', 'line-height:1.12">{{ hr.title }}</b>')

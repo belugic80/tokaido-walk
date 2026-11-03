@@ -205,17 +205,27 @@ _pc = """<sc-if value="{{ plc.has }}" hint-placeholder-val="{{ true }}">
 """
 rep('</button>\n</div>\n</div>\n</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"', '</button>\n</div>\n</div>\n' + _pc + '</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"')
 _pp = """<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">
-<div data-screen-label="명물 팝업" style="position:absolute;inset:0;z-index:44;display:flex;justify-content:center;align-items:center;padding:16px">
-<div onClick="{{ plc.pop.close }}" style="position:absolute;inset:0;background:rgba(20,24,60,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)"></div>
-<div style="position:relative;width:100%;max-width:560px;max-height:100%;overflow-y:auto;scrollbar-width:none;background:#fff;border-radius:28px;padding:12px 12px 16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 24px 70px rgba(20,30,80,.35)">
-<span style="height:220px;border-radius:20px;background:{{ plc.pop.img }};flex:none"></span>
-<span style="display:flex;align-items:center;gap:8px;padding:0 6px"><b style="flex:none;width:28px;height:28px;border-radius:8px;background:#E8761F;color:#fff;font-size:14px;display:grid;place-items:center">{{ plc.pop.n }}</b><span style="font-size:13px;font-weight:800;color:#7048E8">{{ plc.pop.cat }}</span><span style="flex:1"></span><span style="font-size:13px;font-weight:800;color:#fff;background:{{ plc.pop.bBg }};border-radius:99px;padding:4px 11px">{{ plc.pop.badge }}</span></span>
-<span style="display:flex;flex-direction:column;gap:2px;padding:0 6px"><b style="font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.2">{{ plc.pop.name }}</b><span style="font-size:15px;font-weight:600;color:#6B7A90">{{ plc.pop.jp }}</span></span>
-<span style="font-size:17px;line-height:1.55;color:#18324F;padding:0 6px">{{ plc.pop.long }}</span>
-<div style="display:flex;gap:8px;padding:0 6px">
-<button onClick="{{ plc.pop.prev }}" style="flex:none;width:56px;height:52px;border-radius:16px;border:1px solid #DCE0F7;background:#fff;font-size:22px;cursor:pointer;opacity:{{ plc.pop.pO }}">‹</button>
-<button onClick="{{ plc.pop.map }}" style="flex:1;height:52px;border-radius:16px;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;font:800 17px Pretendard Variable,Pretendard,sans-serif;cursor:pointer">구글 지도로 보기</button>
-<button onClick="{{ plc.pop.next }}" style="flex:none;width:56px;height:52px;border-radius:16px;border:1px solid #DCE0F7;background:#fff;font-size:22px;cursor:pointer;opacity:{{ plc.pop.nO }}">›</button>
+<div data-screen-label="명물 팝업" style="position:absolute;inset:0;z-index:44;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;overflow:hidden">
+<div onClick="{{ plc.pop.close }}" style="position:absolute;inset:0;background:rgba(20,24,60,.45);backdrop-filter:blur(2.5px);-webkit-backdrop-filter:blur(2.5px)"></div>
+<div style="position:relative;z-index:2;width:calc(100% - 24px);max-width:{{ fr.spotW }};max-height:calc(100% - 110px);overflow-y:auto;scrollbar-width:none;margin-bottom:calc(env(safe-area-inset-bottom) + 10px);background:#fff;border-radius:28px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 60px rgba(10,14,50,.35);animation:sheetUp .28s ease-out">
+<div style="position:relative;min-height:{{ fr.spotH }};border-radius:22px;overflow:hidden;background:{{ plc.pop.img }};flex:none;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;gap:10px">
+<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,0) 30%,rgba(14,18,50,.35) 55%,rgba(14,18,50,.78) 100%)"></span>
+<div style="position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)">
+<span style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<span style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700"><b style="flex:none;width:26px;height:26px;border-radius:8px;background:#E8761F;color:#fff;font-size:14px;display:grid;place-items:center;text-shadow:none">{{ plc.pop.n }}</b>{{ plc.pop.cat }}</span>
+<b style="font-size:28px;font-weight:800;letter-spacing:-.04em;line-height:1.15">{{ plc.pop.name }}</b>
+<span style="font-size:14px;font-weight:600;opacity:.9">{{ plc.pop.jp }}</span>
+</span>
+<span style="flex:none;white-space:nowrap;height:28px;padding:0 12px;border-radius:99px;background:rgba(255,255,255,.95);display:flex;align-items:center;font-size:14px;font-weight:800;color:#3B5BDB;text-shadow:none">{{ plc.pop.badge }}</span>
+</div>
+</div>
+<p style="margin:0;font-size:16px;line-height:1.6;color:#3A4D68;text-wrap:pretty">{{ plc.pop.long }}</p>
+<div style="display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid #EEF0F7">
+<button onClick="{{ plc.pop.prev }}" aria-label="이전 명물" style="flex:none;width:48px;height:48px;border-radius:50%;border:1px solid #DCE0F7;background:#fff;display:grid;place-items:center;cursor:pointer;opacity:{{ plc.pop.pO }}"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:24px;color:#3B5BDB">chevron_left</span></button>
+<button onClick="{{ plc.pop.next }}" aria-label="다음 명물" style="flex:none;width:48px;height:48px;border-radius:50%;border:1px solid #DCE0F7;background:#fff;display:grid;place-items:center;cursor:pointer;opacity:{{ plc.pop.nO }}"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:24px;color:#3B5BDB">chevron_right</span></button>
+<span style="flex:1"></span>
+<button onClick="{{ plc.pop.map }}" style="flex:none;white-space:nowrap;height:48px;padding:0 18px;border:0;border-radius:24px;background:#EDF0FF;display:flex;align-items:center;gap:4px;font:800 15px 'Pretendard Variable',Pretendard,sans-serif;color:#3B5BDB;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:19px;color:#3B5BDB">map</span>구글 지도</button>
+<button onClick="{{ plc.pop.close }}" aria-label="팝업 닫기" style="flex:none;width:48px;height:48px;border-radius:50%;border:0;background:linear-gradient(120deg,#5B6FD4,#8B9CF0);box-shadow:0 8px 18px rgba(91,111,212,.35);display:grid;place-items:center;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:24px;color:#fff">close</span></button>
 </div>
 </div></div>
 </sc-if>

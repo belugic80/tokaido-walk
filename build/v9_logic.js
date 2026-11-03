@@ -59,6 +59,7 @@
       metrics: [{ k:'오늘 거리', v: (D.rest ? '휴식' : total+'km'), s:'', sc:'rgba(255,255,255,.75)', bl:'0' },
         { k:'걸은 거리', v: (isT || isPastV ? (isPastV && hcV && hcV.km ? (+hcV.km).toFixed(1) : walked.toFixed(1)) : '0.0')+'km', s: isT || isPastV ? Math.round(pct*100)+'%' : '', sc:'#C9D4FF', bl:'1px solid rgba(255,255,255,.28)' },
         { k: ready || !isT && !isPastV ? '예상 시간' : isPastV ? '걸은 시간' : '도착 예정', v: ready || !isT && !isPastV ? hmm(total * MIN_PER_KM) : isPastV ? (hcMin != null ? hmm(hcMin) : '—') : hhmm(etaMin), s: isT && !ready ? '남은 '+left.toFixed(1)+'km' : '', sc:'rgba(255,255,255,.75)', bl:'1px solid rgba(255,255,255,.28)' }] };
+    try { window.__smin = (S.hc && S.hc.smin) || []; const _lr = S.hc && S.hc.live && S.hc.live.last_recv ? Date.parse(S.hc.live.last_recv) / 1000 : 0; window.__sminTo = _lr ? _lr - 90 : 0; } catch (e) {}
     const wM = isT && hcV && hcV.km != null ? +hcV.km : null;
     const _gTr = (() => { try { if (!isT || !window.tkSeg) return null; const q = ((((S.track||{})[ISO])||[]).concat((((S.hc||{}).locs||{})[ISO])||[])).sort((a,b) => a[2]-b[2]); if (q.length < 2) return null; let v = 0; window.tkSeg(q).forEach(r => { if (r.m === 'v') v += r.km; }); return v; } catch (e) { return null; } })();
     const trD = _gTr != null ? _gTr : (wM != null ? Math.max(0, Math.max(walked, wM || 0) - wM) : 0), mvKm = _gTr != null ? Math.max(walked, (wM || 0) + _gTr) : Math.max(walked, wM || 0);

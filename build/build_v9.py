@@ -318,7 +318,7 @@ OLD = rep('\n    return {\n      morePlaces:', '\n    return { _x: { dd, n, stag
 OLD = rep("synced: v.synced || '' };", "synced: v.synced || '', sleep: v.sleepMin == null ? null : v.sleepMin, weight: v.weight == null ? null : v.weight };", src=OLD)
 PERSIST_OLD = "'bodyLog', "
 OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
-OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, at: Date.now() };", src=OLD)
+OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, smin: j.smin || [], at: Date.now() };", src=OLD)
 OLD = rep("this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);", "this._hcT = setTimeout(() => this.loadHc(), 2 * 6e4);", src=OLD)
 OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
@@ -471,6 +471,38 @@ dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 _OLDM = "mode[i] = (sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }"
 assert dc.count(_OLDM) == 1
 dc = dc.replace(_OLDM, "var a3 = 0, b3 = 0; for (j = Math.max(1, i - 1); j <= Math.min(n - 1, i + 1); j++) { a3 += d[j]; b3 += t[j]; } var w3 = a3 / (b3 / 3600), sp = d[i] / (t[i] / 3600); mode[i] = ((sp >= 9 && t[i] <= 900) || w3 >= 8 || sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }")
+# 걸음수 기반 구분: 분 단위 걸음 기록이 있는 구간은 '걸음이 잡히면 걷기, 이동했는데 걸음이 없으면 교통'
+_OLDX = "var runs = [], cur = null;"
+assert dc.count(_OLDX) == 1
+dc = dc.replace(_OLDX, "var SM = window.__smin, SE = window.__sminTo || 0; if (SM && SM.length) for (i = 1; i < n; i++) { var s0 = pts[i - 1][2], s1 = pts[i][2]; if (!s0 || !s1 || s1 > SE) continue; var c = 0, k; for (k = 0; k < SM.length; k++) { if (SM[k][0] >= s0 - 59 && SM[k][0] < s1) c += SM[k][1]; } var spm = c / Math.max(1, (s1 - s0) / 60); mode[i] = spm >= 20 ? 'w' : (d[i] >= 0.1 ? 'v' : 'w'); } " + _OLDX)
+# 한 구간 안에서 걷다가 교통을 탄 경우: 걸음수로 걸은 거리를 추정해 구간을 둘로 쪼갬
+_OLDF = "window.tkSeg = function (pts) {"
+assert dc.count(_OLDF) == 1
+_SPL = """function tkSplit(pts) {
+    var SM = window.__smin, SE = window.__sminTo || 0, R = Math.PI / 180;
+    if (!SM || !SM.length || pts.length < 2) return pts;
+    var out = [pts[0]], i, k;
+    for (i = 1; i < pts.length; i++) {
+      var a = pts[i - 1], b = pts[i], s0 = a[2], s1 = b[2];
+      if (s0 && s1 && s1 <= SE && s1 - s0 > 150) {
+        var x = Math.sin((b[0] - a[0]) * R / 2), y = Math.sin((b[1] - a[1]) * R / 2), d = 12742 * Math.asin(Math.sqrt(x * x + Math.cos(a[0] * R) * Math.cos(b[0] * R) * y * y));
+        var ws = 0, wn = 0, tmin = 1e12, tmax = 0;
+        for (k = 0; k < SM.length; k++) { if (SM[k][0] >= s0 - 59 && SM[k][0] < s1 && SM[k][1] >= 25) { ws += SM[k][1]; wn++; tmin = Math.min(tmin, SM[k][0]); tmax = Math.max(tmax, SM[k][0] + 60); } }
+        var wk = ws * 0.00072;
+        if (wn && wk > 0.05 && d - wk > 0.15) {
+          var first = (tmin + tmax) / 2 < (s0 + s1) / 2, f = first ? wk / d : 1 - wk / d, ts = first ? Math.min(s1 - 30, Math.max(s0 + 30, tmax)) : Math.max(s0 + 30, Math.min(s1 - 30, tmin));
+          out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, ts]);
+        }
+      }
+      out.push(b);
+    }
+    return out;
+  }
+  """
+dc = dc.replace(_OLDF, _SPL + _OLDF)
+_OLDN = "var n = pts.length, R = Math.PI / 180, d = [], t = [], i, j;"
+assert dc.count(_OLDN) == 1
+dc = dc.replace(_OLDN, "pts = tkSplit(pts); " + _OLDN)
 # 버스처럼 자주 서는 경우: 3점 평균 8km/h↑도 교통, 교통 사이에 낀 짧은 정차·걷기(0.3km 미만)는 교통으로 이어 붙임
 _OLDR = "runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });"
 assert dc.count(_OLDR) == 1

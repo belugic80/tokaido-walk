@@ -204,13 +204,13 @@ dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
 _ma = dc.index('<sc-if value="{{ tb.more }}"')
 _old = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">\n<div style="display:grid;grid-template-columns:{{ fr.menuCols }};gap:10px">'
 assert dc.count(_old) == 1 and dc.index(_old) > _ma
-dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 170px)">\n<div style="order:2;margin-top:auto;position:sticky;bottom:{{ lgd.fixBot }};z-index:3;display:grid;grid-template-columns:{{ fr.menuCols }};gap:8px;padding:8px 0">')
+dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:8px;padding:8px 0">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
 _seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:96px;padding:12px;gap:6px')
 dc = dc[:_m0] + _seg + dc[_m1:]
 # 더보기 상단: 오늘 날씨 + 이번 주 날씨 + 일출·일몰 요약 카드
-_anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 170px)">\n'
+_anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n'
 assert dc.count(_anchor) == 1
 _ic = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
 _wcard = ('<div style="border-radius:24px;padding:16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 12px 26px rgba(28,126,214,.28);color:#fff;display:flex;flex-direction:column;gap:12px;min-width:0">'

@@ -203,8 +203,9 @@ i0 = NEWJS.index('  renderVals() {')
 NINIT = NEWJS[:i0]
 RV = NEWJS[i0:]
 OLD = rep("  state = { theme: null,", "  state = { ...this.nInit(), theme: null,", src=OLD)
-OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } if (this.state.walk !== 'walking' && this.state.walk !== 'paused' && (this._ac = (this._ac || 0) + 1) % 10 === 0) this.autoWatch(); }, 1000); setTimeout(() => this.autoWatch(), 4000); } catch (e) {}", src=OLD)
+OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } if (this.state.walk !== 'walking' && this.state.walk !== 'paused' && (this._ac = (this._ac || 0) + 1) % 10 === 0) this.autoWatch(); }, 1000); setTimeout(() => this.autoWatch(), 4000); setTimeout(() => this.loadSlots(), 1500); setInterval(() => this.loadSlots(), 20000); } catch (e) {}", src=OLD)
 METH = '''
+  loadSlots() { try { fetch('.image-slots.state.json').then(r => r.ok ? r.json() : {}).then(async j => { const C = this._sb = this._sb || {}, m = {}; for (const k of Object.keys(j || {})) { const v = j[k], u = typeof v === 'string' ? v : v && v.u; if (!u) continue; if (!C[k] || C[k].n !== u.length) { try { const b = await (await fetch(u)).blob(); C[k] = { n: u.length, url: URL.createObjectURL(b) }; } catch (e) { continue; } } m[k] = C[k].url; } this.setState({ slotImgs: m }); }).catch(() => {}); } catch (e) {} }
   autoWatch() { try {
     const S = this.state, iso = this.todayIso(); if (S.wNoAuto === iso) return;
     if (S.stageDate === iso && S.stage > 0) return;
@@ -255,6 +256,16 @@ _close = dc.rindex('</div>\n</div>', _c0, _end)  # 카드 닫힘 + 팝업 루트
 dc = dc[:_close + len('</div>\n')] + _tabs + '\n' + dc[_close + len('</div>\n'):]
 # 장소 팝업 버튼: 지나온 곳(✓·흐리게) / 남은 곳(현재 위치와의 거리 표시)
 rep("-webkit-backdrop-filter:blur(12px)\"><span style=\"width:20px;height:20px;border-radius:50%;background:{{ t.nb }};color:{{ t.nf }};font-size:11px;display:grid;place-items:center\">{{ t.n }}</span>{{ t.label }}</button>", "-webkit-backdrop-filter:blur(12px);opacity:{{ t.op }}\"><span style=\"width:20px;height:20px;border-radius:50%;background:{{ t.nb }};color:{{ t.nf }};font-size:11px;display:grid;place-items:center\">{{ t.n }}</span>{{ t.label }}<span style=\"font-size:12px;font-weight:700;opacity:.8\">{{ t.dist }}</span></button>")
+# 일본어: 분류 버튼(필수·이동·숙소…)을 위쪽 → 뒤로 버튼 위(엄지 닿는 하단)로
+_k0 = dc.rindex('<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px"><sc-for list="{{ jp2.cats }}"')
+_k1 = dc.index('</sc-for></div>', _k0) + len('</sc-for></div>')
+_cats = dc[_k0:_k1].replace('margin:0 -16px;padding:0 16px', 'position:absolute;left:0;right:0;bottom:86px;z-index:3;padding:18px 16px 8px;margin:0;background:linear-gradient(to top,rgba(238,240,255,.97) 55%,rgba(238,240,255,0))', 1)
+dc = dc[:_k0] + dc[_k1:]
+_bk = dc.index('<button onClick="{{ back2 }}"')
+dc = dc[:_bk] + '<sc-if value="{{ sb2.jp }}" hint-placeholder-val="{{ false }}">' + _cats + '</sc-if>\n' + dc[_bk:]
+# 목록이 하단 버튼에 가려지지 않게 여백
+_j = dc.index('<sc-if value="{{ sb2.jp }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">')
+dc = dc[:_j] + dc[_j:].replace('<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">', '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px 80px">', 1)
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

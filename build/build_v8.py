@@ -93,11 +93,11 @@ _WXCARD = ('<div onClick="{{ wxHome.open }}" style="cursor:pointer;display:flex;
   '<span style="flex:1;display:flex;flex-direction:column;line-height:1.2;min-width:0"><span style="display:flex;align-items:baseline;gap:8px;min-width:0"><b style="font-size:32px;font-weight:800;letter-spacing:-.04em">{{ wxNow.t }}</b><span style="font-size:15px;font-weight:700;color:#3A4D68;white-space:nowrap">{{ wxHome.desc }}</span></span><span style="font-size:13px;color:#4A5D78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wxHome.place }}</span></span>'
   '<span style="flex:none;display:flex;gap:6px"><sc-for list="{{ wxHome.chips }}" as="c" hint-placeholder-count="3"><span style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;padding:7px 8px;border-radius:14px;background:rgba(255,255,255,.75)"><span style="font-size:11px;color:#6B7A90;white-space:nowrap">{{ c.k }}</span><b style="font-size:14px;white-space:nowrap;color:{{ c.c }}">{{ c.v }}</b></span></sc-for></span>'
   '</div>')
-dc = dc[:_db0] + _WXCARD + dc[_db1:]
+dc = dc[:_db0] + '<div class="nw">' + _DATEBAR + '</div>' + _WXCARD + dc[_db1:]
 _hd = _DATEBAR.replace('<div style="display:flex;align-items:center;gap:6px;padding:6px;border-radius:24px;', '<div style="flex:none;display:flex;align-items:center;gap:4px;padding:4px;border-radius:24px;max-width:60%;', 1)
 _wc0 = dc.index('<span style="flex:none;white-space:nowrap;height:36px;padding:0 12px;border-radius:99px;')
 _wc1 = dc.index('18°</span>', _wc0) + len('18°</span>')
-dc = dc[:_wc0] + '<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">' + _hd + '</sc-if><sc-if value="{{ notHome }}" hint-placeholder-val="{{ false }}">' + dc[_wc0:_wc1] + '</sc-if>' + dc[_wc1:]
+dc = dc[:_wc0] + '<sc-if value="{{ notHome }}" hint-placeholder-val="{{ false }}">' + dc[_wc0:_wc1] + '</sc-if>' + dc[_wc1:]
 # ───── 펼친 화면: 메뉴 바로 위까지 채우기 (스크롤 없이 딱 맞게) ─────
 rep('<div onScroll="{{ onScroll }}" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:130px"', '<div onScroll="{{ onScroll }}" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:calc(env(safe-area-inset-bottom) + 100px)"')
 rep('<div style="display:grid;grid-template-columns:{{ fr.mapCols }};gap:12px;padding:0 16px;align-items:stretch"', '<div class="eq2" style="display:grid;grid-template-columns:{{ fr.mapCols }};gap:12px;padding:0 16px;align-items:stretch"')
@@ -119,7 +119,16 @@ _h1 = dc.index('</sc-for>\n</span>', _h0) + len('</sc-for>\n</span>')
 _s0 = dc.index('<sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">\n<div style="display:grid;grid-template-columns:28px minmax(0,1fr) auto;')
 _s1 = dc.index('</sc-for>', _s0) + len('</sc-for>')
 _LIST = dc[_s0:_s1]
-dc = dc[:_h0] + '<div style="display:flex;flex-direction:column;border-radius:18px;background:rgba(255,255,255,.6);padding:2px 14px"><span style="font-size:14px;font-weight:800;padding:12px 0 2px">오늘의 경유지</span>' + _LIST + '</div>' + dc[_h1:]
+dc = dc[:_h0] + '<div class="nw" style="display:flex;flex-direction:column;border-radius:18px;background:rgba(255,255,255,.6);padding:2px 14px"><span style="font-size:14px;font-weight:800;padding:12px 0 2px">오늘의 경유지</span>' + _LIST + '</div>' + dc[_h1:]
+_t0 = dc.index('<button onClick="{{ goJourney }}" style="flex:1;justify-content:center;')
+_t1 = dc.index('</button>', dc.index('{{ tot.st }}', _t0)) + len('</button>')
+_TOT = dc[_t0:_t1].replace('style="flex:1;justify-content:center;', 'style="flex:none;justify-content:center;', 1)
+_ITIN = ('<div class="wd" style="flex:1;border-radius:24px;padding:6px 16px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;min-width:0">'
+         '<span style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘의 경유지</b><span style="font-size:13px;color:#4A5D78">{{ v.dist }}</span></span>'
+         + _LIST + '<div style="margin-top:auto;padding-top:12px">' + _DATEBAR + '</div></div>')
+dc = dc[:_t0] + _ITIN + dc[_t1:]
+_lx = dc.index('<sc-if value="{{ isLog }}"'); _le = dc.index('>오늘 지출<', _lx); _lc = dc.rindex('<div style="border-radius:24px', _lx, _le)
+dc = dc[:_lc] + _TOT + dc[_lc:]
 # ───── 일정 관리: 예전 기능(교통 이용 구간·휴식일·빠른 변경·숙소 상태) 을 디자인 카드로 추가 ─────
 GLASS = 'border-radius:24px;padding:16px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:10px;min-width:0'
 CHIP = lambda lst, v: ('<div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ ' + lst + ' }}" as="' + v + '" hint-placeholder-count="4"><button onClick="{{ ' + v + '.pick }}" style="height:40px;padding:0 14px;border-radius:99px;border:1px solid {{ ' + v + '.bd }};background:{{ ' + v + '.bg }};color:{{ ' + v + '.fg }};font:700 14px \'Pretendard Variable\',Pretendard,sans-serif;white-space:nowrap;cursor:pointer">{{ ' + v + '.label }}<span style="font-size:12px;opacity:.75;margin-left:4px">{{ ' + v + '.sub }}</span></button></sc-for></div>')
@@ -136,6 +145,9 @@ _pe = dc.index('</sc-for></div>\n</div>\n</div>\n', dc.index('{{ pl.ends }}')) +
 dc = dc[:_pe] + _TR + dc[_pe:]
 _ls = dc.index('{{ pl.lodgeSt }}</span></span>') + len('{{ pl.lodgeSt }}</span></span>')
 dc = dc[:_ls] + CHIP('pl.lst', 'c') + dc[_ls:]
+# 오늘 지나는 곳이 4곳보다 많으면(펼친 화면) 좌우 버튼으로 4곳씩 넘기기
+_BTN = lambda h, ic, o: '<button onClick="{{ spPg.' + h + ' }}" style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.8);display:grid;place-items:center;cursor:pointer;opacity:{{ spPg.' + o + ' }}">' + MSW('20', '#3B5BDB') + ic + '</span></button>'
+rep('<span style="font-size:13px;color:#4A5D78">{{ spotCount }}</span>', '<span style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;color:#4A5D78">{{ spotCount }}</span><sc-if value="{{ spPg.on }}" hint-placeholder-val="{{ false }}">' + _BTN('prev', 'chevron_left', 'pO') + '<b style="font-size:13px;min-width:30px;text-align:center">{{ spPg.label }}</b>' + _BTN('next', 'chevron_right', 'nO') + '</sc-if></span>')
 # 머리글 문구·날씨를 실제 값으로
 rep('<span style="font-size:13px;color:#4A5D78">도카이도 종주 · {{ todayN }}일째</span>', '<span style="font-size:13px;color:#4A5D78">{{ headSub }}</span>')
 rep("font-size:18px;color:#E0861A;\">sunny</span>18°</span>", "font-size:18px;color:{{ wxNow.c }};\">{{ wxNow.icon }}</span>{{ wxNow.t }}</span>")
@@ -180,7 +192,7 @@ rep('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="apple-mobile-web-app-status-bar-style" content="default">'
     '<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png">'
     '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
-    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
+    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.nw{display:none!important}}@media (max-width:639px){.wd{display:none!important}}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
     + head_shim)
 
 # ───────────────────────── 3. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
@@ -247,7 +259,7 @@ rv = rep(SPm, "    const CI = { '역사유적':'museum', '신사·사찰':'templ
          "    const SP = (X.places || []).map(p => { const c = (p.desc || '').split(' · ')[0]; return { ko:p.name, jp:p.q || '', at:p.km, icon: CI[c] || 'location_on', short:(p.desc || '').split(' · ').slice(1).join(' · ') || p.desc, desc:(p.long || p.desc || ''), ll:p.ll }; });\n", src=rv)
 rv = rep("map: 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(p.jp), open:",
          "map: 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+(p.ll ? p.ll[0]+','+p.ll[1] : encodeURIComponent(p.jp || p.ko)), open:", src=rv)
-rv = rep("const spots = SP.map(spotOf), sp = S.sheet && S.sheet.type==='spot' ? spots[S.sheet.i] : {};", "const spotsAll = SP.map(spotOf), sp = S.sheet && S.sheet.type==='spot' ? (spotsAll[S.sheet.i] || {}) : {}, _fu = SP.findIndex(p => !(X.isPast || (isT && p.at <= walked))), _st = Math.max(0, Math.min(SP.length-4, (_fu < 0 ? SP.length : _fu) - 1)), spots = " + WIDE + " ? spotsAll.slice(_st, _st+4) : spotsAll;", src=rv)
+rv = rep("const spots = SP.map(spotOf), sp = S.sheet && S.sheet.type==='spot' ? spots[S.sheet.i] : {};", "const spotsAll = SP.map(spotOf), sp = S.sheet && S.sheet.type==='spot' ? (spotsAll[S.sheet.i] || {}) : {}, _fu = SP.findIndex(p => !(X.isPast || (isT && p.at <= walked))), _st0 = Math.max(0, Math.min(SP.length-4, (_fu < 0 ? SP.length : _fu) - 1)), _st = S.spSt != null ? Math.max(0, Math.min(Math.max(0, SP.length-4), S.spSt)) : _st0, spots = " + WIDE + " ? spotsAll.slice(_st, _st+4) : spotsAll, spPg = { on: " + WIDE + " && SP.length > 4, label: (Math.ceil(_st/4)+1)+'/'+Math.ceil(SP.length/4), prev: () => set({ spSt: Math.max(0, _st-4) }), next: () => set({ spSt: Math.min(SP.length-4, _st+4) }), pO: _st > 0 ? '1' : '.35', nO: _st < SP.length-4 ? '1' : '.35' };", src=rv)
 rv = rep("const passed = p.at <= walked, d = Math.abs(p.at - walked);", "const passed = X.isPast || (isT && p.at <= walked), d = Math.abs(p.at - (isT ? walked : 0));", src=rv)
 rv = rep("const spI = S.sheet && S.sheet.type==='spot' ? S.sheet.i : 0, spN = SP.length;", "const spI = S.sheet && S.sheet.type==='spot' ? S.sheet.i : 0, spN = Math.max(1, SP.length);", src=rv)
 rv = rep("const passedN = SP.filter(p => p.at <= walked).length;", "const passedN = SP.filter(p => X.isPast || (isT && p.at <= walked)).length;", src=rv)
@@ -274,7 +286,7 @@ rv = rep("health: [{k:'평균 심박',v:'112bpm'},{k:'소모',v:'1,240kcal'},{k:
 R3 = [
     ("prevO: S.view === 0 ? '.35' : '1', nextO: S.view === 30 ? '.35' : '1',", "prevO: VW === 0 ? '.35' : '1', nextO: VW === 30 ? '.35' : '1',"),
     ("prev: () => S.view > 0 && set({ view:S.view-1, sheet:null }), next: () => S.view < 30 && set({ view:S.view+1, sheet:null }), goToday: () => set({ view:TODAY, sheet:null }),",
-     "prev: () => { O.prevDay(); set({ sheet:null }); }, next: () => { O.nextDayFn(); set({ sheet:null }); }, goToday: () => { O.goToday(); set({ sheet:null }); },"),
+     "prev: () => { O.prevDay(); set({ sheet:null, spSt:null }); }, next: () => { O.nextDayFn(); set({ sheet:null, spSt:null }); }, goToday: () => { O.goToday(); set({ sheet:null, spSt:null }); }, spPg,"),
     ("check: () => S.arr < 4 && set({ arr:S.arr+1 }), undo: () => S.arr > 2 && set({ arr:S.arr-1 }), undoO: S.arr > 2 ? '1' : '.4',",
      "check: () => { if (isT && !done) O.advance(); }, undo: () => { if (isT && X.stage > 1) this.setState(s => ({ stage: Math.max(1, Math.min(s.stage, STOPS.length) - 1) })); }, undoO: isT && X.stage > 1 ? '1' : '.4',"),
     ("todayN: TODAY+1,", "todayN: TODAY+1, headSub: (() => { const df = this.dayInfo().diff; return df < 0 ? '도카이도 종주 · 출발까지 D-'+(-df) : df > 30 ? '도카이도 종주 · 완주' : '도카이도 종주 · '+(df+1)+'일째'; })(), wxNow: (() => { const w = S.wlive; if (!w || w.now == null) return { icon:'partly_cloudy_day', t:'—', c:'#8C96C2' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud'; return { icon: ic, t: Math.round(w.now)+'°', c: ic==='sunny' ? '#E0861A' : ic==='rainy' ? '#1C7ED6' : '#8C96C2' }; })(), mapKey: VW+'|'+arr+'|'+((this.routeCache||{})[VW+1] ? 1 : 0),"),

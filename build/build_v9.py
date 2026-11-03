@@ -361,6 +361,12 @@ _blk = _blk[:_ms] + _blk[_me:]
 _hs = _blk.rindex('<div style="background:#fff', 0, _blk.index('걷는 동안 심박'))
 _blk = _blk[:_hs] + _card + '\n' + _blk[_hs:]
 dc = dc[:_la] + _blk + dc[_lb:]
+# 일본어: 카테고리 버튼 크게·중앙정렬, 목록 아래 여백
+rep('display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;position:absolute;left:0;right:0;bottom:86px;z-index:3;padding:18px 16px 8px;', 'display:flex;gap:10px;justify-content:safe center;overflow-x:auto;scrollbar-width:none;position:absolute;left:0;right:0;bottom:86px;z-index:3;padding:18px 16px 10px;')
+_j0 = dc.index('<sc-for list="{{ jp2.cats }}"'); _j1 = dc.index('</sc-for>', _j0)
+dc = dc[:_j0] + dc[_j0:_j1].replace('height:40px;padding:0 14px;border-radius:99px;border:1px solid', 'height:54px;padding:0 24px;border-radius:99px;border:1.5px solid').replace("font:700 14px", "font:800 19px") + dc[_j1:]
+dc = dc.replace('grid-template-columns:{{ fr.jpCols }};gap:10px"', 'grid-template-columns:{{ fr.jpCols }};gap:10px;padding-bottom:84px"', 1)
+dc = dc.replace('<span style="font-size:23px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', '<span style="font-size:28px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', 1)
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

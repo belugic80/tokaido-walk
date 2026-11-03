@@ -200,7 +200,8 @@ _pc = """<sc-if value="{{ plc.has }}" hint-placeholder-val="{{ true }}">
 <span style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘 지나는 명물</b><span style="font-size:13px;color:#4A5D78">{{ plc.n }} · 눌러서 지도</span></span>
 <div data-hscroll="1" style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;touch-action:pan-x pan-y;padding:4px 18px 6px">
 <sc-for list="{{ plc.list }}" as="q" hint-placeholder-count="3"><div onClick="{{ q.open }}" style="flex:none;width:260px;scroll-snap-align:start;cursor:pointer;box-sizing:border-box;border-radius:18px;padding:12px 14px;background:#F6F7FF;box-shadow:inset 0 0 0 2px {{ q.bd }};display:flex;flex-direction:column;gap:6px;opacity:{{ q.op }}">
-<span style="display:flex;align-items:center;gap:8px"><b style="flex:none;width:26px;height:26px;border-radius:50%;background:#3B5BDB;color:#fff;font-size:13px;display:grid;place-items:center">{{ q.n }}</b><span style="font-size:12px;font-weight:800;color:#7048E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.cat }}</span><span style="flex:1"></span><span style="flex:none;white-space:nowrap;font-size:12px;font-weight:800;color:#fff;background:{{ q.bBg }};border-radius:99px;padding:3px 9px">{{ q.badge }}</span></span>
+<span style="height:96px;border-radius:12px;background:{{ q.img }};flex:none"></span>
+<span style="display:flex;align-items:center;gap:8px"><b style="flex:none;width:26px;height:26px;border-radius:7px;background:#E8761F;color:#fff;font-size:13px;display:grid;place-items:center">{{ q.n }}</b><span style="font-size:12px;font-weight:800;color:#7048E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.cat }}</span><span style="flex:1"></span><span style="flex:none;white-space:nowrap;font-size:12px;font-weight:800;color:#fff;background:{{ q.bBg }};border-radius:99px;padding:3px 9px">{{ q.badge }}</span></span>
 <b style="font-size:17px;font-weight:800;letter-spacing:-.02em;color:{{ q.nf }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.name }}</b>
 <span style="font-size:13px;line-height:1.4;color:{{ q.df }};display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px">{{ q.desc }}</span>
 </div></sc-for>
@@ -208,6 +209,27 @@ _pc = """<sc-if value="{{ plc.has }}" hint-placeholder-val="{{ true }}">
 </sc-if>
 """
 rep('</button>\n</div>\n</div>\n</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"', '</button>\n</div>\n</div>\n' + _pc + '</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"')
+_pp = """<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="명물 팝업" style="position:absolute;inset:0;z-index:44;display:flex;justify-content:center;align-items:center;padding:16px">
+<div onClick="{{ plc.pop.close }}" style="position:absolute;inset:0;background:rgba(20,24,60,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)"></div>
+<div style="position:relative;width:100%;max-width:560px;max-height:100%;overflow-y:auto;scrollbar-width:none;background:#fff;border-radius:28px;padding:12px 12px 16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 24px 70px rgba(20,30,80,.35)">
+<span style="height:220px;border-radius:20px;background:{{ plc.pop.img }};flex:none"></span>
+<span style="display:flex;align-items:center;gap:8px;padding:0 6px"><b style="flex:none;width:28px;height:28px;border-radius:8px;background:#E8761F;color:#fff;font-size:14px;display:grid;place-items:center">{{ plc.pop.n }}</b><span style="font-size:13px;font-weight:800;color:#7048E8">{{ plc.pop.cat }}</span><span style="flex:1"></span><span style="font-size:13px;font-weight:800;color:#fff;background:{{ plc.pop.bBg }};border-radius:99px;padding:4px 11px">{{ plc.pop.badge }}</span></span>
+<span style="display:flex;flex-direction:column;gap:2px;padding:0 6px"><b style="font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.2">{{ plc.pop.name }}</b><span style="font-size:15px;font-weight:600;color:#6B7A90">{{ plc.pop.jp }}</span></span>
+<span style="font-size:17px;line-height:1.55;color:#18324F;padding:0 6px">{{ plc.pop.long }}</span>
+<div style="display:flex;gap:8px;padding:0 6px">
+<button onClick="{{ plc.pop.prev }}" style="flex:none;width:56px;height:52px;border-radius:16px;border:1px solid #DCE0F7;background:#fff;font-size:22px;cursor:pointer;opacity:{{ plc.pop.pO }}">‹</button>
+<button onClick="{{ plc.pop.map }}" style="flex:1;height:52px;border-radius:16px;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;font:800 17px Pretendard Variable,Pretendard,sans-serif;cursor:pointer">구글 지도로 보기</button>
+<button onClick="{{ plc.pop.next }}" style="flex:none;width:56px;height:52px;border-radius:16px;border:1px solid #DCE0F7;background:#fff;font-size:22px;cursor:pointer;opacity:{{ plc.pop.nO }}">›</button>
+</div>
+</div></div>
+</sc-if>
+"""
+rep('<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="장소 팝업"', _pp + '<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="장소 팝업"')
+# 홈 사진 히어로 좌우 날짜 이동 버튼(반투명 흰색)
+_hb = lambda side, ic, fn, op: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="position:absolute;%s:8px;top:38%%;margin-top:-22px;z-index:3;width:44px;height:44px;border-radius:50%%;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(20,30,80,.25);display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}"><span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 600;font-size:28px;color:#18324F">%s</span></button>' % (fn, '이전 날' if side=='left' else '다음 날', side, op, ic)
+rep('<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%', _hb('left','chevron_left','prev','pO') + _hb('right','chevron_right','next','nO') + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%')
+rep('<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>', '<div style="display:flex;flex-direction:column;gap:3px;padding:0 44px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>')
 # 지도 범례: 마커 색과 동일(출발 초록·다음 파랑·도착 보라)
 dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 걷기 화면: 걸은 거리 = 실제 측정값, 아래에 걷기/교통(이동) 거리 구분

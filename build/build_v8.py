@@ -48,6 +48,14 @@ rep('height:98px;padding-top:52px;z-index:8;', 'height:calc(env(safe-area-inset-
 # 시안용 홈 바(화면 아래 검은 줄) 제거, 하단 메뉴는 기기 안전 영역 위로
 rep('<i style="position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#18324F;opacity:.85;z-index:11"></i>', '')
 rep('width:{{ fr.navW }};bottom:22px;z-index:10;', 'width:{{ fr.navW }};bottom:calc(env(safe-area-inset-bottom) + 14px);z-index:10;')
+# 펼친 화면(2열)에서 좌우 카드 높이 맞춤: 두 열을 같은 높이로 늘리고, 각 열의 마지막 카드가 남는 높이를 채움
+rep('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}"', '<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}"', cnt=7)
+rep('<div style="display:grid;grid-template-columns:{{ fr.cols }};grid-template-areas:{{ fr.areas }};gap:12px;padding:0 16px;align-items:stretch"', '<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};grid-template-areas:{{ fr.areas }};gap:12px;padding:0 16px;align-items:stretch"')
+# 일본어: 왼쪽 문장 목록이 길어도 오른쪽 크게 보기 칸은 화면에 붙어 따라옴
+rep('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:start"', '<div class="jp2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:start"')
+# 일본어 크게 보기: 일본어 문장은 글자 단위로 줄바꿈되게 (keep-all 때문에 칸 밖으로 넘치던 것)
+rep('<b style="font-size:60px;font-weight:800;line-height:1.25;letter-spacing:-.01em;color:#18324F;text-wrap:balance">{{ jpSel.jp }}', '<b style="font-size:60px;font-weight:800;line-height:1.25;letter-spacing:-.01em;color:#18324F;text-wrap:balance;word-break:normal;overflow-wrap:anywhere;max-width:100%">{{ jpSel.jp }}')
+rep('<b style="font-size:40px;font-weight:800;line-height:1.3;letter-spacing:-.01em;color:#18324F;text-wrap:balance">{{ ph.jp }}', '<b style="font-size:40px;font-weight:800;line-height:1.3;letter-spacing:-.01em;color:#18324F;text-wrap:balance;word-break:normal;overflow-wrap:anywhere;max-width:100%">{{ ph.jp }}')
 # 머리글 문구·날씨를 실제 값으로
 rep('<span style="font-size:13px;color:#4A5D78">도카이도 종주 · {{ todayN }}일째</span>', '<span style="font-size:13px;color:#4A5D78">{{ headSub }}</span>')
 rep("font-size:18px;color:#E0861A;\">sunny</span>18°</span>", "font-size:18px;color:{{ wxNow.c }};\">{{ wxNow.icon }}</span>{{ wxNow.t }}</span>")
@@ -78,7 +86,7 @@ rep('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="apple-mobile-web-app-status-bar-style" content="default">'
     '<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png">'
     '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
-    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}</style>'
+    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
     + head_shim)
 
 # ───────────────────────── 3. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────

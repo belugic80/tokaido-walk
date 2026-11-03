@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>도카이도 53의 쉼표</title><meta name="theme-color" content="#DCE2FF"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}</style><script>(function(){var F='.image-slots.state.json',DB='tk-slots',mem=null;
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>도카이도 53의 쉼표</title><meta name="theme-color" content="#DCE2FF"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style><script>(function(){var F='.image-slots.state.json',DB='tk-slots',mem=null;
 function open(){return new Promise(function(res,rej){var r=indexedDB.open(DB,1);r.onupgradeneeded=function(){r.result.createObjectStore('kv')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
 function get(){return open().then(function(db){return new Promise(function(res){var q=db.transaction('kv').objectStore('kv').get(F);q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}})}).catch(function(){return null})}
 function put(v){return open().then(function(db){return new Promise(function(res,rej){var t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,F);t.oncomplete=res;t.onerror=function(){rej(t.error)}})})}
@@ -26,7 +26,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 
 <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};grid-template-areas:{{ fr.areas }};gap:12px;padding:0 16px;align-items:stretch">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};grid-template-areas:{{ fr.areas }};gap:12px;padding:0 16px;align-items:stretch">
 <div style="grid-area:a;display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="display:flex;align-items:center;gap:6px;padding:6px;border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);">
 <button onClick="{{ goToday }}" style="flex:none;white-space:nowrap;height:44px;padding:0 14px;border:0;border-radius:18px;background:{{ todayBtn.bg }};color:{{ todayBtn.fg }};font:800 14px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer">오늘</button>
@@ -166,7 +166,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 </sc-if>
 <sc-if value="{{ isLog }}" hint-placeholder-val="{{ false }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="border-radius:28px;padding:20px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 14px 30px rgba(28,126,214,.32);color:#fff;text-shadow:0 1px 2px rgba(40,30,120,.25);display:flex;flex-direction:column;gap:6px;">
 <span style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;font-weight:700">오늘 걸음 · Galaxy Watch9</span><span style="flex:none;white-space:nowrap;font-size:12px;font-weight:800;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.92);color:#1C7ED6;text-shadow:none">목표 {{ lg.top.pct }}</span></span>
@@ -214,7 +214,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <sc-if value="{{ isJp }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;flex-direction:column;gap:12px">
 <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px"><sc-for list="{{ jp.cats }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="flex:none;white-space:nowrap;height:44px;padding:0 16px;border-radius:99px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font:700 14px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer">{{ c.label }}</button></sc-for></div>
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:start">
+<div class="jp2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:start">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <sc-for list="{{ jp.list }}" as="p" hint-placeholder-count="3">
 <button onClick="{{ p.open }}" style="border-radius:24px;padding:16px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:12px;min-width:0;gap:4px;text-align:left;cursor:pointer;color:#18324F;font-family:inherit;border-color:{{ p.bd }};background:{{ p.bg }}">
@@ -227,7 +227,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="display:{{ fr.jpD }};position:sticky;top:0;flex-direction:column;gap:10px">
 <div style="border-radius:30px;background:#fff;padding:40px 28px;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;box-shadow:0 14px 34px rgba(40,50,140,.12);min-height:{{ fr.jpH }};justify-content:center">
 <span style="font-size:18px;font-weight:700;color:#4A5D78">{{ jpSel.ko }}</span>
-<b style="font-size:60px;font-weight:800;line-height:1.25;letter-spacing:-.01em;color:#18324F;text-wrap:balance">{{ jpSel.jp }}</b>
+<b style="font-size:60px;font-weight:800;line-height:1.25;letter-spacing:-.01em;color:#18324F;text-wrap:balance;word-break:normal;overflow-wrap:anywhere;max-width:100%">{{ jpSel.jp }}</b>
 <span style="font-size:24px;font-weight:700;color:#7048E8">{{ jpSel.read }}</span>
 </div>
 <span style="font-size:13px;color:#6B7A90;text-align:center">상대에게 화면을 보여 주세요</span>
@@ -236,7 +236,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 </sc-if>
 <sc-if value="{{ isMore }}" hint-placeholder-val="{{ false }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:10px">
 <sc-for list="{{ mo.menu }}" as="m" hint-placeholder-count="4">
@@ -281,7 +281,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="display:flex;align-items:center;gap:10px;padding:56px 16px 14px"><button onClick="{{ back }}" style="flex:none;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:grid;place-items:center;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:22px;color:#18324F;">arrow_back</span></button><b style="flex:1;text-align:center;font-size:18px;letter-spacing:-.02em">{{ subTitle }}</b><span style="flex:none;width:44px"></span></div>
 
 <sc-if value="{{ sb.glance }}" hint-placeholder-val="{{ false }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="border-radius:28px;padding:20px;background:linear-gradient(120deg,#5B6FD4,#8B9CF0,#C9B8F5);border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 14px 30px rgba(91,111,212,.35);color:#fff;text-shadow:0 1px 2px rgba(40,30,120,.25);display:flex;flex-direction:column;gap:6px">
 <span style="font-size:14px;font-weight:700">{{ glHead }}</span>
@@ -326,7 +326,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </sc-if>
 
 <sc-if value="{{ sb.journey }}" hint-placeholder-val="{{ false }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="border-radius:28px;padding:20px;background:linear-gradient(120deg,#5B6FD4,#8B9CF0,#C9B8F5);border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 14px 30px rgba(91,111,212,.35);color:#fff;text-shadow:0 1px 2px rgba(40,30,120,.25);display:flex;flex-direction:column;gap:6px;">
 <span style="font-size:14px;font-weight:700">시나가와 → 교토 · 31일</span>
@@ -360,7 +360,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px 4px">
 <sc-for list="{{ pl.days }}" as="d" hint-placeholder-count="8"><button onClick="{{ d.pick }}" style="flex:none;width:54px;height:62px;border-radius:18px;border:1px solid {{ d.bd }};background:{{ d.bg }};color:{{ d.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:inherit;box-shadow:{{ d.sh }}"><span style="font-size:11px;font-weight:700;opacity:.85">DAY</span><b style="font-size:18px">{{ d.n }}</b><i style="width:5px;height:5px;border-radius:50%;background:{{ d.dot }}"></i></button></sc-for>
 </div>
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="flex:1;border-radius:24px;padding:16px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:12px;min-width:0;">
 <span style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="display:flex;flex-direction:column"><span style="font-size:13px;color:#4A5D78">{{ pl.d.n }}일차 · {{ pl.d.date }}</span><b style="font-size:20px;letter-spacing:-.03em">{{ pl.startName }} → {{ pl.endName }}</b></span><b style="flex:none;font-size:22px;color:#3B5BDB">{{ pl.km }}</b></span>
@@ -383,7 +383,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </sc-if>
 
 <sc-if value="{{ sb.stamp }}" hint-placeholder-val="{{ false }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="border-radius:28px;padding:20px;background:linear-gradient(135deg,#7048E8,#9775FA);border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 14px 30px rgba(112,72,232,.35);color:#fff;text-shadow:0 1px 2px rgba(40,30,120,.25);display:flex;flex-direction:column;gap:6px;">
 <span style="font-size:14px;font-weight:700">53역참 도장</span>
@@ -410,7 +410,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </sc-if>
 
 <sc-if value="{{ sb.info }}" hint-placeholder-val="{{ false }}">
-<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
+<div class="eq2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.subMin }}">
 <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
 <div style="border-radius:28px;padding:20px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 14px 30px rgba(28,126,214,.32);color:#fff;text-shadow:0 1px 2px rgba(40,30,120,.25);display:flex;flex-direction:column;gap:6px;">
 <span style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:700">{{ wxCard.place }}</span><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:30px;color:#FFE08A;">{{ wxCard.icon }}</span></span>
@@ -544,7 +544,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ sh.isPhrase }}" hint-placeholder-val="{{ false }}">
 <span style="font-size:14px;font-weight:700;color:#4A5D78;text-align:center;padding-top:6px">{{ ph.ko }}</span>
-<div style="border-radius:26px;background:#fff;padding:36px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:0 10px 30px rgba(40,50,140,.1)"><b style="font-size:40px;font-weight:800;line-height:1.3;letter-spacing:-.01em;color:#18324F;text-wrap:balance">{{ ph.jp }}</b><span style="font-size:18px;color:#7048E8;font-weight:700">{{ ph.read }}</span></div>
+<div style="border-radius:26px;background:#fff;padding:36px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:0 10px 30px rgba(40,50,140,.1)"><b style="font-size:40px;font-weight:800;line-height:1.3;letter-spacing:-.01em;color:#18324F;text-wrap:balance;word-break:normal;overflow-wrap:anywhere;max-width:100%">{{ ph.jp }}</b><span style="font-size:18px;color:#7048E8;font-weight:700">{{ ph.read }}</span></div>
 <div style="display:flex;gap:8px;align-items:center"><button onClick="{{ ph.prev }}" style="flex:1;height:54px;border-radius:27px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);font:700 15px 'Pretendard Variable',Pretendard,sans-serif;color:#18324F;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:22px;color:#18324F;">chevron_left</span>이전</button><button onClick="{{ ph.next }}" style="flex:1;height:54px;border-radius:27px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);font:700 15px 'Pretendard Variable',Pretendard,sans-serif;color:#18324F;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px">다음<span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:22px;color:#18324F;">chevron_right</span></button><button onClick="{{ close }}" style="flex:none;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:grid;place-items:center;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:24px;color:#18324F;">close</span></button></div>
 </sc-if>
 

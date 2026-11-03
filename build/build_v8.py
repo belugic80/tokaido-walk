@@ -403,6 +403,27 @@ i, j = cut('    const PH = ', '    const plist')
 rv = rv[:i] + "    const PHD = { '필수': PH.filter(p => p[4]).map(p => [p[3], p[1], p[2]]) }; PH.forEach(p => (PHD[p[0]] = PHD[p[0]] || []).push([p[3], p[1], p[2]]));\n" + rv[j:]
 rv = rep("const plist = PH[S.jc],", "const JC = PHD[S.jc] ? S.jc : '필수', plist = PHD[JC],", src=rv)
 rv = rep("cats: Object.keys(PH).map(c => ({ label:c, ...chipOf(S.jc===c),", "cats: Object.keys(PHD).map(c => ({ label: c==='필수' ? '★ 필수' : c, ...chipOf(JC===c),", src=rv)
+# 일본어: 예전 구성(위 큰 문장 카드 + 좌우 넘기기, 아래 한국어 뜻·한글 발음 목록)
+import re as _re2
+_m = _re2.search(r"const on = [^;]*? && k === Math\.min\(S\.jsel\|\|0, plist\.length-1\);", rv); assert _m
+rv = rv.replace(_m.group(0), "const on = k === Math.min(S.jsel||0, plist.length-1);")
+_m = _re2.search(r"open: \(\) => [^\n]*?set\(\{ jsel:k \}\) : set\(\{ sheet:\{type:'phrase',i:k\} \}\) \}", rv); assert _m, 'open'
+rv = rv.replace(_m.group(0), "open: () => set({ jsel:k }) }")
+rv = rep("const jsi = Math.min(S.jsel||0, plist.length-1), jpSel = { ko:plist[jsi][0], jp:plist[jsi][1], read:plist[jsi][2] };",
+ "const jsi = Math.min(S.jsel||0, plist.length-1), jpSel = { ko:plist[jsi][0], jp:plist[jsi][1], read:plist[jsi][2], cat: (JC==='필수' ? '★ 필수' : JC), idx: (jsi+1)+' / '+plist.length, prev: () => set({ jsel:(jsi+plist.length-1)%plist.length }), next: () => set({ jsel:(jsi+1)%plist.length }), full: () => set({ sheet:{type:'phrase',i:jsi} }), fs: plist[jsi][1].length > 22 ? '26px' : plist[jsi][1].length > 14 ? '30px' : '38px' };", src=rv)
+_JI = '<span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;white-space:nowrap;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 500;font-size:22px;color:#fff">%s</span>'
+_ja = dc.index('<div class="jp2" style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:start">\n<div style="display:flex;flex-direction:column;gap:12px;min-width:0">\n<sc-for list="{{ jp.list }}"')
+_jb = dc.index('상대에게 화면을 보여 주세요</span>\n</div>\n</div>', _ja) + len('상대에게 화면을 보여 주세요</span>\n</div>\n</div>')
+_ARW = 'position:absolute;top:50%%;%s:10px;transform:translateY(-50%%);width:40px;height:40px;border-radius:50%%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.18);display:grid;place-items:center;cursor:pointer;padding:0'
+_NEW = ('<div style="padding:0 16px;display:flex;flex-direction:column;gap:12px">'
+ '<div data-jpswipe="1" style="position:relative;border-radius:28px;padding:20px 54px 22px;background:linear-gradient(135deg,#4C5FD5,#7048E8 60%,#9775FA);color:#fff;box-shadow:0 14px 34px rgba(91,111,212,.35);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;min-height:300px;justify-content:center">'
+ '<span style="position:absolute;left:16px;right:16px;top:14px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700"><span style="padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.2)">{{ jpSel.cat }} · {{ jpSel.idx }}</span><span style="opacity:.8">눌러서 크게 보기</span></span>'
+ '<button onClick="{{ jpSel.prev }}" aria-label="이전 문장" data-jpprev="1" style="' + (_ARW % 'left') + '">' + (_JI % 'chevron_left') + '</button>'
+ '<button onClick="{{ jpSel.next }}" aria-label="다음 문장" data-jpnext="1" style="' + (_ARW % 'right') + '">' + (_JI % 'chevron_right') + '</button>'
+ '<div onClick="{{ jpSel.full }}" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;width:100%;padding-top:18px"><b style="font-size:{{ jpSel.fs }};font-weight:800;line-height:1.3;letter-spacing:-.01em;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;max-width:100%">{{ jpSel.jp }}</b><span style="font-size:20px;font-weight:800;color:#E5DBFF;line-height:1.35;overflow-wrap:anywhere">{{ jpSel.read }}</span><span style="width:70%;height:1px;background:rgba(255,255,255,.3)"></span><span style="font-size:17px;font-weight:700;opacity:.95">{{ jpSel.ko }}</span></div></div>'
+ '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:8px">'
+ '<sc-for list="{{ jp.list }}" as="p" hint-placeholder-count="6"><button onClick="{{ p.open }}" style="border-radius:18px;padding:12px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:3px;min-width:0;text-align:left;cursor:pointer;color:#18324F;font-family:inherit;border-color:{{ p.bd }};background:{{ p.bg }}"><span style="font-size:15px;font-weight:800;line-height:1.3;word-break:keep-all">{{ p.ko }}</span><span style="font-size:15px;font-weight:700;color:#3B5BDB;line-height:1.3;overflow-wrap:anywhere">{{ p.read }}</span></button></sc-for></div></div>')
+dc = dc[:_ja] + _NEW + dc[_jb:]
 # 지도: 실제 편의시설(경로 주변 400m, 기존 수집 로직)
 i, j = cut('    const mf = S.mf;', '    // log')
 rv = rv[:i] + r"""    const mf = S.mf;
@@ -554,6 +575,7 @@ KEEP = [
     old_script("var URL_ = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-sync'"),  # 저장값 클라우드 백업/복원
     old_script('/* 위에서 아래로 당기면 새로고침'),                                             # 당겨서 새로고침
     old_script('window.tkSeg = function (pts)'),                                                   # 걸음/차량 구간 나누기
+    "<script>(function(){var sx=0,sy=0,el=null;document.addEventListener('touchstart',function(e){el=e.target.closest&&e.target.closest('[data-jpswipe]');if(!el)return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});document.addEventListener('touchend',function(e){if(!el)return;var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){var b=el.querySelector(dx<0?'[data-jpnext]':'[data-jpprev]');if(b)b.click();}el=null;},{passive:true});})();</script>",
 ]
 # 전체 화면 자동·뒤로가기 보호·가로 흔들림 잠금 (새 화면의 가로 넘기기 목록은 허용)
 FS = old_script("var fsBtn = document.getElementById('fsBtn')")

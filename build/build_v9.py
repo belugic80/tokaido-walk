@@ -244,7 +244,7 @@ dc = dc[:_la] + _hd + _map + _lg + dc[_e:]
 # 장소 팝업: 경유지 선택 버튼을 위쪽 → 카드 아래(엄지 닿는 하단)로
 _t0 = dc.index('<div style="position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 14px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px">')
 _t1 = dc.index('</div>', dc.index('{{ sp.tabs }}', _t0)) + len('</div>')
-_tabs = dc[_t0:_t1].replace('position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 14px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px', 'position:relative;flex:none;width:100%;max-width:calc(var(--spotW,560px) + 24px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 12px calc(env(safe-area-inset-bottom) + 14px)', 1)
+_tabs = dc[_t0:_t1].replace('position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 14px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px', 'position:relative;flex:none;width:100%;box-sizing:border-box;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:0 12px calc(env(safe-area-inset-bottom) + 30px)', 1)
 dc = dc[:_t0] + dc[_t1:]
 _c0 = dc.index('<div onClick="{{ keep }}" style="position:relative;z-index:2;width:calc(100% - 24px);max-width:{{ fr.spotW }};max-height:calc(100% - 120px)', _t0 - 50)
 _c0b = dc.index('margin-bottom:14px;background:#fff;border-radius:28px', _c0)
@@ -253,6 +253,8 @@ dc = dc.replace('max-height:calc(100% - 120px);overflow-y:auto', 'max-height:cal
 _end = dc.index('</sc-if>', _c0)
 _close = dc.rindex('</div>\n</div>', _c0, _end)  # 카드 닫힘 + 팝업 루트 닫힘
 dc = dc[:_close + len('</div>\n')] + _tabs + '\n' + dc[_close + len('</div>\n'):]
+# 장소 팝업 버튼: 지나온 곳(✓·흐리게) / 남은 곳(현재 위치와의 거리 표시)
+rep("-webkit-backdrop-filter:blur(12px)\"><span style=\"width:20px;height:20px;border-radius:50%;background:{{ t.nb }};color:{{ t.nf }};font-size:11px;display:grid;place-items:center\">{{ t.n }}</span>{{ t.label }}</button>", "-webkit-backdrop-filter:blur(12px);opacity:{{ t.op }}\"><span style=\"width:20px;height:20px;border-radius:50%;background:{{ t.nb }};color:{{ t.nf }};font-size:11px;display:grid;place-items:center\">{{ t.n }}</span>{{ t.label }}<span style=\"font-size:12px;font-weight:700;opacity:.8\">{{ t.dist }}</span></button>")
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

@@ -118,11 +118,12 @@
     const nearP = PLc.filter(p => Math.abs(p.km - sp0.rel) < 0.8).sort((a,b) => Math.abs(a.km - sp0.rel) - Math.abs(b.km - sp0.rel))[0];
     const spDesc = (sp0.i <= 52 ? '도카이도 '+(sp0.i+1)+'번째 역참 '+sp0.ko.replace(/\(.*\)/, '')+'('+sp0.jp+')입니다. ' : '')+(nearP ? nearP.name+' — '+((nearP.long || nearP.desc || '').replace(/^\[[^\]]*\]\s*/, '')) : '근처 명소·맛집은 오늘 탭의 지나는 곳에서 볼 수 있어요.');
     const spPass = passedV[sp0.ko.replace(/\(.*\)/, '')];
+    const meLL = window.__v8 && window.__v8.me, dFrom = (t, rk) => { try { if (meLL && t.ll) { const d = hav(meLL, t.ll); return d >= 100 ? Math.round(d).toLocaleString('ko-KR') : d.toFixed(1); } } catch (e) {} return (+rk).toFixed(1); };
     const sp = { eyebrow: 'DAY '+VW+' · '+(si+1)+'번째 경유지', name: stName(si), jp: sp0.jp, sub: sgoal ? '도착 지점 · 숙소' : si === 0 ? '출발 지점' : '경유 지점', desc: spDesc, bg: imgSet[0], img: imgSet[S.spotImg % 4], imgN: (S.spotImg % 4)+1,
       badge: sdn ? (spPass ? spPass+(si === 0 ? ' 출발' : ' 통과') : '지나옴') : snx ? '다음 경유지' : sgoal ? '오늘 도착지' : '예정', bi: sdn ? 'check_circle' : sgoal ? 'flag' : 'location_on', bf: sdn ? '#16804A' : snx ? '#7048E8' : '#3B5BDB',
-      metrics: [{ icon:'straighten', k:'남은 거리', v: sdn ? '통과' : skm+' km', c: sdn ? '#16804A' : '#18324F' }, { icon:'schedule', k:'예상 시간', v: sdn ? (spPass || '—') : durK(skm * MIN_PER_KM), c:'#18324F' }, { icon:'route', k:'누적 거리', v: (dd.startKm + sp0.rel).toFixed(1)+' km', c:'#18324F' }],
+      metrics: [{ icon:'straighten', k:'남은 거리', v: sdn ? '통과' : skm+' km', c: sdn ? '#16804A' : '#18324F' }, { icon:'schedule', k:'예상 시간', v: sdn ? (spPass || '—') : durK(skm * MIN_PER_KM), c:'#18324F' }, { icon:'my_location', k:'현재 위치와', v: dFrom(sp0, skm)+' km', c:'#18324F' }],
       gallery: imgSet.map((bg,k) => ({ bg, ol: k === S.spotImg % 4 ? '2px solid #5B6FD4' : 'none', pick: () => set({ spotImg:k }) })),
-      tabs: stops.map((t,k) => { const on = k === si; return { n:k+1, label:t.ko.replace(/\(.*\)/, ''), bg: on ? '#fff' : 'rgba(255,255,255,.16)', fg: on ? '#3B5BDB' : '#fff', bd: on ? '#fff' : 'rgba(255,255,255,.38)', nb: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'rgba(255,255,255,.25)', nf:'#fff', pick: () => set({ spot:k, spotImg:0 }) }; }),
+      tabs: stops.map((t,k) => { const on = k === si, pd = isDone(k); return { n: pd ? '✓' : k+1, op: pd && !on ? '.72' : '1', dist: pd ? '지나옴' : dFrom(t, Math.max(0, t.rel - walked))+'km', label:t.ko.replace(/\(.*\)/, ''), bg: on ? '#fff' : 'rgba(255,255,255,.16)', fg: on ? '#3B5BDB' : '#fff', bd: on ? '#fff' : 'rgba(255,255,255,.38)', nb: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'rgba(255,255,255,.25)', nf:'#fff', pick: () => set({ spot:k, spotImg:0 }) }; }),
       dir: gmap(llq(sp0.ll)) };
 
     // ───── 날짜 이동 ─────

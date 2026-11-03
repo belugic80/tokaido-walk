@@ -227,9 +227,11 @@ _pp = """<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">
 """
 rep('<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="장소 팝업"', _pp + '<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="장소 팝업"')
 # 홈 사진 히어로 좌우 날짜 이동 버튼(반투명 흰색)
-_hb = lambda side, ic, fn, op: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="position:absolute;%s:8px;top:38%%;margin-top:-22px;z-index:3;width:44px;height:44px;border-radius:50%%;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(20,30,80,.25);display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}"><span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 600;font-size:28px;color:#18324F">%s</span></button>' % (fn, '이전 날' if side=='left' else '다음 날', side, op, ic)
-rep('<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%', _hb('left','chevron_left','prev','pO') + _hb('right','chevron_right','next','nO') + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%')
-rep('<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>', '<div style="display:flex;flex-direction:column;gap:3px;padding:0 44px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>')
+_ic = "font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 600;font-size:26px;color:#18324F"
+_b1 = lambda fn, ic, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="width:46px;height:46px;border-radius:50%%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}"><span style="%s">%s</span></button>' % (fn, lab, op, _ic, ic)
+_hb2 = '<span style="position:absolute;right:12px;top:40%;margin-top:-26px;z-index:3;display:flex;align-items:center;gap:2px;padding:3px;border-radius:99px;background:rgba(255,255,255,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(20,30,80,.25)">' + _b1('prev','chevron_left','pO','이전 날') + '<i style="width:1px;height:24px;background:rgba(24,50,79,.18)"></i>' + _b1('next','chevron_right','nO','다음 날') + '</span>'
+rep('<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%', _hb2 + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%')
+rep('<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>', '<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>')
 # 사진일기 팝업: 큰 사진 탭 → 전체 화면 보기 / 사진 없음 안내
 rep('<div style="position:relative;min-height:{{ fr.spotH }};border-radius:22px;overflow:hidden;background:{{ dpv.img }};flex:none;', '<div onClick="{{ dpv.openFs }}" aria-label="사진 크게 보기" style="cursor:zoom-in;position:relative;min-height:{{ fr.spotH }};border-radius:22px;overflow:hidden;background:{{ dpv.img }};flex:none;')
 rep('<sc-if value="{{ dpv.hasPh }}" hint-placeholder-val="{{ true }}"><div style="display:grid;grid-template-columns:repeat(4', '<sc-if value="{{ dpv.noPh }}" hint-placeholder-val="{{ false }}"><div style="border-radius:16px;background:#F3F5FF;padding:12px 14px;font-size:14px;font-weight:600;color:#4A5D78;line-height:1.5">이 날 올린 사진이 아직 없어요. 오른쪽 위 카메라 버튼이나 기록 탭에서 올리면 여기 나와요.</div></sc-if>\n<sc-if value="{{ dpv.hasPh }}" hint-placeholder-val="{{ true }}"><div style="display:grid;grid-template-columns:repeat(4')
@@ -241,6 +243,7 @@ _fs = """<sc-if value="{{ dpv.fsOpen }}" hint-placeholder-val="{{ false }}">
 </sc-if>
 """
 rep('<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">', _fs + '<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">')
+rep('scrollbar-width:none;padding-bottom:110px">', 'scrollbar-width:none;padding-bottom:{{ padB }}">')
 # 지도 범례: 마커 색과 동일(출발 초록·다음 파랑·도착 보라)
 dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 걷기 화면: 걸은 거리 = 실제 측정값, 아래에 걷기/교통(이동) 거리 구분
@@ -259,13 +262,13 @@ dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
 _ma = dc.index('<sc-if value="{{ tb.more }}"')
 _old = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">\n<div style="display:grid;grid-template-columns:{{ fr.menuCols }};gap:10px">'
 assert dc.count(_old) == 1 and dc.index(_old) > _ma
-dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:12px">')
+dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:12px">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
 _seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:84px;padding:10px 12px;gap:4px')
 dc = dc[:_m0] + _seg + dc[_m1:]
 # 더보기 상단: 오늘 날씨 + 이번 주 날씨 + 일출·일몰 요약 카드
-_anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n'
+_anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n'
 assert dc.count(_anchor) == 1
 _ic = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
 _wcard = ('<div style="border-radius:24px;padding:14px 16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 12px 26px rgba(28,126,214,.28);color:#fff;display:flex;flex-direction:column;gap:8px;min-width:0">'

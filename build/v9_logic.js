@@ -271,7 +271,7 @@
     const lTrip = Math.round((LD - new Date(2026, 11, 4)) / 864e5) + 1, lIn = lTrip >= 1 && lTrip <= 31;
     const hcL = HCD[LISO] || null, isLT = lo === 0;
     const _lgBar = wk === 'none' || !(S.ntab === 'home' || S.mapFull) ? 0 : wk === 'ready' ? (ctlOpen ? 96 : 54) : 66;
-    const lgd = { fixBot: 'calc(env(safe-area-inset-bottom) + '+(96 + _lgBar + (_lgBar ? 8 : 0))+'px)', spacer: (88 + _lgBar)+'px', n: lIn ? lTrip : 0, nl: lIn ? lTrip+'일차' : lTrip < 1 ? '출발 전' : '여행 후', date:(LD.getMonth()+1)+'.'+LD.getDate()+' ('+WDN[LD.getDay()]+')', path: lIn ? ALL[lTrip-1].path : '시나가와 출발 전 준비 기간', rel: lo === 0 ? '오늘' : lo === -1 ? '어제' : lo === -2 ? '그제' : (-lo)+'일 전',
+    const lgd = { fixBot: 'calc(env(safe-area-inset-bottom) + '+(96 + _lgBar + (_lgBar ? 8 : 0))+'px)', spacer: (64 + _lgBar)+'px', n: lIn ? lTrip : 0, nl: lIn ? lTrip+'일차' : lTrip < 1 ? '출발 전' : '여행 후', date:(LD.getMonth()+1)+'.'+LD.getDate()+' ('+WDN[LD.getDay()]+')', path: lIn ? ALL[lTrip-1].path : '시나가와 출발 전 준비 기간', rel: lo === 0 ? '오늘' : lo === -1 ? '어제' : lo === -2 ? '그제' : (-lo)+'일 전',
       chipBg: lo === 0 ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'linear-gradient(135deg,#8C96B0,#B3BAD0)',
       prev: () => lo > loMin && set({ lo: lo-1 }), next: () => lo < 0 && set({ lo: lo+1 }), pO: lo > loMin ? '1' : '.3', nO: lo < 0 ? '1' : '.3' };
     const HL = hoursOf(hcL), hmx = Math.max(1, ...HL.vs), hlast = HL.vs.length - 1;
@@ -358,7 +358,7 @@
     const mp = {};
     const toastT = S.toast || { a:'', b:'' };
     const XT = { dpv, dpOpen: S.dp != null, lgc, dkRoot: DK ? DKF+' brightness(1.04) contrast(.96)' : 'none', dkImg: DK ? DKF : 'none', dkBlur: DK ? DKF+' blur(2.5px)' : 'blur(2.5px)', darkOn: DK, toggleDark: () => set({ dark:!DK }), amen, gmSrc, jn, dd2, pl2, stp2, diary2, jp2, wx2, wxd2, wxCard, fxLabel, fx2, sos, mo2, setRows, lg2, lgd, wm, dnC, toastT,
-      tabOn: S.ntab !== 'home' && !S.mapFull, tabLabel: {journey:'여정',log:'기록',more:'더보기'}[S.ntab] || '', tb: { journey: S.ntab === 'journey', log: S.ntab === 'log', more: S.ntab === 'more' },
+      padB: S.ntab === 'home' ? '110px' : '84px', tabOn: S.ntab !== 'home' && !S.mapFull, tabLabel: {journey:'여정',log:'기록',more:'더보기'}[S.ntab] || '', tb: { journey: S.ntab === 'journey', log: S.ntab === 'log', more: S.ntab === 'more' },
       subOn: !!S.sub, subTitle: SUBT[S.sub] || '', subNavV: S.sub === 'day' ? 'visible' : 'hidden', sb2: { day:S.sub === 'day', plan:S.sub === 'plan', stamp:S.sub === 'stamp', diary:S.sub === 'diary', jp:S.sub === 'jp', info:S.sub === 'info' }, back2: () => this.closeSub() };
     const lodgeH = HT[VW] || HT[String(VW)], lodgeOk = !!(lodgeH && lodgeH.ko);
     const lodge = { when: (isT ? 'TONIGHT · 오늘 밤 숙소' : 'STAY · '+VW+'일차 숙소'), name: lodgeOk ? lodgeH.ko : stName(nS-1)+' · 숙소 미정', sub: lodgeOk ? ((lodgeH.town || stops[nS-1].jp)+(lodgeH.addr ? ' · '+lodgeH.addr : '')) : stops[nS-1].jp+' · 도착 지점 근처', chip: lodgeOk ? '예약 확정' : '미정', cb: lodgeOk ? '#E4F8EC' : '#FFF3D8', cf: lodgeOk ? '#16804A' : '#8A5A0E',

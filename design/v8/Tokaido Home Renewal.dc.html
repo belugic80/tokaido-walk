@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet"><style>body{margin:0;background:#EDECF2;color:#18324F;font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif}a{color:#3B5BDB;text-decoration:none}a:hover{color:#2C3FA8}*{box-sizing:border-box}</style></helmet>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5B6FD4"></rect><rect x="22" y="26" width="56" height="48" rx="7" fill="#fff"></rect><rect x="49" y="26" width="2" height="48" fill="#C9B8F5"></rect></svg></template>
+<section id="fold" style="padding:40px 48px 56px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:6px"><b style="font-size:24px;letter-spacing:-.03em">도카이도 워크 · 앱 리뉴얼 · 갤럭시 Z 폴드8 펼침 (기본)</b><span style="font-size:14px;color:#4A5D78">왼쪽 오늘의 행동 · 오른쪽 참고 정보 · 숫자는 예시</span></div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">01 걷는 중</span><dc-import name="Tokaido Walk App" go="today" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">02 도착 · 오늘 완료</span><dc-import name="Tokaido Walk App" go="done" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">03 지난 날</span><dc-import name="Tokaido Walk App" go="past" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">04 내일</span><dc-import name="Tokaido Walk App" go="future" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">05 장소 팝업</span><dc-import name="Tokaido Walk App" go="spot" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">06 경로 팝업</span><dc-import name="Tokaido Walk App" go="route" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">07 숙소 팝업</span><dc-import name="Tokaido Walk App" go="lodge" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">08 오늘 걸음 팝업</span><dc-import name="Tokaido Walk App" go="stats" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">09 지도</span><dc-import name="Tokaido Walk App" go="map" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">10 기록</span><dc-import name="Tokaido Walk App" go="log" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">11 일본어</span><dc-import name="Tokaido Walk App" go="jp" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">12 일본어 · 크게 보기</span><dc-import name="Tokaido Walk App" go="phrase" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">13 더보기</span><dc-import name="Tokaido Walk App" go="more" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">14 전체 여정</span><dc-import name="Tokaido Walk App" go="journey" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">15 일정 관리</span><dc-import name="Tokaido Walk App" go="plan" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">16 역참 스탬프</span><dc-import name="Tokaido Walk App" go="stamp" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">17 여행 정보</span><dc-import name="Tokaido Walk App" go="info" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+</div>
+<span style="font-size:16px;font-weight:800;margin-top:8px">추가 화면 · 접힘 상태</span>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">18 한눈에 (더보기 › 한눈에)</span><dc-import name="Tokaido Walk App" go="glance" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">18b 사진 일기 (기록 › 사진 일기)</span><dc-import name="Tokaido Walk App" go="diary" fold="{{ true }}" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">19 반쯤 접음 · 위 지도 / 아래 다음 목적지·도착 체크</span><dc-import name="Tokaido Walk App" go="flex" hint-size="760px,860px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">20 커버 화면 · 남은 거리 · 다음 목적지 · 도착 체크</span><dc-import name="Tokaido Walk App" go="cover" hint-size="360px,780px"></dc-import></div>
+</div>
+</section>
+<section id="phone" style="padding:24px 48px 56px;display:flex;flex-direction:column;gap:28px">
+<b style="font-size:20px;letter-spacing:-.03em">일반 폰 · 접은 화면</b>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">01 걷는 중</span><dc-import name="Tokaido Walk App" go="today" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">02 도착 · 오늘 완료</span><dc-import name="Tokaido Walk App" go="done" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">03 지난 날</span><dc-import name="Tokaido Walk App" go="past" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">04 내일</span><dc-import name="Tokaido Walk App" go="future" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">05 장소 팝업</span><dc-import name="Tokaido Walk App" go="spot" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">06 경로 팝업</span><dc-import name="Tokaido Walk App" go="route" hint-size="390px,844px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">07 숙소 팝업</span><dc-import name="Tokaido Walk App" go="lodge" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">08 오늘 걸음 팝업</span><dc-import name="Tokaido Walk App" go="stats" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">09 지도</span><dc-import name="Tokaido Walk App" go="map" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">10 기록</span><dc-import name="Tokaido Walk App" go="log" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">11 일본어</span><dc-import name="Tokaido Walk App" go="jp" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">12 일본어 · 크게 보기</span><dc-import name="Tokaido Walk App" go="phrase" hint-size="390px,844px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">13 더보기</span><dc-import name="Tokaido Walk App" go="more" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">14 전체 여정</span><dc-import name="Tokaido Walk App" go="journey" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">15 일정 관리</span><dc-import name="Tokaido Walk App" go="plan" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">16 역참 스탬프</span><dc-import name="Tokaido Walk App" go="stamp" hint-size="390px,844px"></dc-import></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">17 여행 정보</span><dc-import name="Tokaido Walk App" go="info" hint-size="390px,844px"></dc-import></div>
+</div>
+<div style="display:flex;flex-wrap:nowrap;gap:40px;align-items:flex-start;width:max-content"><div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;font-weight:700;color:#4A5D78">18 사진 일기</span><dc-import name="Tokaido Walk App" go="diary" hint-size="390px,844px"></dc-import></div></div>
+</section>
+</x-dc>
+</body>
+</html>

@@ -123,12 +123,14 @@ dc = dc[:_h0] + '<div class="nw" style="display:flex;flex-direction:column;borde
 _t0 = dc.index('<button onClick="{{ goJourney }}" style="flex:1;justify-content:center;')
 _t1 = dc.index('</button>', dc.index('{{ tot.st }}', _t0)) + len('</button>')
 _TOT = dc[_t0:_t1].replace('style="flex:1;justify-content:center;', 'style="flex:none;justify-content:center;', 1)
+_TOTIN = _TOT.replace('border-radius:24px;padding:16px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);', 'border-radius:18px;padding:14px;background:linear-gradient(120deg,rgba(91,111,212,.12),rgba(201,184,245,.22));border:0;', 1)
+assert _TOTIN != _TOT
 _ITIN = ('<div class="wd" style="flex:1;border-radius:24px;padding:6px 16px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;min-width:0">'
          '<span style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘의 경유지</b><span style="font-size:13px;color:#4A5D78">{{ v.dist }}</span></span>'
-         + _LIST + '<div style="margin-top:auto;padding-top:12px">' + _DATEBAR + '</div></div>')
+         + _LIST + '<div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:12px">' + _TOTIN + _DATEBAR + '</div></div>')
 dc = dc[:_t0] + _ITIN + dc[_t1:]
 _lx = dc.index('<sc-if value="{{ isLog }}"'); _le = dc.index('>오늘 지출<', _lx); _lc = dc.rindex('<div style="border-radius:24px', _lx, _le)
-dc = dc[:_lc] + _TOT + dc[_lc:]
+# (전체 종주는 오늘의 경유지 카드 안으로: 기록 탭에는 넣지 않음)
 # ───── 일정 관리: 예전 기능(교통 이용 구간·휴식일·빠른 변경·숙소 상태) 을 디자인 카드로 추가 ─────
 GLASS = 'border-radius:24px;padding:16px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:10px;min-width:0'
 CHIP = lambda lst, v: ('<div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ ' + lst + ' }}" as="' + v + '" hint-placeholder-count="4"><button onClick="{{ ' + v + '.pick }}" style="height:40px;padding:0 14px;border-radius:99px;border:1px solid {{ ' + v + '.bd }};background:{{ ' + v + '.bg }};color:{{ ' + v + '.fg }};font:700 14px \'Pretendard Variable\',Pretendard,sans-serif;white-space:nowrap;cursor:pointer">{{ ' + v + '.label }}<span style="font-size:12px;opacity:.75;margin-left:4px">{{ ' + v + '.sub }}</span></button></sc-for></div>')
@@ -192,7 +194,7 @@ rep('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="apple-mobile-web-app-status-bar-style" content="default">'
     '<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png">'
     '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
-    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.nw{display:none!important}}@media (max-width:639px){.wd{display:none!important}}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
+    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.nw{display:none!important}.eq2>div>:has([data-v8map="home"]){flex:1 1 auto!important;height:auto!important;min-height:170px}}@media (max-width:639px){.wd{display:none!important}}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
     + head_shim)
 
 # ───────────────────────── 3. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
@@ -260,6 +262,10 @@ rv = rep(SPm, "    const CI = { '역사유적':'museum', '신사·사찰':'templ
 rv = rep("map: 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(p.jp), open:",
          "map: 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+(p.ll ? p.ll[0]+','+p.ll[1] : encodeURIComponent(p.jp || p.ko)), open:", src=rv)
 rv = rep("const spots = SP.map(spotOf), sp = S.sheet && S.sheet.type==='spot' ? spots[S.sheet.i] : {};", "const spotsAll = SP.map(spotOf), sp = S.sheet && S.sheet.type==='spot' ? (spotsAll[S.sheet.i] || {}) : {}, _fu = SP.findIndex(p => !(X.isPast || (isT && p.at <= walked))), _st0 = Math.max(0, Math.min(SP.length-4, (_fu < 0 ? SP.length : _fu) - 1)), _st = S.spSt != null ? Math.max(0, Math.min(Math.max(0, SP.length-4), S.spSt)) : _st0, spots = " + WIDE + " ? spotsAll.slice(_st, _st+4) : spotsAll, spPg = { on: " + WIDE + " && SP.length > 4, label: (Math.ceil(_st/4)+1)+'/'+Math.ceil(SP.length/4), prev: () => set({ spSt: Math.max(0, _st-4) }), next: () => set({ spSt: Math.min(SP.length-4, _st+4) }), pO: _st > 0 ? '1' : '.35', nO: _st < SP.length-4 ? '1' : '.35' };", src=rv)
+
+_DD = "(() => { const df = this.dayInfo().diff; return df < 0 ? 'D-'+(-df) : df > 30 ? '완주' : (30-df) === 0 ? 'D-DAY' : 'D-'+(30-df); })()"
+rv = rep("label:'오늘 일정', chip:'완료',", "label:\"TODAY'S JOURNEY · DAY\"+(TODAY+1), chip:" + _DD + ",", src=rv)
+rv = rep("label:'다음 목적지', chip:'걷는 중',", "label:\"TODAY'S JOURNEY · DAY\"+(TODAY+1), chip:" + _DD + ",", src=rv)
 rv = rep("const passed = p.at <= walked, d = Math.abs(p.at - walked);", "const passed = X.isPast || (isT && p.at <= walked), d = Math.abs(p.at - (isT ? walked : 0));", src=rv)
 rv = rep("const spI = S.sheet && S.sheet.type==='spot' ? S.sheet.i : 0, spN = SP.length;", "const spI = S.sheet && S.sheet.type==='spot' ? S.sheet.i : 0, spN = Math.max(1, SP.length);", src=rv)
 rv = rep("const passedN = SP.filter(p => p.at <= walked).length;", "const passedN = SP.filter(p => X.isPast || (isT && p.at <= walked)).length;", src=rv)

@@ -241,6 +241,18 @@ _hd = dc[_la:_sa].replace('계획 대비 누적 거리', '걸은 길 · GPS').re
 _map = '<div data-v8map="log" data-k="log" style="position:relative;height:240px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7;isolation:isolate;z-index:0"></div>'
 _lg = '<span style="display:flex;gap:14px;font-size:12px;color:#4A5D78;flex-wrap:wrap;align-items:center"><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#20A85A"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#E8453C"></i>현재·도착</span><b style="margin-left:auto;color:#18324F">{{ lg2.gpsNote }}</b></span>'
 dc = dc[:_la] + _hd + _map + _lg + dc[_e:]
+# 장소 팝업: 경유지 선택 버튼을 위쪽 → 카드 아래(엄지 닿는 하단)로
+_t0 = dc.index('<div style="position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 14px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px">')
+_t1 = dc.index('</div>', dc.index('{{ sp.tabs }}', _t0)) + len('</div>')
+_tabs = dc[_t0:_t1].replace('position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 14px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px', 'position:relative;flex:none;width:100%;max-width:calc(var(--spotW,560px) + 24px);z-index:2;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 12px calc(env(safe-area-inset-bottom) + 14px)', 1)
+dc = dc[:_t0] + dc[_t1:]
+_c0 = dc.index('<div onClick="{{ keep }}" style="position:relative;z-index:2;width:calc(100% - 24px);max-width:{{ fr.spotW }};max-height:calc(100% - 120px)', _t0 - 50)
+_c0b = dc.index('margin-bottom:14px;background:#fff;border-radius:28px', _c0)
+dc = dc[:_c0b] + 'margin-bottom:10px;background:#fff;border-radius:28px' + dc[_c0b + len('margin-bottom:14px;background:#fff;border-radius:28px'):]
+dc = dc.replace('max-height:calc(100% - 120px);overflow-y:auto', 'max-height:calc(100% - 110px);overflow-y:auto', 1)
+_end = dc.index('</sc-if>', _c0)
+_close = dc.rindex('</div>\n</div>', _c0, _end)  # 카드 닫힘 + 팝업 루트 닫힘
+dc = dc[:_close + len('</div>\n')] + _tabs + '\n' + dc[_close + len('</div>\n'):]
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

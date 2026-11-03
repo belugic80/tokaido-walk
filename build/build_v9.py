@@ -177,6 +177,10 @@ rep('height:70px;border-radius:35px;background:#fff', 'height:58px;border-radius
 rep('flex:1;min-width:0;height:56px;border:0;background:transparent', 'flex:1;min-width:0;height:48px;border:0;background:transparent')
 rep('flex:none;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8)', 'flex:none;width:46px;height:46px;border-radius:50%;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8)')
 rep('flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #F3C3CB', 'flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #F3C3CB')
+# 홈: 경유지 개수가 날짜마다 달라도 카드 높이가 변하지 않게(아래 날짜 이동 카드가 위아래로 안 움직임) — 5줄 고정 + 안쪽 스크롤
+_a = dc.index('<sc-for list="{{ wps }}"')
+_b = dc.index('</sc-for>', _a) + len('</sc-for>')
+dc = dc[:_a] + '<div style="height:226px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;flex:none">' + dc[_a:_b] + '</div>' + dc[_b:]
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
 # 일정 변경 시트: 누르면 실제 동작
 _pi = dc.index('{{ p.bg }}'); _pb = dc.rindex('<button style="', 0, _pi)

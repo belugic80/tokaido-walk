@@ -227,10 +227,10 @@ _pp = """<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">
 """
 rep('<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="장소 팝업"', _pp + '<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="장소 팝업"')
 # 홈 사진 히어로 좌우 날짜 이동 버튼(반투명 흰색)
-_ic = "font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 600;font-size:26px;color:#18324F"
-_b1 = lambda fn, ic, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="width:46px;height:46px;border-radius:50%%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}"><span style="%s">%s</span></button>' % (fn, lab, op, _ic, ic)
-_hb2 = '<span style="position:absolute;right:12px;top:40%;margin-top:-26px;z-index:3;display:flex;align-items:center;gap:2px;padding:3px;border-radius:99px;background:rgba(255,255,255,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(20,30,80,.25)">' + _b1('prev','chevron_left','pO','이전 날') + '<i style="width:1px;height:24px;background:rgba(24,50,79,.18)"></i>' + _b1('next','chevron_right','nO','다음 날') + '</span>'
-rep('<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%', _hb2 + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,18,50,.28) 0%')
+_ic = "font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'wght\' 600;font-size:26px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)"
+_b1 = lambda fn, ic, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="width:56px;height:44px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}"><span style="%s">%s</span></button>' % (fn, lab, op, _ic, ic)
+_hb2 = '<span style="position:absolute;right:18px;top:-44px;display:flex;align-items:center;border-radius:18px 18px 0 0;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(2px) saturate(1.2);border:1px solid rgba(255,255,255,.32);border-bottom:0">' + _b1('prev','chevron_left','pO','이전 날') + '<i style="width:1px;height:22px;background:rgba(255,255,255,.32)"></i>' + _b1('next','chevron_right','nO','다음 날') + '</span>'
+rep('border-radius:20px;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid rgba(255,255,255,.32);padding:12px 14px;display:flex;flex-direction:column;gap:10px">', 'position:relative;border-radius:20px;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(2px) saturate(1.2);border:1px solid rgba(255,255,255,.32);padding:12px 14px;display:flex;flex-direction:column;gap:10px">' + _hb2)
 rep('<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>', '<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>')
 # 사진일기 팝업: 큰 사진 탭 → 전체 화면 보기 / 사진 없음 안내
 rep('<div style="position:relative;min-height:{{ fr.spotH }};border-radius:22px;overflow:hidden;background:{{ dpv.img }};flex:none;', '<div onClick="{{ dpv.openFs }}" aria-label="사진 크게 보기" style="cursor:zoom-in;position:relative;min-height:{{ fr.spotH }};border-radius:22px;overflow:hidden;background:{{ dpv.img }};flex:none;')
@@ -433,6 +433,18 @@ _j0 = dc.index('<sc-for list="{{ jp2.cats }}"'); _j1 = dc.index('</sc-for>', _j0
 dc = dc[:_j0] + dc[_j0:_j1].replace('height:40px;padding:0 14px;border-radius:99px;border:1px solid', 'height:54px;padding:0 24px;border-radius:99px;border:1.5px solid').replace("font:700 14px", "font:800 19px") + dc[_j1:]
 dc = dc.replace('grid-template-columns:{{ fr.jpCols }};gap:10px"', 'grid-template-columns:{{ fr.jpCols }};gap:10px"', 1)
 dc = dc.replace('<span style="font-size:23px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', '<span style="font-size:28px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', 1)
+# 접근성: 12px 이하 글자 키움(시력 고려) — 10·11→13, 12→14. 지도 마커(MAP_JS)는 제외
+import re as _re
+def _fz(m):
+    v = float(m.group(2)); nv = 13 if v < 12 else 14 if v < 13 else v
+    return m.group(1) + (str(int(nv)) if nv == int(nv) else str(nv)) + 'px'
+dc = _re.sub(r'(font-size:)(\d+(?:\.\d+)?)px', lambda m: _fz(m) if float(m.group(2)) < 13 else m.group(0), dc)
+dc = _re.sub(r'(font:\d+ )(\d+(?:\.\d+)?)px', lambda m: _fz(m) if float(m.group(2)) < 13 else m.group(0), dc)
+dc = _re.sub(r"(font:\s*'?\d+'? )(\d+)px", lambda m: _fz(m) if float(m.group(2)) < 13 else m.group(0), dc)
+dc = _re.sub(r'<(button|a)\b[^>]*>', lambda m: m.group(0).replace('height:36px', 'height:44px'), dc)
+# 상단 작은 버튼(36px)을 44px로
+dc = dc.replace('flex:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)', 'flex:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)')
+dc = dc.replace('white-space:nowrap;height:36px;padding:0 12px;border-radius:99px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)', 'white-space:nowrap;height:44px;padding:0 14px;border-radius:99px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.9)')
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

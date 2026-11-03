@@ -117,7 +117,7 @@
     const c = SH[S.sheet] || {};
     const sh = { ...c, barW: c.full ? 'max-content' : '100%', colFlex: c.full ? 'none' : '1', colMin: c.full ? '58px' : '0', barH: c.full ? '210px' : '120px', gap: c.full ? '8px' : '5px', hasBig: !!c.big, hasBars: !!(c.bars && c.bars.length), hasRows: !!c.rows, isNext: !!c.isNext, isPlan: !!c.isPlan, hasCta: !!c.cta, hasCheck: !!c.hasCheck, check: c.check || (() => {}), bars: c.bars || [], xl: c.xl || [], rows: (c.rows || []).map(([k,v],i) => ({ k, v, top: i ? '1px solid #EEF0F7' : '0' })) };
     const goPlan = (day) => () => { set({ sheet:null, sub:'plan', ntab:'more', pd: day, planSaved:false, mapFull:false }); };
-    const MGx = S.mg || {};
+    const MGx = Object.assign({ ends:{}, rest:{}, lodge:{}, mode:{} }, S.mg || {});
     const planOpts = [['flag','오늘 목적지 변경','도착 지점을 다른 역참으로 바꿔요','#EDF0FF','#3B5BDB', goPlan(VW)],['train','구간 열차 이동','걷지 않은 구간은 기록에서 따로 표시됩니다','#F3F0FF','#7048E8', goPlan(VW)],['bedtime','휴식일 추가','내일을 쉬고 이후 일정을 하루씩 미룹니다','#E7F5FF','#1C7ED6', () => { const n = Math.min(31, VW+1); set({ mg:{...MGx, rest:{...(MGx.rest||{}), [n]: true}}, sheet:null }); }],['event_repeat','내일 일정 재조정','오늘 도착지에 맞춰 내일 출발지를 바꿉니다','#FFF4E5','#B5650B', goPlan(Math.min(31, VW+1))]].map(([icon,label,sub,bg,fg,run]) => ({ icon,label,sub,bg,fg,run }));
     const active = S.mapFull ? 'map' : S.ntab;
     const tabs = [['home','home','홈'],['map','map','지도'],['journey','route','여정'],['log','edit_note','기록'],['more','more_horiz','더보기']].map(([k,icon,label]) => { const on = k === active; return { icon, label, bg: on ? '#EDF0FF' : 'transparent', fg: on ? '#3B5BDB' : '#6B7A90', pick: () => k === 'map' ? set({ mapFull:true, sub:null }) : set({ ntab:k, mapFull:false, sub:null }) }; });
@@ -193,7 +193,7 @@
       line30: Math.round(30/42*120)+'px', chart: ALL.map(d => { const on = d.n === PDi; return { h: Math.max(4, Math.round(d.km/42*120))+'px', c: on ? '#7048E8' : d.km > 30 ? '#F06A7F' : started && d.n < TD ? '#8B9CF0' : '#C5CCEE', ol: on ? '2px solid #C9B8F5' : 'none', pick: () => set({ pd:d.n, planSaved:false }) }; }),
       search: qmap(JP[pEnd]+' ホテル'), mapEmbed: 'https://www.google.com/maps?q='+encodeURIComponent(((LFd.name ?? '') || (confP && HTd.ll && !/^35\.0,138\.5$/.test(HTd.ll) ? HTd.ll : JP[pEnd]+'駅 ホテル')))+'&z=15&output=embed',
       sum:[{icon:'route',k:'31일 거리',v:Math.round(ST[Math.min(55, ALL[30].e)].km)+'km'},{icon:'flag',k:'30km 초과',v:ALL.filter(d => d.km - d.tr > 30).length+'일'},{icon:'hotel',k:'숙소 확정',v:Object.values(HT).filter(h => h && h.ko).length+' / 31'}],
-      saveLabel: S.planSaved ? '저장됨 ✓' : '변경 저장', saveBg: S.planSaved ? 'linear-gradient(135deg,#2F9E44,#51CF66)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)', save: () => set({ planSaved:true }), reset: () => set({ mg:{}, planSaved:false }) };
+      saveLabel: S.planSaved ? '저장됨 ✓' : '변경 저장', saveBg: S.planSaved ? 'linear-gradient(135deg,#2F9E44,#51CF66)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)', save: () => set({ planSaved:true }), reset: () => set({ mg:null, planSaved:false }) };
     { const _pk = (i) => () => set({ mg:{...MGx, ends:{...(MGx.ends||{}), [PDi]: i}, rest:{...(MGx.rest||{}), [PDi]: i === P2.s}}, planSaved:false });
       const _o = PLAN[PDi][1] !== PLAN[PDi][0] ? PLAN[PDi][1] : Math.min(55, P2.s + 2);
       pl2.restOn = pEnd === P2.s; pl2.walkOn = pEnd !== P2.s;
@@ -201,6 +201,9 @@
       pl2.wBg = pl2.walkOn ? '#fff' : 'transparent'; pl2.wFg = pl2.walkOn ? '#3B5BDB' : '#6B7A90';
       pl2.wSh = pl2.walkOn ? '0 2px 6px rgba(40,50,140,.15)' : 'none';
       pl2.goRest = _pk(P2.s); pl2.goWalk = pEnd !== P2.s ? () => {} : _pk(_o);
+      pl2.allWalk = () => { const mode = { ...(MGx.mode || {}) }; delete mode[PDi]; set({ mg:{...MGx, mode}, planSaved:false }); };
+      pl2.agoda = 'https://www.agoda.com/ko-kr/search?textToSearch=' + encodeURIComponent(JP[pEnd] + '駅');
+      pl2.hasChg = !!(MGx.ends[PDi] != null || MGx.rest[PDi] || (MGx.mode || {})[PDi]);
       pl2.goal = pl2.restOn ? '이 날은 쉬어요' : KO[pEnd] + '까지 · ' + pl2.km; }
 
     // ───── 스탬프 · 배지 ─────

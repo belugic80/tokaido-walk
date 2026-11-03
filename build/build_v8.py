@@ -120,6 +120,22 @@ _s0 = dc.index('<sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">\n<
 _s1 = dc.index('</sc-for>', _s0) + len('</sc-for>')
 _LIST = dc[_s0:_s1]
 dc = dc[:_h0] + '<div style="display:flex;flex-direction:column;border-radius:18px;background:rgba(255,255,255,.6);padding:2px 14px"><span style="font-size:14px;font-weight:800;padding:12px 0 2px">오늘의 경유지</span>' + _LIST + '</div>' + dc[_h1:]
+# ───── 일정 관리: 예전 기능(교통 이용 구간·휴식일·빠른 변경·숙소 상태) 을 디자인 카드로 추가 ─────
+GLASS = 'border-radius:24px;padding:16px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:10px;min-width:0'
+CHIP = lambda lst, v: ('<div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ ' + lst + ' }}" as="' + v + '" hint-placeholder-count="4"><button onClick="{{ ' + v + '.pick }}" style="height:40px;padding:0 14px;border-radius:99px;border:1px solid {{ ' + v + '.bd }};background:{{ ' + v + '.bg }};color:{{ ' + v + '.fg }};font:700 14px \'Pretendard Variable\',Pretendard,sans-serif;white-space:nowrap;cursor:pointer">{{ ' + v + '.label }}<span style="font-size:12px;opacity:.75;margin-left:4px">{{ ' + v + '.sub }}</span></button></sc-for></div>')
+LAB = lambda t: '<span style="font-size:13px;font-weight:700;color:#4A5D78">' + t + '</span>'
+_TR = ('<div style="' + GLASS + '"><span style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">교통 이용</b>'
+       '<button onClick="{{ pl.tr.clear }}" style="height:34px;padding:0 12px;border-radius:99px;border:1px solid #DCE0F7;background:rgba(255,255,255,.8);color:#3B5BDB;font:700 13px Pretendard,sans-serif;opacity:{{ pl.tr.clearO }}">전부 걷기</button></span>'
+       '<span style="font-size:15px;font-weight:800;color:#3B5BDB">{{ pl.tr.summary }}</span><span style="font-size:13px;color:#4A5D78">{{ pl.tr.walk }}</span>'
+       + LAB('수단') + CHIP('pl.tr.modes', 'c') + LAB('타는 곳') + CHIP('pl.tr.boards', 'c') + LAB('내리는 곳') + CHIP('pl.tr.alights', 'c') + '</div>'
+       '<div style="' + GLASS + '"><span style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">빠른 변경</b>'
+       '<button onClick="{{ pl.rest.toggle }}" style="height:36px;padding:0 14px;border-radius:99px;border:0;background:{{ pl.rest.bg }};color:{{ pl.rest.fg }};font:800 13px Pretendard,sans-serif">{{ pl.rest.label }}</button></span>'
+       '<sc-for list="{{ pl.actions }}" as="a" hint-placeholder-count="3"><button onClick="{{ a.run }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.7);text-align:left;font-family:inherit;color:#18324F;opacity:{{ a.o }};cursor:pointer"><b style="font-size:15px">{{ a.t }}</b><span style="font-size:12px;color:#4A5D78">{{ a.s }}</span></button></sc-for>'
+       '<span style="font-size:12px;color:#6B7A90">{{ pl.note }}</span></div>')
+_pe = dc.index('</sc-for></div>\n</div>\n</div>\n', dc.index('{{ pl.ends }}')) + len('</sc-for></div>\n</div>\n')
+dc = dc[:_pe] + _TR + dc[_pe:]
+_ls = dc.index('{{ pl.lodgeSt }}</span></span>') + len('{{ pl.lodgeSt }}</span></span>')
+dc = dc[:_ls] + CHIP('pl.lst', 'c') + dc[_ls:]
 # 머리글 문구·날씨를 실제 값으로
 rep('<span style="font-size:13px;color:#4A5D78">도카이도 종주 · {{ todayN }}일째</span>', '<span style="font-size:13px;color:#4A5D78">{{ headSub }}</span>')
 rep("font-size:18px;color:#E0861A;\">sunny</span>18°</span>", "font-size:18px;color:{{ wxNow.c }};\">{{ wxNow.icon }}</span>{{ wxNow.t }}</span>")
@@ -304,7 +320,7 @@ rv = rv[:LGa] + r"""    // log (실제 기록)
     const rec = { label: X.recLabel, prev: HO.recPrev, next: HO.recNext, pO: String(HO.recPrevOp), nO: String(HO.recNextOp), key: X.recIso+'|'+(HO.trkN||0),
       facts: [{k:'걸은 거리',v: RR.km ? (+RR.km).toFixed(1)+'km' : '—'},{k:'걸음',v: RR.steps ? f1(RR.steps) : '—'},{k:'걸은 시간',v: RR.min != null ? Math.floor(RR.min/60)+':'+String(RR.min%60).padStart(2,'0') : '—'}],
       bars: hrsL.map((v,k) => ({ h: Math.max(3, Math.round(v/hmx*90))+'px', c: v ? 'linear-gradient(180deg,#74C0FC,#1C7ED6)' : 'rgba(24,50,79,.1)', l: String(6+k), v: v >= 1000 ? (v/1000).toFixed(1)+'천' : v ? String(v) : '' })),
-      hourNote: (X.hcH && X.hcH.note) || '', mapNote: HO.trkN ? '폰 위치 기록 '+HO.trkN+'점 · 보라 실선 = 걸음 · 주황 점선 = 차량·전철' : '이 날은 기록된 위치가 없어요' };
+      tr: (O.mg && O.mg.n === X.today) ? O.mg.trSummary : (TRN[X.today] ? '교통 구간 있음' : '교통 없이 전부 걸어요'), goPlan: () => { this.setState({ mgDay: X.today }); set({ t:'more', sub:'plan', sheet:null }); }, hourNote: (X.hcH && X.hcH.note) || '', mapNote: HO.trkN ? '폰 위치 기록 '+HO.trkN+'점 · 보라 실선 = 걸음 · 주황 점선 = 차량·전철' : '이 날은 기록된 위치가 없어요' };
     const lg = {
       cond: CKS.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condT[k]===n; return { v:n, bg: on ? (n>=4?'linear-gradient(135deg,#C92A42,#F06A7F)':n>=2?'linear-gradient(135deg,#7048E8,#9775FA)':'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : 'rgba(255,255,255,.75)', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...bl,[ISO]:{...condT,[k]:n}}, condSaved:false }) }; }) })),
       condBtn: S.condSaved ? '저장됨 ✓' : '저장', condBtnBg: S.condSaved ? '#E4F8EC' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)', condBtnFg: S.condSaved ? '#16804A' : '#fff', saveCond: () => set({ condSaved:true, bodyLog:{...bl,[ISO]:{...condT}} }),
@@ -393,6 +409,23 @@ for a_, b_ in [("const on = d.i === S.pd, ch = S.pe[d.i] != null && S.pe[d.i] !=
                ("reset: () => set({ pe:{}, lf:{}, planSaved:false }) };", "reset: () => set({ mg:{}, planSaved:false }) };")]:
     rv = rep(a_, b_, src=rv)
 rv = rv.replace("e.target.value}}, planSaved:false }) })),", "e.target.value}}}, planSaved:false }) })),", 1)
+rv = rep("reset: () => set({ mg:{}, planSaved:false }) };", """reset: () => set({ mg:{}, planSaved:false }) };
+    { const OM = O.mg || {}, dfp = this.dayInfo().diff;
+      pl.d = { n: OM.n, date: OM.dateLabel }; pl.startName = OM.startName; pl.endName = OM.endName; pl.km = OM.km === '0' ? '휴식' : OM.km+'km'; pl.warn = OM.warn === '무리한 거리예요';
+      pl.days = Array.from({length:31},(x,k) => { const n = k+1, on = n === OM.n; return { n, bg: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'rgba(255,255,255,.7)', fg: on ? '#fff' : dfp >= 0 && n < X.today ? '#8C96C2' : '#18324F', bd: on ? 'transparent' : 'rgba(255,255,255,.95)', sh: on ? '0 6px 14px rgba(91,111,212,.3)' : 'none', dot: dfp >= 0 && n === X.today ? (on ? '#fff' : '#3B5BDB') : 'transparent', pick: () => this.setState({ mgDay:n, mgSaved:false }) }; });
+      pl.ends = (OM.ends || []).map(e => { const on = e.note === '선택됨', ov = e.note === '30km 초과'; return { name:e.name, jp:e.jp, km:e.km+'km', bg: on ? '#EDF0FF' : 'rgba(255,255,255,.7)', bd: on ? '#8B9CF0' : 'rgba(255,255,255,.95)', ring: on ? '0' : '2px solid '+(ov ? '#E0861A' : '#C5CCEE'), dotBg: on ? '#3B5BDB' : 'transparent', dotD: on ? 'block' : 'none', pick: e.pick }; });
+      const hh0 = HT[OM.n] || HT[String(OM.n)], ls = OM.lodgeStLabel === '미정' && hh0 && hh0.ko ? '예약 확정' : OM.lodgeStLabel; pl.lodgeSt = ls; pl.lodgeBg = ls === '예약 확정' ? '#E4F8EC' : ls === '후보' ? '#FFF3D8' : 'rgba(24,50,79,.06)'; pl.lodgeFg = ls === '예약 확정' ? '#16804A' : ls === '후보' ? '#8A5A0E' : '#6B7A90';
+      pl.lst = (OM.lodgeSt || []).map(x => ({ label:x.t, sub:'', ...chipOf(x.t === ls), pick:x.pick }));
+      pl.fields = [{k:'숙소 이름',ph:OM.lodgePh,v:OM.lodgeName || (hh0 && hh0.ko) || '',on:OM.onLodgeName},{k:'1박 요금 (엔)',ph:'0',v:OM.lodgePriceF,on:OM.onLodgePrice},{k:'체크인',ph:'16:00',v:OM.lodgeIn,on:OM.onLodgeIn}];
+      pl.search = OM.lodgeSearch; pl.sumKm = OM.totalKm+'km'; pl.over = OM.overCount+'일'; pl.conf = Math.max(OM.okCount, Object.values(HT).filter(h => h && h.ko).length)+' / 31';
+      pl.saveLabel = S.mgSaved ? '저장됨 ✓' : '변경 저장'; pl.saveBg = S.mgSaved ? 'linear-gradient(135deg,#2F9E44,#51CF66)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)'; pl.save = OM.save; pl.reset = OM.resetAll;
+      const pick3 = b => b.border === '#0E8DA8';
+      pl.tr = { summary: OM.trSummary, walk: '걷기 '+OM.walkKm+'km · 교통 '+OM.trKm+'km', clear: OM.trClear, clearO: String(OM.trClearOp),
+        modes: (OM.modes || []).map(m => ({ label:m.label, sub:'', ...chipOf(m.sub === '선택됨'), pick:m.pick })),
+        boards: (OM.boards || []).map(b => ({ label:b.label, sub:b.sub, ...chipOf(pick3(b)), pick:b.pick })),
+        alights: (OM.alights || []).map(b => ({ label:b.label, sub:b.sub, ...chipOf(pick3(b)), pick:b.pick })) };
+      const rOn = OM.km === '0'; pl.rest = { label: OM.restLabel, toggle: OM.toggleRest, bg: rOn ? '#E7F5FF' : 'linear-gradient(135deg,#7048E8,#9775FA)', fg: rOn ? '#1C7ED6' : '#fff' };
+      pl.actions = (OM.actions || []).map(a => ({ t:a.t, s:a.s, run:a.run, o:String(a.op) })); pl.note = OM.changeNote; }""", src=rv)
 # 역참 스탬프: 기존 방문 기록(smode: 걸어서/교통/해제)
 i, j = cut('    const sts = S.stamps,', '    const stp = {')
 rv = rv[:i] + "    const SM = S.smode || {}, tStart = this.dayInfo().diff >= 0 ? dayData(X.today).startKm : -1, MOD = k => SM[k] ?? (KM[k] <= tStart + .01 ? 'w' : 'n'), sts = Array.from({length:53},(x,k) => ({w:1,t:2,n:0})[MOD(k)]), walkN = sts.filter(x=>x===1).length, trN = sts.filter(x=>x===2).length;\n    const BGS = (O.badges || []);\n" + rv[j:]
@@ -430,6 +463,9 @@ rv = rep("    const STN = X.stationsDone;\n", """    const STN = X.stationsDone;
       info: { big: _w && _w.now != null ? Math.round(_w.now)+'°' : '—', pct:'0%', barD:'none', line: '100엔 = '+_r100+'원' + (_w && _w.d && _w.d.precipitation_probability_max ? ' · 강수 '+_w.d.precipitation_probability_max[0]+'%' : '') }
     };
 """, src=rv)
+# 기록 탭: 오늘 이동(교통) 요약 + 일정 관리로 바로 가기
+_lt = dc.index('<span style="font-size:14px;font-weight:800">걸은 길</span>')
+dc = dc[:_lt] + ('<button onClick="{{ rec.goPlan }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.7);font-family:inherit;color:#18324F;text-align:left;cursor:pointer"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:12px;color:#4A5D78">오늘 이동 · 교통 이용</span><b style="font-size:15px;color:#3B5BDB">{{ rec.tr }}</b></span><span style="flex:none;font-size:13px;font-weight:800;color:#3B5BDB;white-space:nowrap">바꾸기 ›</span></button>') + dc[_lt:]
 # 마지막으로 보던 화면 전환(t, sheet 등)은 기존 상태와 겹치지 않음. 오늘 날짜(ISO)도 꺼내 줌
 OLD = rep("today, view, places },", "today, view, places, hcH, hcR, recLabel, recIso, iso: (() => { const q = new Date(); return q.getFullYear()+'-'+String(q.getMonth()+1).padStart(2,'0')+'-'+String(q.getDate()).padStart(2,'0'); })() },", src=OLD)
 OLD = rep("  state = { theme: null,", "  state = { ...this.nInit(), theme: null,", src=OLD)

@@ -27,7 +27,7 @@ rep("w:'760px', h:'860px', r:'28px'", "w:'100%', h:'100lvh', r:'0'")
 rep("w:'390px', h:'844px', r:'44px'", "w:'100%', h:'100lvh', r:'0'")
 WIDE = "(typeof window !== 'undefined' && window.innerWidth >= 640)"
 rep("const F = !!this.props.fold || this.props.go==='flex'", "const F = " + WIDE)
-rep("mapAR:'auto', mapHt:'630px',", "mapAR:'auto', mapHt:'calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)',")
+rep("mapAR:'auto', mapHt:'630px',", "mapAR:'auto', mapHt:'calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px - 76px)',")
 rep("F ? { areas:'\"a d\" \"b e\" \"c f\"',", "F ? { areas: isT ? '\"a d\" \"b e\" \"c f\"' : '\"a d\" \"a e\" \"c f\"',")
 rep("this.props.fold", WIDE, cnt=3)
 
@@ -129,6 +129,12 @@ _ITIN = ('<div class="wd" style="flex:1;border-radius:24px;padding:6px 16px 14px
          '<span style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘의 경유지</b><span style="font-size:13px;color:#4A5D78">{{ v.dist }}</span></span>'
          + '<div style="flex:none;height:330px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain">' + _LIST + '</div><div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:12px">' + _TOTIN + '<div style="flex:none">' + _DATEBAR.replace('<div style="display:flex;align-items:center;gap:6px;padding:6px;', '<div style="flex:none;min-height:64px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:6px;', 1) + '</div></div></div>')
 dc = dc[:_t0] + _ITIN + dc[_t1:]
+# 지도 탭에도 같은 날짜 이동 바 (그날 경로를 바로 넘겨 보기)
+_mg = '<div class="eq2" style="display:grid;grid-template-columns:{{ fr.mapCols }};gap:12px;padding:0 16px;align-items:stretch"'
+assert dc.count('<div class="eq2" style="display:grid;grid-template-columns:{{ fr.mapCols }};gap:12px;padding:0 16px;align-items:stretch"') == 1
+_mi = dc.index(_mg)
+dc = dc[:_mi] + '<div class="mbar" style="padding:0 16px 12px">' + _DATEBAR + '</div>' + dc[_mi:].replace('<div class="eq2"', '<div class="eq2 mgrid"', 1)
+
 # 다음 날 카드를 지도 아래로 옮겨서, 오른쪽 오늘의 경유지가 더 많이 보이게
 _n0 = dc.index('<sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">\n<button onClick="{{ next }}"')
 _n1 = dc.index('</sc-if>', _n0) + len('</sc-if>')
@@ -222,7 +228,7 @@ rep('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="apple-mobile-web-app-status-bar-style" content="default">'
     '<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png">'
     '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
-    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.sph{min-height:84px;box-sizing:border-box;padding:6px 16px!important;flex-wrap:wrap;align-content:center;row-gap:4px;border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08)}}.combo .eq2{min-height:0!important;margin-bottom:12px}@media (min-width:640px){.hs+.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px - 70px)!important}}@media (min-width:640px){.nw{display:none!important}.eq2>div>:has([data-v8map="home"]){flex:1 1 auto!important;height:auto!important;min-height:170px}}@media (max-width:639px){.wd{display:none!important}}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
+    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.sph{min-height:84px;box-sizing:border-box;padding:6px 16px!important;flex-wrap:wrap;align-content:center;row-gap:4px;border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08)}}.combo .eq2{min-height:0!important;margin-bottom:12px}@media (min-width:640px){.eq2.mgrid{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px - 76px)!important}}@media (min-width:640px){.hs+.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px - 70px)!important}}@media (min-width:640px){.nw{display:none!important}.eq2>div>:has([data-v8map="home"]){flex:1 1 auto!important;height:auto!important;min-height:170px}}@media (max-width:639px){.wd{display:none!important}}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
     + head_shim)
 
 # ───────────────────────── 3. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────

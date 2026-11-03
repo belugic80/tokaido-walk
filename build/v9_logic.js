@@ -67,7 +67,7 @@
     const LV = S.hc && S.hc.live, hhmmI = iso => { const d = new Date(iso); return isNaN(d) ? '—' : String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
     const recvMs = LV && LV.last_recv ? Date.parse(LV.last_recv) : 0, ageMin = recvMs ? Math.max(0, Math.round((Date.now() - recvMs) / 6e4)) : null;
     const wState = S.hc && S.hc.err && !LV ? 'err' : ageMin == null ? 'wait' : ageMin <= 25 ? 'ok' : ageMin <= 70 ? 'late' : 'off';
-    const wLabel = { ok:'워치 연결됨', late:'워치 지연 '+ageMin+'분', off:'워치 끊김 · '+ageMin+'분', wait:'연결 확인 중', err:'연결 오류' }[wState];
+    const wLabel = { ok:'워치 연결됨', late:'워치 지연 '+ageMin+'분', off:'워치 끊김 · 다시 시도 ↻', wait:'연결 확인 중', err:'연결 오류 · 다시 시도 ↻' }[wState];
     const wCol = { ok:['#3B5BDB','rgba(59,91,219,.15)'], late:['#E0861A','rgba(224,134,26,.2)'], off:['#E5484D','rgba(229,72,77,.18)'], wait:['#C5CCEE','rgba(197,204,238,.3)'], err:['#E5484D','rgba(229,72,77,.18)'] }[wState];
     const syncT = recvMs ? hhmmI(recvMs) : (S.hc && S.hc.at) ? hhmmI(S.hc.at) : '—';
     const tiles = [
@@ -227,7 +227,7 @@
     const diary2 = Array.from({length:diaryN}, (x,k) => ALL[diaryN-1-k]).map(d => { const has = started && d.n <= TD, nt = NL[isoOf(dateOf(d.n))], isTd = d.n === TD && started;
       return { n:d.n, date:d.date, path:d.path, km: d.rest ? '휴식' : d.km+'km', grad: has ? imgs(d.n)[0] : 'linear-gradient(135deg,#B8BED8,#D6D9EA)', icon: has ? '' : 'add_a_photo', note: nt ? '“'+nt+'”' : has ? '남긴 글 없음' : '오늘 사진과 한 줄을 남겨 보세요', nc: nt ? '#3A4D68' : '#6B7A90', slot: 'day-'+d.n+'-photo-1', slotCls: isTd ? '' : 'ro', stopIf: isTd ? (e => e.stopPropagation()) : null, open: () => { this.loadSlots(); set({ dp:d.n, dpi:0 }); } }; });
     const DPN = S.dp != null ? S.dp : 1, DPD = ALL[DPN-1], dpPast = started && DPN < TD, dpTd = started && DPN === TD, dpHas = (dpPast || dpTd) && !DPD.rest, dpHc = hcOf(DPN), SI = S.slotImgs || {}, myPh = [1,2,3,4,5].map(j => SI['day-'+DPN+'-photo-'+j]).filter(Boolean).map(u => "url('"+u+"') center/cover no-repeat"), dpIm = myPh.length ? myPh : imgs(DPN), dpCnt = dpIm.length, dpi = Math.min(S.dpi || 0, dpCnt-1), dpNote = NL[isoOf(dateOf(DPN))];
-    const dpv = { n:DPN, date:DPD.date, km: DPD.rest ? '휴식' : DPD.km+'km', path:DPD.path, jp:DPD.jp, cnt:dpCnt, imgN:dpi+1, bg: dpIm[dpi], img: dpHas || myPh.length ? dpIm[dpi] : 'linear-gradient(135deg,#8B9CF0,#C9B8F5)', hasPh: dpHas || myPh.length > 0, mine: myPh.length > 0,
+    const dpv = { fsOpen: !!S.fsImg, openFs: () => set({ fsImg: true }), closeFs: () => set({ fsImg: false }), n:DPN, date:DPD.date, km: DPD.rest ? '휴식' : DPD.km+'km', path:DPD.path, jp:DPD.jp, cnt:dpCnt, imgN:dpi+1, bg: dpIm[dpi], img: dpHas || myPh.length ? dpIm[dpi] : 'linear-gradient(135deg,#8B9CF0,#C9B8F5)', hasPh: dpHas || myPh.length > 0, mine: myPh.length > 0,
       upFull: [1,2,3,4,5].every(j => SI['day-'+DPN+'-photo-'+j]), upO: [1,2,3,4,5].every(j => SI['day-'+DPN+'-photo-'+j]) ? '.4' : '1',
       upload: async e => { const files = [...((e.target && e.target.files) || [])]; try { e.target.value = ''; } catch (x) {} const free = [1,2,3,4,5].filter(j => !SI['day-'+DPN+'-photo-'+j]); for (let i = 0; i < files.length && i < free.length; i++) { const el = document.createElement('image-slot'); el.id = 'day-'+DPN+'-photo-'+free[i]; el.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:900px'; document.body.appendChild(el); try { await customElements.whenDefined('image-slot'); if (el._ingest) await el._ingest(files[i]); } catch (x) {} setTimeout(() => el.remove(), 300); } setTimeout(() => this.loadSlots(), 500); setTimeout(() => this.loadSlots(), 2500); },
       thumbs: dpIm.map((bg,k) => ({ bg, ol: k === dpi ? '2px solid #5B6FD4' : 'none', pick: () => set({ dpi:k }) })),
@@ -236,6 +236,7 @@
       wps: DPD.stops.map((s,k) => ({ no: s.i <= 52 ? s.i+1 : '·', ko:s.ko.replace(/\(.*\)/, ''), jp:s.jp, km: DPD.rest ? '휴식' : s.rel.toFixed(1)+'km', top: k ? '1px solid #EEF0F7' : '0', bg: k === DPD.stops.length-1 ? '#7048E8' : '#3B5BDB' })),
       prev: () => DPN > 1 && set({ dp:DPN-1, dpi:0 }), next: () => DPN < Math.max(1, TD) && set({ dp:DPN+1, dpi:0 }), pO: DPN > 1 ? '1' : '.3', nO: DPN < Math.max(1, TD) ? '1' : '.3',
       detail: () => set({ dp:null, sub:'day', dayN:DPN }), close: () => set({ dp:null }) };
+    dpv.fsBg = String(dpv.img).replace('cover','contain'); dpv.noPh = !dpv.hasPh;
 
     // ───── 일본어 ─────
     const PHD = { '필수': PH.filter(p => p[4]).map(p => [p[3], p[1], p[2]]) }; PH.forEach(p => (PHD[p[0]] = PHD[p[0]] || []).push([p[3], p[1], p[2]]));
@@ -372,7 +373,7 @@
       md: { gps: walking ? 'GPS 기록 중' : '일시 정지', bg: walking ? '#E4F8EC' : '#FFF3D8', fg: walking ? '#16804A' : '#8A5A0E', hrDot: walking ? '#2F9E44' : '#C5CCEE', toggle: walking ? '일시 정지' : '계속 걷기' },
       dn: { stats: dnC.stats, wps: dnC.wps, photos: dnC.photos },
       plc, tt, dn2, sp, spotOpen: S.spot != null, closeSpot: () => set({ spot:null }), sheetOpen: !!S.sheet, mapFull: S.mapFull, mode: S.mode, toast: !!S.toast, done: S.done,
-      openWatch: () => set({ sheet:'watch' }), openPlan: () => set({ sheet:'plan' }), openNext: () => set({ spot:ni, spotImg:0 }), openMap: () => set({ mapFull:true }), closeMap: () => set({ mapFull:false }),
+      openWatch: () => { if (wState === 'err' || wState === 'off') { try { this.loadHc(); } catch (e) {} } set({ sheet:'watch' }); }, openPlan: () => set({ sheet:'plan' }), openNext: () => set({ spot:ni, spotImg:0 }), openMap: () => set({ mapFull:true }), closeMap: () => set({ mapFull:false }),
       closeSheet: () => this.closeSheet(), keep: e => e.stopPropagation(),
       start: () => set({ walk:'walking', wsrc:'phone', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
       watchStart: () => set({ walk:'walking', wsrc:'watch', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),

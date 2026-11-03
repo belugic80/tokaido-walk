@@ -178,7 +178,8 @@ OLD = rep('  renderVals() {', '  oldVals() {', src=OLD)
 OLD = rep('\n    return {\n      morePlaces:', '\n    return { _x: { dd, n, stage, reached, done, isToday, isPast, walked, remain, steps, mins, hcT, stationsDone, posKmF, eta, today, view, places, hcH, hcR, recLabel, recIso, iso: (() => { const q = new Date(); return q.getFullYear()+"-"+String(q.getMonth()+1).padStart(2,"0")+"-"+String(q.getDate()).padStart(2,"0"); })() },\n      morePlaces:', src=OLD)
 OLD = rep("synced: v.synced || '' };", "synced: v.synced || '', sleep: v.sleepMin == null ? null : v.sleepMin, weight: v.weight == null ? null : v.weight };", src=OLD)
 PERSIST_OLD = "'bodyLog', "
-OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', ", src=OLD)
+OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
+OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
 NEWJS = open(os.path.join(HERE, 'v9_logic.js'), encoding='utf-8').read()
 HEROS = sorted(os.listdir(os.path.join(ROOT, 'assets', 'hero')))
@@ -187,8 +188,16 @@ i0 = NEWJS.index('  renderVals() {')
 NINIT = NEWJS[:i0]
 RV = NEWJS[i0:]
 OLD = rep("  state = { theme: null,", "  state = { ...this.nInit(), theme: null,", src=OLD)
-OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } }, 1000); } catch (e) {}", src=OLD)
+OLD = rep("  componentDidMount() {", "  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } if (this.state.walk !== 'walking' && this.state.walk !== 'paused' && (this._ac = (this._ac || 0) + 1) % 10 === 0) this.autoWatch(); }, 1000); setTimeout(() => this.autoWatch(), 4000); } catch (e) {}", src=OLD)
 METH = '''
+  autoWatch() { try {
+    const S = this.state, iso = this.todayIso(); if (S.wNoAuto === iso) return;
+    if (S.stageDate === iso && S.stage > 0) return;
+    const h = S.hc && S.hc.days && S.hc.days[iso]; if (!h || !h.hourly || !S.hc.at || Date.now() - S.hc.at > 30 * 6e4) return;
+    const n = new Date(), hr = n.getHours(), hv = h.hourly, cur = +hv[hr] || 0, prev = n.getMinutes() < 25 ? (+hv[hr - 1] || 0) : 0;
+    if (cur + prev < 500) return;
+    this.setState({ walk: 'walking', wsrc: 'watch', wStart: Date.now() - 5 * 6e4, wPausedMs: 0, wPauseAt: null, wDay: iso, stageDate: iso, stage: Math.max(1, S.stage || 0), toast: { a: '와치 걷기 감지', b: '기록을 시작했어요' } }); setTimeout(() => this.setState({ toast: null }), 4000);
+  } catch (e) {} }
   todayIso() { const q = new Date(); return q.getFullYear() + '-' + String(q.getMonth() + 1).padStart(2, '0') + '-' + String(q.getDate()).padStart(2, '0'); }
   closeSheet() { this.setState({ sheet: null }); }
   closeSub() { this.setState({ sub: null }); }

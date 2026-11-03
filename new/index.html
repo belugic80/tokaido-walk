@@ -826,7 +826,7 @@ class Component extends DCLogic {
   today() { return this.dayInfo().day; }
   dayInfo() { const n = new Date(), a = new Date(n.getFullYear(), n.getMonth(), n.getDate()), s = new Date(2026, 11, 4), diff = Math.round((a - s) / 86400000); return { diff, day: Math.max(1, Math.min(31, diff + 1)) }; }
   view() { return this.state.view ?? this.today(); }
-  stageFor(d, n) { const t = this.today(); if (this.dayInfo().diff < 0) return 0; return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }
+  stageFor(d, n) { const t = this.today(); return d < t ? n : d > t ? 0 : Math.min(this.state.stage, n); }
 
   selectPlace(i) { this.setState(s => ({ mapMode: s.mapMode === 'p' + i ? 'route' : 'p' + i })); }
   setMode(m) { this.setState(s => ({ mapMode: s.mapMode === m ? 'route' : m })); }
@@ -836,8 +836,8 @@ class Component extends DCLogic {
   popMapRef = React.createRef();
   routeCache = {};
   amenCache = {};
-  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } }, 1000); } catch (e) {} this.loadFx(); this.loadWx(); this.loadHc(); this.watchGps(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
-  componentDidUpdate() { try { const _d = {}; ['track', 'passed', 'smode', 'exp', 'body', 'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
+  componentDidMount() { try { window.addEventListener('popstate', () => this.hwBack()); } catch (e) {} try { if (this.state.stageDate !== this.todayIso()) this.setState({ stage: this.dayInfo().diff < 0 ? 0 : 0, stageDate: this.todayIso(), walk: null }); } catch (e) {} try { this._tk = setInterval(() => { if (this.state.walk === 'walking') { this._c = (this._c || 0) + 1; if (this.state.mode || this._c % 15 === 0) this.setState({ tick: Date.now() }); } if (this.state.walk !== 'walking' && this.state.walk !== 'paused' && (this._ac = (this._ac || 0) + 1) % 10 === 0) this.autoWatch(); }, 1000); setTimeout(() => this.autoWatch(), 4000); } catch (e) {} this.loadFx(); this.loadWx(); this.loadHc(); this.watchGps(); const tick = () => { if (!window.L) return void (this._lt = setTimeout(tick, 150)); this.ensureMaps(); }; tick(); this.loadDay(this.view()); }
+  componentDidUpdate() { try { const _d = {}; ['track', 'passed', 'smode', 'exp', 'body', 'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', 'wToday', 'mg', 'mgSaved', 'note', 'memoSaved', 'dayNotes', 'dayNoteSaved', 'expSaved', 'theme', 'stage', 'lodgeOk', 'amenOn', 'fxRate', 'fxAmt', 'fxDir'].forEach(k => { if (this.state[k] !== undefined) _d[k] = this.state[k]; }); localStorage.setItem('tk-v15-data', JSON.stringify(_d)); } catch (e) {} try { localStorage.setItem('tk-v15-tab', this.state.tab); localStorage.setItem('tk-v15-sub', this.state.moreSub || ''); localStorage.setItem('tk-v15-view', this.state.view ?? ''); } catch (e) {} this.loadDay(this.view()); this.ensureMaps(); }
   loadWx() {
     try { const c = JSON.parse(localStorage.getItem('tk-wx') || 'null'); if (c && Date.now() - c.ts < 6 * 36e5 && !this.state.wlive) this.setState({ wlive: c }); } catch (e) {}
     const apply = (lat, lon, src) => {
@@ -1548,6 +1548,14 @@ class Component extends DCLogic {
 
   nInit() { return { walk: null, wsrc: 'watch', sheet: null, mode: false, toast: null, lo: 0, ntab: 'home', sub: null, dayN: null, dp: null, dpi: 0, jw: null, pd: null, trm: 'train', planSaved: false, jc: '필수', ji: 0, jpBig: false, condSaved: false, condEdit: false, cur: 'jpy', amt: '', ncat: '식비', sf: 'all', nfxDir: 'jk', fxv: '3,000', wtIn: '', dark: false, spot: null, spotImg: 0, done: false, mapFull: false, ctlOpen: false, amen: null, lc: {}, tick: 0 }; }
 
+  autoWatch() { try {
+    const S = this.state, iso = this.todayIso(); if (S.wNoAuto === iso) return;
+    if (S.stageDate === iso && S.stage > 0) return;
+    const h = S.hc && S.hc.days && S.hc.days[iso]; if (!h || !h.hourly || !S.hc.at || Date.now() - S.hc.at > 30 * 6e4) return;
+    const n = new Date(), hr = n.getHours(), hv = h.hourly, cur = +hv[hr] || 0, prev = n.getMinutes() < 25 ? (+hv[hr - 1] || 0) : 0;
+    if (cur + prev < 500) return;
+    this.setState({ walk: 'walking', wsrc: 'watch', wStart: Date.now() - 5 * 6e4, wPausedMs: 0, wPauseAt: null, wDay: iso, stageDate: iso, stage: Math.max(1, S.stage || 0), toast: { a: '와치 걷기 감지', b: '기록을 시작했어요' } }); setTimeout(() => this.setState({ toast: null }), 4000);
+  } catch (e) {} }
   todayIso() { const q = new Date(); return q.getFullYear() + '-' + String(q.getMonth() + 1).padStart(2, '0') + '-' + String(q.getDate()).padStart(2, '0'); }
   closeSheet() { this.setState({ sheet: null }); }
   closeSub() { this.setState({ sub: null }); }
@@ -1557,7 +1565,7 @@ class Component extends DCLogic {
     const S = this.state, set = o => this.setState(o), F = (typeof window !== 'undefined' && window.innerWidth >= 640);
     const WDN = ['일','월','화','수','목','금','토'], WDL = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
     const df = this.dayInfo().diff, started = df >= 0 && df <= 30, TD = X.today, VW = X.view;
-    const isT = X.isToday && started, isPastV = X.isPast, HT = window.TK_HOTELS || {};
+    const isT = X.isToday, isPastV = X.isPast, HT = window.TK_HOTELS || {};
     const fmt = n => Math.round(n).toLocaleString('ko-KR'), dig = v => String(v).replace(/[^0-9]/g,'');
     const KO = ST.map(t => t.ko.replace(/\(.*\)/, '')), JP = ST.map(t => t.jp);
     const isoOf = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -1582,7 +1590,7 @@ class Component extends DCLogic {
 
     // ───── 오늘(보고 있는 날) 구간 ─────
     const D = dayOf(VW), dd = X.dd, stops = dd.stops, nS = stops.length, total = dd.dist;
-    const hcV = hcOf(VW) || (isT ? X.hcT : null);
+    const hcV = hcOf(VW) || (X.isToday ? X.hcT : null);  // 출발 전(미리보기)에도 오늘 실제 워치 데이터를 보여줌
     const reachedIdx = isT ? X.reached : isPastV ? nS - 1 : -1;
     const walked = isT ? X.walked : isPastV ? total : 0;
     const left = Math.max(0, total - walked), pct = total > 0 ? walked / total : 0;
@@ -1893,7 +1901,7 @@ class Component extends DCLogic {
       closeSheet: () => this.closeSheet(), keep: e => e.stopPropagation(),
       start: () => set({ walk:'walking', wsrc:'phone', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
       watchStart: () => set({ walk:'walking', wsrc:'watch', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
-      stop: () => set({ done:true, mode:false, stage: nS }), closeDone: () => set({ done:false }),
+      stop: () => set({ done:true, mode:false, stage: nS, wNoAuto: this.todayIso() }), closeDone: () => set({ done:false }),
       openMode: () => set({ mode:true }), closeMode: () => set({ mode:false }), closeToast: () => set({ toast:null })
     };
   }

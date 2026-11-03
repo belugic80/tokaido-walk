@@ -4,7 +4,7 @@
     const S = this.state, set = o => this.setState(o), F = __WIDE__;
     const WDN = ['일','월','화','수','목','금','토'], WDL = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
     const df = this.dayInfo().diff, started = df >= 0 && df <= 30, TD = X.today, VW = X.view;
-    const isT = X.isToday && started, isPastV = X.isPast, HT = window.TK_HOTELS || {};
+    const isT = X.isToday, isPastV = X.isPast, HT = window.TK_HOTELS || {};
     const fmt = n => Math.round(n).toLocaleString('ko-KR'), dig = v => String(v).replace(/[^0-9]/g,'');
     const KO = ST.map(t => t.ko.replace(/\(.*\)/, '')), JP = ST.map(t => t.jp);
     const isoOf = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -29,7 +29,7 @@
 
     // ───── 오늘(보고 있는 날) 구간 ─────
     const D = dayOf(VW), dd = X.dd, stops = dd.stops, nS = stops.length, total = dd.dist;
-    const hcV = hcOf(VW) || (isT ? X.hcT : null);
+    const hcV = hcOf(VW) || (X.isToday ? X.hcT : null);  // 출발 전(미리보기)에도 오늘 실제 워치 데이터를 보여줌
     const reachedIdx = isT ? X.reached : isPastV ? nS - 1 : -1;
     const walked = isT ? X.walked : isPastV ? total : 0;
     const left = Math.max(0, total - walked), pct = total > 0 ? walked / total : 0;
@@ -340,7 +340,7 @@
       closeSheet: () => this.closeSheet(), keep: e => e.stopPropagation(),
       start: () => set({ walk:'walking', wsrc:'phone', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
       watchStart: () => set({ walk:'walking', wsrc:'watch', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
-      stop: () => set({ done:true, mode:false, stage: nS }), closeDone: () => set({ done:false }),
+      stop: () => set({ done:true, mode:false, stage: nS, wNoAuto: this.todayIso() }), closeDone: () => set({ done:false }),
       openMode: () => set({ mode:true }), closeMode: () => set({ mode:false }), closeToast: () => set({ toast:null })
     };
   }

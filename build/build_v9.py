@@ -180,8 +180,12 @@ rep('flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #F3C3
 # 홈: 경유지 개수가 날짜마다 달라도 카드 높이가 변하지 않게(아래 날짜 이동 카드가 위아래로 안 움직임) — 5줄 고정 + 안쪽 스크롤
 _a = dc.index('<sc-for list="{{ wps }}"')
 _b = dc.index('</sc-for>', _a) + len('</sc-for>')
-dc = dc[:_a] + '<div style="height:226px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;flex:none">' + dc[_a:_b] + '</div>' + dc[_b:]
+dc = dc[:_a] + '<div style="height:226px;overflow-y:auto;scrollbar-width:none;overscroll-behavior-y:auto;touch-action:pan-y;flex:none">' + dc[_a:_b] + '</div>' + dc[_b:]
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
+# 하루 자세히 사진칸: 부모에 position:relative가 없어 slot(absolute inset:0)이 화면 전체로 퍼지던 문제
+rep('<span style="grid-column:{{ p.gc }};min-height:110px;border-radius:18px;', '<span style="position:relative;overflow:hidden;grid-column:{{ p.gc }};min-height:110px;border-radius:18px;')
+# 한 줄 입력칸: textarea 자식 바인딩이 [object Object]로 나오던 문제 → value 속성
+rep('onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:1px solid #DCE0F7;border-radius:14px;padding:10px 12px;font:600 15px Pretendard Variable,Pretendard,sans-serif;color:#18324F;background:#fff;resize:none;outline:none">{{ dd2.noteV }}</textarea>', 'value="{{ dd2.noteV }}" onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:1px solid #DCE0F7;border-radius:14px;padding:10px 12px;font:600 15px Pretendard Variable,Pretendard,sans-serif;color:#18324F;background:#fff;resize:none;outline:none"></textarea>')
 # 일정 관리 화면: 하루 목적지 + 쉬는 날 선택 카드(디자인 마크업에 없어 추가)
 _k = dc.index('이동 방식</b>'); _c = dc.rindex('<div style="background:#fff', 0, _k)
 _card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'

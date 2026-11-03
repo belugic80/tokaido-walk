@@ -168,6 +168,10 @@ rep('height:70px;border-radius:35px;background:#fff', 'height:58px;border-radius
 rep('flex:1;min-width:0;height:56px;border:0;background:transparent', 'flex:1;min-width:0;height:48px;border:0;background:transparent')
 rep('flex:none;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8)', 'flex:none;width:46px;height:46px;border-radius:50%;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8)')
 rep('flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #F3C3CB', 'flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #F3C3CB')
+# 걷기 완료 상태에서는 종료(빨간) 버튼 숨김: 요약 버튼 하나만
+_sb = re.search(r'<button onClick="\{\{ stop \}\}" style="flex:none;width:40px;height:40px;[^>]*>.*?</button>', dc, re.S)
+assert _sb
+dc = dc.replace(_sb.group(0), '<sc-if value="{{ ctl.live }}" hint-placeholder-val="{{ true }}">' + _sb.group(0) + '</sc-if>', 1)
 # 홈: 경유지 개수가 날짜마다 달라도 카드 높이가 변하지 않게(아래 날짜 이동 카드가 위아래로 안 움직임) — 5줄 고정 + 안쪽 스크롤
 _a = dc.index('<sc-for list="{{ wps }}"')
 _b = dc.index('</sc-for>', _a) + len('</sc-for>')

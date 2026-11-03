@@ -49,7 +49,7 @@ rep('right:16px;bottom:22px;', 'right:16px;bottom:calc(%s + 22px);' % SAB, cnt=2
 
 # 아이콘 글꼴: 새로 쓰는 아이콘 추가 (이름 순서대로)
 m = re.search(r'icon_names=([a-z_,0-9]+)', dc)
-names = set(m.group(1).split(',')) | {'flag', 'local_fire_department', 'thermostat', 'partly_cloudy_day', 'foggy', 'thunderstorm', 'umbrella', 'wb_twilight', 'delete', 'edit', 'close'}
+names = set(m.group(1).split(',')) | {'timer', 'flag', 'local_fire_department', 'thermostat', 'partly_cloudy_day', 'foggy', 'thunderstorm', 'umbrella', 'wb_twilight', 'delete', 'edit', 'close'}
 dc = dc.replace(m.group(0), 'icon_names=' + ','.join(sorted(names)))
 
 # ───────────────────────── 2. 문서 머리 (v8 빌드의 것을 그대로) ─────────────────────────

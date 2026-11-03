@@ -2089,10 +2089,10 @@ class Component extends DCLogic {
     var n = pts.length, R = Math.PI / 180, d = [], t = [], i, j;
     for (i = 1; i < n; i++) { var a = pts[i - 1], b = pts[i], x = Math.sin((b[0] - a[0]) * R / 2), y = Math.sin((b[1] - a[1]) * R / 2); d[i] = 12742 * Math.asin(Math.sqrt(x * x + Math.cos(a[0] * R) * Math.cos(b[0] * R) * y * y)); t[i] = Math.max(1, (b[2] || 0) - (a[2] || 0)); }
     var mode = [];
-    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } var sp = d[i] / (t[i] / 3600); mode[i] = ((sp >= 9 && t[i] <= 900) || sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }
+    for (i = 1; i < n; i++) { var sd = 0, st = 0; for (j = Math.max(1, i - 2); j <= Math.min(n - 1, i + 2); j++) { sd += d[j]; st += t[j]; } var a3 = 0, b3 = 0; for (j = Math.max(1, i - 1); j <= Math.min(n - 1, i + 1); j++) { a3 += d[j]; b3 += t[j]; } var w3 = a3 / (b3 / 3600), sp = d[i] / (t[i] / 3600); mode[i] = ((sp >= 9 && t[i] <= 900) || w3 >= 8 || sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }
     var runs = [], cur = null;
     for (i = 1; i < n; i++) { if (!cur || cur.m !== mode[i]) { cur = { m: mode[i], pts: [pts[i - 1]], km: 0 }; runs.push(cur); } cur.pts.push(pts[i]); cur.km += d[i]; }
-    runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });
+    for (i = 1; i < runs.length - 1; i++) { if (runs[i].m === 'w' && runs[i].km < 0.3 && runs[i - 1].m === 'v' && runs[i + 1].m === 'v') runs[i].m = 'v'; } runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });
     var out = []; runs.forEach(function (r) { var l = out[out.length - 1]; if (l && l.m === r.m) { l.pts = l.pts.concat(r.pts.slice(1)); l.km += r.km; } else out.push({ m: r.m, pts: r.pts.slice(), km: r.km }); });
     return out;
   };

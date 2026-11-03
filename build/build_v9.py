@@ -470,7 +470,11 @@ dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 # 걷기/교통 구분: 위치 점이 드문드문(1~5분) 들어와도 구간 속도로 판정 — 5점 평균은 짧은 이동을 걷기로 희석함
 _OLDM = "mode[i] = (sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }"
 assert dc.count(_OLDM) == 1
-dc = dc.replace(_OLDM, "var sp = d[i] / (t[i] / 3600); mode[i] = ((sp >= 9 && t[i] <= 900) || sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }")
+dc = dc.replace(_OLDM, "var a3 = 0, b3 = 0; for (j = Math.max(1, i - 1); j <= Math.min(n - 1, i + 1); j++) { a3 += d[j]; b3 += t[j]; } var w3 = a3 / (b3 / 3600), sp = d[i] / (t[i] / 3600); mode[i] = ((sp >= 9 && t[i] <= 900) || w3 >= 8 || sd / (st / 3600) >= 12 || d[i] >= 3) ? 'v' : 'w'; }")
+# 버스처럼 자주 서는 경우: 3점 평균 8km/h↑도 교통, 교통 사이에 낀 짧은 정차·걷기(0.3km 미만)는 교통으로 이어 붙임
+_OLDR = "runs.forEach(function (r) { if (r.m === 'v' && r.km < 0.15) r.m = 'w'; });"
+assert dc.count(_OLDR) == 1
+dc = dc.replace(_OLDR, "for (i = 1; i < runs.length - 1; i++) { if (runs[i].m === 'w' && runs[i].km < 0.3 && runs[i - 1].m === 'v' && runs[i + 1].m === 'v') runs[i].m = 'v'; } " + _OLDR)
 
 os.makedirs(OUT, exist_ok=True)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)

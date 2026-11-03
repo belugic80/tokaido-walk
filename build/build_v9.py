@@ -280,6 +280,15 @@ for _a, _b in [
     assert _blk.count(_a) == 1, _a[:60]
     _blk = _blk.replace(_a, _b)
 dc = dc[:_w0] + _blk + dc[_w1:]
+# 장소 팝업: 사진 위 "장소 사진" 표시·카메라 아이콘 제거
+_m = re.search(r'<span style="position:absolute;left:50%;top:30%;transform:translate\(-50%,-50%\);[^>]*><span[^>]*>photo_camera</span>장소 사진</span>', dc)
+assert _m
+dc = dc.replace(_m.group(0), '', 1)
+_n = len(re.findall(r'<span style="font-family:\'Material Symbols Rounded\';[^>]*>photo_camera</span>', dc))
+dc = re.sub(r'(<button onClick="\{\{ [gp]\.pick \}\}"[^>]*>)<span style="font-family:\'Material Symbols Rounded\';[^>]*>photo_camera</span>(</button>)', r'\1\2', dc)
+_m2 = re.search(r'<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;font-size:13px;font-weight:700"><span[^>]*>photo_camera</span>장소 사진</span></div>', dc)
+if _m2: dc = dc.replace(_m2.group(0), '', 1)
+print('camera icons before/after', _n, len(re.findall(r'>photo_camera</span>', dc)))
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

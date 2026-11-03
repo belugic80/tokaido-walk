@@ -200,6 +200,15 @@ dc = dc[:_k] + _new + dc[_e:]
 _t = '</div>\n</div>\n</sc-if>\n<sc-if value="{{ tb.more }}"'
 assert dc.count(_t) == 1
 dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
+# 더보기: 메뉴 6개를 화면 아래쪽으로(엄지 닿는 곳)
+_ma = dc.index('<sc-if value="{{ tb.more }}"')
+_old = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">\n<div style="display:grid;grid-template-columns:{{ fr.menuCols }};gap:10px">'
+assert dc.count(_old) == 1 and dc.index(_old) > _ma
+dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 170px)">\n<div style="order:2;margin-top:auto;position:sticky;bottom:{{ lgd.fixBot }};z-index:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 0">')
+dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
+_m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
+_seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:92px;padding:10px;gap:8px').replace('<span style="width:30px;height:30px;border-radius:50%;background:#F3F5FF;display:grid;place-items:center">', '<span style="display:none">').replace('<span style="font-size:13px;color:#6B7A90;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.sub }}</span>', '').replace('<b style="font-size:17px">{{ m.label }}</b>', '<b style="font-size:15px;white-space:nowrap">{{ m.label }}</b>')
+dc = dc[:_m0] + _seg + dc[_m1:]
 # 일정 관리 화면: 하루 목적지 + 쉬는 날 선택 카드(디자인 마크업에 없어 추가)
 _k = dc.index('이동 방식</b>'); _c = dc.rindex('<div style="background:#fff', 0, _k)
 _card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'

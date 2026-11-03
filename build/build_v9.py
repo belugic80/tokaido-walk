@@ -180,12 +180,17 @@ rep('flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #F3C3
 # 홈: 경유지 개수가 날짜마다 달라도 카드 높이가 변하지 않게(아래 날짜 이동 카드가 위아래로 안 움직임) — 5줄 고정 + 안쪽 스크롤
 _a = dc.index('<sc-for list="{{ wps }}"')
 _b = dc.index('</sc-for>', _a) + len('</sc-for>')
-dc = dc[:_a] + '<div style="height:226px;overflow-y:auto;scrollbar-width:none;overscroll-behavior-y:auto;touch-action:pan-y;flex:none">' + dc[_a:_b] + '</div>' + dc[_b:]
+_blk = dc[_a:_b].replace('align-items:center;min-height:44px;cursor:pointer', 'align-items:center;flex:1 0 44px;cursor:pointer')
+assert 'flex:1 0 44px' in _blk
+dc = dc[:_a] + '<div style="height:226px;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none;overscroll-behavior-y:auto;touch-action:pan-y;flex:none">' + _blk + '</div>' + dc[_b:]
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
 # 하루 자세히 사진칸: 부모에 position:relative가 없어 slot(absolute inset:0)이 화면 전체로 퍼지던 문제
 rep('<span style="grid-column:{{ p.gc }};min-height:110px;border-radius:18px;', '<span style="position:relative;overflow:hidden;grid-column:{{ p.gc }};min-height:110px;border-radius:18px;')
 # 한 줄 입력칸: textarea 자식 바인딩이 [object Object]로 나오던 문제 → value 속성
 rep('onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:1px solid #DCE0F7;border-radius:14px;padding:10px 12px;font:600 15px Pretendard Variable,Pretendard,sans-serif;color:#18324F;background:#fff;resize:none;outline:none">{{ dd2.noteV }}</textarea>', 'value="{{ dd2.noteV }}" onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:1px solid #DCE0F7;border-radius:14px;padding:10px 12px;font:600 15px Pretendard Variable,Pretendard,sans-serif;color:#18324F;background:#fff;resize:none;outline:none"></textarea>')
+# 걷기 모드: 팝업 형태 — 좌우 여백은 블러 처리, 눌러서 닫기
+rep('<div data-screen-label="걷기 모드" style="position:absolute;inset:0;z-index:30;background:linear-gradient(180deg,#FFFFFF 0%,#F2F3FF 100%);padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 26px);display:flex;justify-content:center">\n<div style="width:100%;max-width:{{ fr.modeW }};display:flex;flex-direction:column;gap:14px">',
+ '<div data-screen-label="걷기 모드" style="position:absolute;inset:0;z-index:30;padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 14px);display:flex;justify-content:center">\n<div onClick="{{ closeMode }}" aria-label="닫기" style="position:absolute;inset:0;background:rgba(24,36,64,.28);backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1);cursor:pointer"></div>\n<div style="position:relative;width:100%;max-width:{{ fr.modeW }};display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,#FFFFFF 0%,#F2F3FF 100%);border-radius:32px;padding:18px 20px 22px;box-shadow:0 24px 70px rgba(20,30,80,.35);overflow:hidden">')
 # 지도 범례: 마커 색과 동일(출발 초록·다음 파랑·도착 보라)
 dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 걷기 화면: 걸은 거리 = 실제 측정값, 아래에 걷기/교통(이동) 거리 구분
@@ -207,17 +212,25 @@ assert dc.count(_old) == 1 and dc.index(_old) > _ma
 dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:12px">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
-_seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:96px;padding:12px;gap:6px')
+_seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:84px;padding:10px 12px;gap:4px')
 dc = dc[:_m0] + _seg + dc[_m1:]
 # 더보기 상단: 오늘 날씨 + 이번 주 날씨 + 일출·일몰 요약 카드
 _anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n'
 assert dc.count(_anchor) == 1
 _ic = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
-_wcard = ('<div style="border-radius:24px;padding:16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 12px 26px rgba(28,126,214,.28);color:#fff;display:flex;flex-direction:column;gap:12px;min-width:0">'
+_wcard = ('<div style="border-radius:24px;padding:14px 16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 12px 26px rgba(28,126,214,.28);color:#fff;display:flex;flex-direction:column;gap:8px;min-width:0">'
   '<span style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;font-weight:700;opacity:.9">{{ wxCard.place }}</span><b style="font-size:44px;font-weight:800;letter-spacing:-.05em;line-height:1.05">{{ wxCard.t }}</b><span style="font-size:14px;font-weight:700">{{ wxCard.desc }}</span></span><span style="' + _ic + 'flex:none;width:48px;height:48px;overflow:hidden;font-size:46px;color:#FFE08A">{{ wxCard.icon }}</span></span>'
   '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"><sc-for list="{{ wxd2 }}" as="x" hint-placeholder-count="4"><span style="background:rgba(255,255,255,.2);border-radius:14px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0"><span style="font-size:11px;font-weight:700;white-space:nowrap;opacity:.9">{{ x.k }}</span><b style="font-size:17px;font-weight:800;white-space:nowrap">{{ x.v }}</b></span></sc-for></div>'
-  '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"><sc-for list="{{ wx2 }}" as="d" hint-placeholder-count="7"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:12px;background:rgba(255,255,255,.92);color:#18324F"><b style="font-size:12px">{{ d.name }}</b><span style="' + _ic + 'font-size:20px;color:{{ d.ic }}">{{ d.icon }}</span><b style="font-size:13px">{{ d.hi }}°</b><span style="font-size:11px;color:#6B7A90">{{ d.lo }}°</span><span style="font-size:10px;font-weight:800;color:{{ d.rc }}">{{ d.rain }}</span></span></sc-for></div></div>\n')
+  '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"><sc-for list="{{ wx2 }}" as="d" hint-placeholder-count="7"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border-radius:12px;background:rgba(255,255,255,.92);color:#18324F"><b style="font-size:12px">{{ d.name }}</b><span style="' + _ic + 'font-size:20px;color:{{ d.ic }}">{{ d.icon }}</span><b style="font-size:13px">{{ d.hi }}°</b><span style="font-size:11px;color:#6B7A90">{{ d.lo }}°</span><span style="font-size:10px;font-weight:800;color:{{ d.rc }}">{{ d.rain }}</span></span></sc-for></div></div>\n')
 dc = dc.replace(_anchor, _anchor + _wcard)
+# 사진 일기 팝업: 사진 추가(업로드) 버튼
+_ico2 = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
+_up = ('<label aria-label="사진 추가" style="flex:none;width:48px;height:48px;border-radius:50%;border:1px solid #C9D3FF;background:#EDF0FF;display:grid;place-items:center;cursor:pointer;opacity:{{ dpv.upO }}"><input type="file" accept="image/*" multiple onChange="{{ dpv.upload }}" style="display:none"><span style="' + _ico2 + 'font-size:24px;color:#3B5BDB">add_a_photo</span></label>')
+_dk = '<button onClick="{{ dpv.detail }}"'
+assert dc.count(_dk) == 1
+dc = dc.replace(_dk, _up + _dk)
+# 사진 일기 팝업: 썸네일 한 줄에 5장
+rep('<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px"><sc-for list="{{ dpv.thumbs }}"', '<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px"><sc-for list="{{ dpv.thumbs }}"')
 # 일정 관리 화면: 하루 목적지 + 쉬는 날 선택 카드(디자인 마크업에 없어 추가)
 _k = dc.index('이동 방식</b>'); _c = dc.rindex('<div style="background:#fff', 0, _k)
 _card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
@@ -365,7 +378,7 @@ dc = dc[:_la] + _blk + dc[_lb:]
 rep('display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;position:absolute;left:0;right:0;bottom:86px;z-index:3;padding:18px 16px 8px;', 'display:flex;gap:10px;justify-content:safe center;overflow-x:auto;scrollbar-width:none;position:absolute;left:0;right:0;bottom:86px;z-index:3;padding:18px 16px 10px;')
 _j0 = dc.index('<sc-for list="{{ jp2.cats }}"'); _j1 = dc.index('</sc-for>', _j0)
 dc = dc[:_j0] + dc[_j0:_j1].replace('height:40px;padding:0 14px;border-radius:99px;border:1px solid', 'height:54px;padding:0 24px;border-radius:99px;border:1.5px solid').replace("font:700 14px", "font:800 19px") + dc[_j1:]
-dc = dc.replace('grid-template-columns:{{ fr.jpCols }};gap:10px"', 'grid-template-columns:{{ fr.jpCols }};gap:10px;padding-bottom:84px"', 1)
+dc = dc.replace('grid-template-columns:{{ fr.jpCols }};gap:10px"', 'grid-template-columns:{{ fr.jpCols }};gap:10px"', 1)
 dc = dc.replace('<span style="font-size:23px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', '<span style="font-size:28px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', 1)
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 

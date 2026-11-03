@@ -27,6 +27,7 @@ rep("w:'760px', h:'860px', r:'28px'", "w:'100%', h:'100lvh', r:'0'")
 rep("w:'390px', h:'844px', r:'44px'", "w:'100%', h:'100lvh', r:'0'")
 WIDE = "(typeof window !== 'undefined' && window.innerWidth >= 640)"
 rep("const F = !!this.props.fold || this.props.go==='flex'", "const F = " + WIDE)
+rep("mapAR:'auto', mapHt:'630px',", "mapAR:'auto', mapHt:'calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)',")
 rep("F ? { areas:'\"a d\" \"b e\" \"c f\"',", "F ? { areas: isT ? '\"a d\" \"b e\" \"c f\"' : '\"a d\" \"a e\" \"c f\"',")
 rep("this.props.fold", WIDE, cnt=3)
 
@@ -80,6 +81,45 @@ dc = dc[:_si] + ('<button onClick="{{ back }}" aria-label="뒤로 가기" style=
                  '<span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 500;font-size:28px;color:#fff;">arrow_back</span></button>') + dc[_si:]
 rep('@keyframes fadeIn{from{opacity:0}to{opacity:1}}', '@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{from{opacity:1}to{opacity:0}}@keyframes sheetOut{from{transform:none;opacity:1}to{transform:translateY(60px);opacity:0}}@keyframes subIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}@keyframes subOut{from{transform:none;opacity:1}to{transform:translateX(40px);opacity:0}}')
 rep('overflow-y:auto;scrollbar-width:none;padding-bottom:40px">', 'overflow-y:auto;scrollbar-width:none;padding-bottom:calc(env(safe-area-inset-bottom) + 100px)">')
+rep('<div style="display:flex;align-items:center;gap:10px;padding:56px 16px 14px">', '<div style="display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 14px) 16px 14px">')
+rep('<div style="position:absolute;inset:0;z-index:12;background:linear-gradient(165deg,#DCE2FF 0%,#EEF0FF 45%,#F9EEF7 100%);animation:{{ anim.sub }}"', '<div class="subwrap" style="position:absolute;inset:0;z-index:12;background:linear-gradient(165deg,#DCE2FF 0%,#EEF0FF 45%,#F9EEF7 100%);animation:{{ anim.sub }}"')
+# ───── 오늘 탭: 날짜 이동을 머리글 오른쪽으로, 그 자리에는 오늘 날씨 카드 ─────
+_db0 = dc.index('<div style="display:flex;align-items:center;gap:6px;padding:6px;border-radius:24px;background:rgba(255,255,255,.55);')
+_db1 = dc.index('</div>', dc.index('{{ next }}', _db0)) + len('</div>')
+_DATEBAR = dc[_db0:_db1]
+MSW = lambda px, col: "<span style=\"font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:" + px + "px;color:" + col + ";\">"
+_WXCARD = ('<div onClick="{{ wxHome.open }}" style="cursor:pointer;display:flex;align-items:center;gap:14px;padding:12px 14px 12px 12px;border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);min-width:0">'
+  '<span style="flex:none;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 6px 14px rgba(28,126,214,.3);display:grid;place-items:center">' + MSW('30', '#fff') + '{{ wxNow.icon }}</span></span>'
+  '<span style="flex:1;display:flex;flex-direction:column;line-height:1.2;min-width:0"><span style="display:flex;align-items:baseline;gap:8px;min-width:0"><b style="font-size:32px;font-weight:800;letter-spacing:-.04em">{{ wxNow.t }}</b><span style="font-size:15px;font-weight:700;color:#3A4D68;white-space:nowrap">{{ wxHome.desc }}</span></span><span style="font-size:13px;color:#4A5D78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wxHome.place }}</span></span>'
+  '<span style="flex:none;display:flex;gap:6px"><sc-for list="{{ wxHome.chips }}" as="c" hint-placeholder-count="3"><span style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;padding:7px 8px;border-radius:14px;background:rgba(255,255,255,.75)"><span style="font-size:11px;color:#6B7A90;white-space:nowrap">{{ c.k }}</span><b style="font-size:14px;white-space:nowrap;color:{{ c.c }}">{{ c.v }}</b></span></sc-for></span>'
+  '</div>')
+dc = dc[:_db0] + _WXCARD + dc[_db1:]
+_hd = _DATEBAR.replace('<div style="display:flex;align-items:center;gap:6px;padding:6px;border-radius:24px;', '<div style="flex:none;display:flex;align-items:center;gap:4px;padding:4px;border-radius:24px;max-width:60%;', 1)
+_wc0 = dc.index('<span style="flex:none;white-space:nowrap;height:36px;padding:0 12px;border-radius:99px;')
+_wc1 = dc.index('18°</span>', _wc0) + len('18°</span>')
+dc = dc[:_wc0] + '<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">' + _hd + '</sc-if><sc-if value="{{ notHome }}" hint-placeholder-val="{{ false }}">' + dc[_wc0:_wc1] + '</sc-if>' + dc[_wc1:]
+# ───── 펼친 화면: 메뉴 바로 위까지 채우기 (스크롤 없이 딱 맞게) ─────
+rep('<div onScroll="{{ onScroll }}" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:130px"', '<div onScroll="{{ onScroll }}" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:calc(env(safe-area-inset-bottom) + 100px)"')
+rep('<div style="display:grid;grid-template-columns:{{ fr.mapCols }};gap:12px;padding:0 16px;align-items:stretch"', '<div class="eq2" style="display:grid;grid-template-columns:{{ fr.mapCols }};gap:12px;padding:0 16px;align-items:stretch"')
+# 오늘이 아닌 날 카드: 그날 지역 사진 배경 + 글자 잘 보이게 어두운 그라데이션 (디자인 규칙: 위 .35 / 아래 .88)
+_v0 = dc.index('<sc-if value="{{ v.notToday }}" hint-placeholder-val="{{ false }}">'); _v1 = dc.index('</sc-if>', _v0)
+_vc = dc[_v0:_v1]
+for a_, b_ in [('<div style="flex:1;justify-content:center;border-radius:28px;padding:20px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:6px">',
+                '<div style="flex:1;justify-content:flex-end;min-height:280px;border-radius:28px;padding:20px;background:linear-gradient(180deg,rgba(20,20,50,.35) 0%,rgba(20,20,50,.12) 38%,rgba(20,20,50,.88) 100%),url({{ v.photo }}) center/cover no-repeat,linear-gradient(135deg,#8B9CF0,#C9B8F5);border:1px solid rgba(255,255,255,.5);box-shadow:0 14px 30px rgba(40,50,140,.22);display:flex;flex-direction:column;gap:6px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)">'),
+               ('<span style="font-size:14px;font-weight:700;color:#4A5D78">{{ v.kind }}</span>', '<span style="font-size:14px;font-weight:700;color:rgba(255,255,255,.92)">{{ v.kind }}</span>'),
+               ('<b style="font-size:24px;font-weight:800;letter-spacing:-.04em;line-height:1.25">{{ v.path }}</b>', '<b style="font-size:28px;font-weight:800;letter-spacing:-.04em;line-height:1.25">{{ v.path }}</b>'),
+               ('<span style="font-size:14px;color:#4A5D78">{{ v.jp }}</span>', '<span style="font-size:14px;color:rgba(255,255,255,.88)">{{ v.jp }}</span>'),
+               ('<span style="border-radius:16px;background:rgba(255,255,255,.7);padding:10px 12px;display:flex;flex-direction:column;gap:2px">', '<span style="border-radius:16px;background:rgba(255,255,255,.85);padding:10px 12px;display:flex;flex-direction:column;gap:2px;color:#18324F;text-shadow:none">')]:
+    assert _vc.count(a_) == 1, a_[:60]
+    _vc = _vc.replace(a_, b_)
+dc = dc[:_v0] + _vc + dc[_v1:]
+# 오늘 탭 경로 카드: 가로 점 목록 → 세로 '오늘의 경유지' 목록(이름·일본어·상태/예정 시각·거리)
+_h0 = dc.index('<span style="display:flex;width:100%">\n<sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">')
+_h1 = dc.index('</sc-for>\n</span>', _h0) + len('</sc-for>\n</span>')
+_s0 = dc.index('<sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">\n<div style="display:grid;grid-template-columns:28px minmax(0,1fr) auto;')
+_s1 = dc.index('</sc-for>', _s0) + len('</sc-for>')
+_LIST = dc[_s0:_s1]
+dc = dc[:_h0] + '<div style="display:flex;flex-direction:column;border-radius:18px;background:rgba(255,255,255,.6);padding:2px 14px"><span style="font-size:14px;font-weight:800;padding:12px 0 2px">오늘의 경유지</span>' + _LIST + '</div>' + dc[_h1:]
 # 머리글 문구·날씨를 실제 값으로
 rep('<span style="font-size:13px;color:#4A5D78">도카이도 종주 · {{ todayN }}일째</span>', '<span style="font-size:13px;color:#4A5D78">{{ headSub }}</span>')
 rep("font-size:18px;color:#E0861A;\">sunny</span>18°</span>", "font-size:18px;color:{{ wxNow.c }};\">{{ wxNow.icon }}</span>{{ wxNow.t }}</span>")
@@ -102,15 +142,29 @@ def swap_maps():
 print('maps swapped:', swap_maps())
 
 # ───────────────────────── 2. 문서 머리 ─────────────────────────
+DEMO = r'''<script>(function(){ if (!/[?&]demo=1/.test(location.search)) return; window.__demo = 1;
+  /* 예시 화면: 여행 12일째(12/15 13:00)로 가정하고 예시 숫자를 보여줌. 실제 저장값·백업은 건드리지 않음 */
+  var T = new Date('2026-12-15T13:00:00+09:00').getTime(), D = Date, t0 = D.now();
+  function F() { var a = arguments; if (!(this instanceof F)) return new D(T + (D.now() - t0)).toString(); return a.length ? new (Function.prototype.bind.apply(D, [null].concat([].slice.call(a))))() : new D(T + (D.now() - t0)); }
+  F.prototype = D.prototype; F.now = function () { return T + (D.now() - t0); }; F.parse = D.parse; F.UTC = D.UTC; window.Date = F;
+  try { var LS = window.localStorage, gi = LS.getItem.bind(LS), si = LS.setItem.bind(LS), ri = LS.removeItem.bind(LS);
+    Storage.prototype.getItem = function (k) { return gi('demo:' + k); }; Storage.prototype.setItem = function (k, v) { return si('demo:' + k, v); }; Storage.prototype.removeItem = function (k) { return ri('demo:' + k); }; } catch (e) {}
+  var days = {}, base = [18240, 21530, 19870, 23110, 16420, 24980, 22310, 17650, 25440, 20120, 13870];
+  for (var i = 0; i < 11; i++) { var d = new D(2026, 11, 4 + i), k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); days[k] = { steps: base[i], km: +(base[i] / 1340).toFixed(1), min: Math.round(base[i] / 1340 * 14.5), hr: 104 + i % 9, kcal: 1100 + i * 23, sleep: 380 + i * 7, hourly: { 8: base[i] * .12, 9: base[i] * .18, 10: base[i] * .17, 11: base[i] * .1, 13: base[i] * .16, 14: base[i] * .15, 15: base[i] * .12 } }; }
+  days['2026-12-15'] = { steps: 17820, km: 12.4, min: 192, hr: 112, kcal: 1240, sleep: 412, weight: 76.4, hourly: { 7: 1820, 8: 2950, 9: 3100, 10: 2400, 11: 1200, 12: 3200, 13: 3150 } };
+  var of = window.fetch; window.fetch = function (u, o) { if (typeof u === 'string' && /hc-read/.test(u)) return Promise.resolve(new Response(JSON.stringify({ days: days, last: null, snaps: [], dist: {}, locs: {} }), { status: 200, headers: { 'Content-Type': 'application/json' } })); if (typeof u === 'string' && /tk-sync/.test(u)) return Promise.reject(new Error('demo')); return of.apply(this, arguments); };
+  try { si('demo:tk-v15-data', JSON.stringify({ stage: 3, bodyLog: { '2026-12-15': { '발바닥': 2, '무릎': 1, '종아리': 3, '어깨': 0, '피로': 2 } }, expLog: { '2026-12-15': [{ cat: '식비', note: '식비', v: 1980, c: 'jpy' }, { cat: '숙박', note: '숙박', v: 7800, c: 'jpy' }, { cat: '기타', note: '기타', v: 300, c: 'jpy' }] }, noteLog: { '2026-12-14': '사타 고개에서 후지산이 끝까지 보였다.', '2026-12-13': '요시와라 지나며 비. 신발 말리기가 일.' } })); ri('demo:tk-hc3'); } catch (e) {}
+  document.addEventListener('DOMContentLoaded', function () { var b = document.createElement('div'); b.textContent = '예시 화면 · 숫자는 예시예요'; b.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 6px);transform:translateX(-50%);z-index:9999;padding:5px 12px;border-radius:99px;background:#E0861A;color:#fff;font:800 12px Pretendard,sans-serif;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.2)'; document.body.appendChild(b); });
+})();</script>'''
 head_shim = old[old.index('<script>(function(){var F=\'.image-slots.state.json\''):]
 head_shim = head_shim[:head_shim.index('</script>') + 9]
 rep('<meta name="viewport" content="width=device-width, initial-scale=1">',
-    '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>도카이도 53의 쉼표</title>'
+    '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">' + DEMO + '<title>도카이도 53의 쉼표</title>'
     '<meta name="theme-color" content="#DCE2FF"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">'
     '<meta name="apple-mobile-web-app-status-bar-style" content="default">'
     '<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png">'
     '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
-    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - 94px - 130px)}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
+    '<script src="./image-slot.js"></script><style>image-slot.ro{pointer-events:none}image-slot.ro::part(empty){display:none!important}html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;overflow-x:hidden;touch-action:pan-y}[data-v8map] .leaflet-control-attribution{display:none}@media (min-width:640px){.eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 186px)!important}.subwrap .eq2{min-height:calc(100lvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 72px - 104px)!important}.eq2>div{display:flex;flex-direction:column}.eq2>div>:last-child{flex:1 1 auto}.jp2>:last-child{position:sticky;top:calc(env(safe-area-inset-top) + 64px)}}</style>'
     + head_shim)
 
 # ───────────────────────── 3. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
@@ -167,6 +221,8 @@ R2 = [
     ("const N = S.view < 30 ? day(S.view+1) : null;", "const N = VW < 30 ? day(VW+1) : null;"),
     ("const past = S.view < TODAY;", "const past = X.isPast;"),
 ]
+R2 += [("const v = { ...D, isToday:isT, notToday:!isT,", "const v = { ...D, isToday:isT, notToday:!isT, photo: '/assets/dayhero/'+(VW+1)+'.jpg',")]
+R2 += [("cur ? '다음 · '+(s.rel-walked).toFixed(1)+'km 남음' : last ? '오늘 숙소' : '예정' }", "cur ? '다음 · '+(s.rel-walked).toFixed(1)+'km 남음 · '+hhmm(START_MIN + s.rel*MIN_PER_KM)+' 도착 예정' : last ? '오늘 숙소 · '+hhmm(START_MIN + s.rel*MIN_PER_KM)+' 도착 예정' : '예정 · '+hhmm(START_MIN + s.rel*MIN_PER_KM) }")]
 for a, b in R2:
     rv = rep(a, b, src=rv)
 # 지나는 곳: 기존 명소 데이터
@@ -206,7 +262,7 @@ R3 = [
     ("check: () => S.arr < 4 && set({ arr:S.arr+1 }), undo: () => S.arr > 2 && set({ arr:S.arr-1 }), undoO: S.arr > 2 ? '1' : '.4',",
      "check: () => { if (isT && !done) O.advance(); }, undo: () => { if (isT && X.stage > 1) this.setState(s => ({ stage: Math.max(1, Math.min(s.stage, STOPS.length) - 1) })); }, undoO: isT && X.stage > 1 ? '1' : '.4',"),
     ("todayN: TODAY+1,", "todayN: TODAY+1, headSub: (() => { const df = this.dayInfo().diff; return df < 0 ? '도카이도 종주 · 출발까지 D-'+(-df) : df > 30 ? '도카이도 종주 · 완주' : '도카이도 종주 · '+(df+1)+'일째'; })(), wxNow: (() => { const w = S.wlive; if (!w || w.now == null) return { icon:'partly_cloudy_day', t:'—', c:'#8C96C2' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud'; return { icon: ic, t: Math.round(w.now)+'°', c: ic==='sunny' ? '#E0861A' : ic==='rainy' ? '#1C7ED6' : '#8C96C2' }; })(), mapKey: VW+'|'+arr+'|'+((this.routeCache||{})[VW+1] ? 1 : 0),"),
-    ("isHome: S.t==='home',", "isHome: S.t==='home', rec, anim: S.closing==='sheet' ? { bg:'fadeOut .22s ease-in forwards', sh:'sheetOut .22s ease-in forwards', sub:'subIn .26s ease-out' } : S.closing==='sub' ? { bg:'fadeIn .2s', sh:'sheetIn .26s ease-out', sub:'subOut .22s ease-in forwards' } : { bg:'fadeIn .2s', sh:'sheetIn .26s ease-out', sub:'subIn .26s ease-out' }, glHead: (() => { const df = this.dayInfo().diff; return df < 0 ? '시나가와 → 교토 · 출발 전' : '시나가와 → 교토 · '+Math.min(31, df+1)+'일째'; })(), glToday: this.dayInfo().diff < 0 ? '출발 전' : '오늘 '+(TODAY+1)+'일', jnStat: (() => { const df = this.dayInfo().diff, all = Array.from({length:31},(x,k)=>day(k)), w = df < 0 ? 0 : Math.min(31, df), r = all.filter(d => d.rest).length; return { w: w+'일', l: Math.max(0, 31-w-(df >= 0 && df <= 30 ? 1 : 0))+'일', r: r+'일' }; })(), wxCard: (() => { const w = S.wlive; if (!w || w.now == null) return { place:'지금', icon:'partly_cloudy_day', t:'—', desc:'날씨 불러오는 중' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', nm = { sunny:'맑음', partly_cloudy_day:'구름 조금', rainy:'비', cloud:'흐림' }[ic], d = w.d || {}; return { place: '지금 · '+(w.name || (w.src === 'gps' ? '내 위치' : '구간 날씨')), icon: ic, t: Math.round(w.now)+'°', desc: nm + (d.temperature_2m_max ? ' · 최고 '+Math.round(d.temperature_2m_max[0])+'° / 최저 '+Math.round(d.temperature_2m_min[0])+'°' : '') }; })(), fxLabel: '100엔 = '+Math.round(rate*100)+'원 · '+(S.fxAuto ? '자동 '+S.fxAuto.t : '기본값'),"),
+    ("isHome: S.t==='home',", "isHome: S.t==='home', rec, wxHome: (() => { const w = S.wlive, d = (w && w.d) || null, nm = { sunny:'맑음', partly_cloudy_day:'구름 조금', rainy:'비', cloud:'흐림' }; const ic = w && w.code != null ? (w.code <= 1 ? 'sunny' : w.code <= 3 ? 'partly_cloudy_day' : w.code >= 51 && w.code <= 82 ? 'rainy' : 'cloud') : null; const rp = d && d.precipitation_probability_max ? (d.precipitation_probability_max[0] ?? 0) : null; return { desc: ic ? nm[ic] : '날씨 불러오는 중', place: (w && w.name ? w.name+' · ' : '') + '오늘 날씨', open: () => set({ t:'more', sub:'info', sheet:null }), chips: [{k:'최고/최저',v: d && d.temperature_2m_max ? Math.round(d.temperature_2m_max[0])+'°/'+Math.round(d.temperature_2m_min[0])+'°' : '—',c:'#18324F'},{k:'강수',v: rp != null ? rp+'%' : '—',c: rp >= 50 ? '#1C7ED6' : '#18324F'},{k:'일몰',v: d && d.sunset ? String(d.sunset[0]).slice(11,16) : '—',c:'#7048E8'}] }; })(), anim: S.closing==='sheet' ? { bg:'fadeOut .22s ease-in forwards', sh:'sheetOut .22s ease-in forwards', sub:'subIn .26s ease-out' } : S.closing==='sub' ? { bg:'fadeIn .2s', sh:'sheetIn .26s ease-out', sub:'subOut .22s ease-in forwards' } : { bg:'fadeIn .2s', sh:'sheetIn .26s ease-out', sub:'subIn .26s ease-out' }, glHead: (() => { const df = this.dayInfo().diff; return df < 0 ? '시나가와 → 교토 · 출발 전' : '시나가와 → 교토 · '+Math.min(31, df+1)+'일째'; })(), glToday: this.dayInfo().diff < 0 ? '출발 전' : '오늘 '+(TODAY+1)+'일', jnStat: (() => { const df = this.dayInfo().diff, all = Array.from({length:31},(x,k)=>day(k)), w = df < 0 ? 0 : Math.min(31, df), r = all.filter(d => d.rest).length; return { w: w+'일', l: Math.max(0, 31-w-(df >= 0 && df <= 30 ? 1 : 0))+'일', r: r+'일' }; })(), wxCard: (() => { const w = S.wlive; if (!w || w.now == null) return { place:'지금', icon:'partly_cloudy_day', t:'—', desc:'날씨 불러오는 중' }; const c = w.code, ic = c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', nm = { sunny:'맑음', partly_cloudy_day:'구름 조금', rainy:'비', cloud:'흐림' }[ic], d = w.d || {}; return { place: '지금 · '+(w.name || (w.src === 'gps' ? '내 위치' : '구간 날씨')), icon: ic, t: Math.round(w.now)+'°', desc: nm + (d.temperature_2m_max ? ' · 최고 '+Math.round(d.temperature_2m_max[0])+'° / 최저 '+Math.round(d.temperature_2m_min[0])+'°' : '') }; })(), fxLabel: '100엔 = '+Math.round(rate*100)+'원 · '+(S.fxAuto ? '자동 '+S.fxAuto.t : '기본값'),"),
     ("onScroll: e => { const c = e.currentTarget.scrollTop > 60;", "onScroll: e => { const c = e.currentTarget.scrollTop > 56;"),
 ]
 R3 += [("close: () => set({ sheet:null }),", "close: () => this.closeSheet(),"),

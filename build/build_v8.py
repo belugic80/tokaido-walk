@@ -127,7 +127,7 @@ _TOTIN = _TOT.replace('border-radius:24px;padding:16px;background:rgba(255,255,2
 assert _TOTIN != _TOT
 _ITIN = ('<div class="wd" style="flex:1;border-radius:24px;padding:6px 16px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;min-width:0">'
          '<span style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘의 경유지</b><span style="font-size:13px;color:#4A5D78">{{ v.dist }}</span></span>'
-         + _LIST + '<div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:12px">' + _TOTIN + _DATEBAR + '</div></div>')
+         + '<div style="flex:none;height:264px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain">' + _LIST + '</div><div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:12px">' + _TOTIN + '<div style="flex:none">' + _DATEBAR.replace('<div style="display:flex;align-items:center;gap:6px;padding:6px;', '<div style="flex:none;min-height:64px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:6px;', 1) + '</div></div></div>')
 dc = dc[:_t0] + _ITIN + dc[_t1:]
 _lx = dc.index('<sc-if value="{{ isLog }}"'); _le = dc.index('>오늘 지출<', _lx); _lc = dc.rindex('<div style="border-radius:24px', _lx, _le)
 # (전체 종주는 오늘의 경유지 카드 안으로: 기록 탭에는 넣지 않음)
@@ -182,6 +182,13 @@ def swap_maps():
         n += 1
     return n
 print('maps swapped:', swap_maps())
+# 오늘 경로 카드: 카드가 늘어나도 지도가 칸 전체를 채우게(아래가 잘리던 것), 디자인용 가짜 위치 점 제거
+_a1 = '<span style="position:absolute;left:0;right:0;top:-25%;aspect-ratio:4/3;display:block">'
+assert dc.count(_a1) >= 1
+dc = dc.replace(_a1, '<span style="position:absolute;inset:0;display:block">')
+_a2 = '<span style="position:absolute;left:64%;top:39%;width:16px;height:16px;border-radius:50%;background:#1C7ED6;border:3px solid #fff;box-shadow:0 0 0 7px rgba(28,126,214,.22);transform:translate(-50%,-50%)"></span>'
+dc = dc.replace(_a2, '')
+
 
 # ───────────────────────── 2. 문서 머리 ─────────────────────────
 DEMO = r'''<script>(function(){ if (!/[?&]demo=1/.test(location.search)) return; window.__demo = 1;
@@ -571,7 +578,7 @@ MAP_JS = r"""<script>(function () {
     document.querySelectorAll('[data-v8map]').forEach(function (el) {
       var D = window.__v8, k = el.getAttribute('data-k') + '|' + (D.trk || '').length + '|' + (D.amen || '').length + '|' + (D.logTrk || '').length;
       if (!el._map) { try { el._map = L.map(el, { zoomControl: false, attributionControl: false, scrollWheelZoom: false }); L.tileLayer(TILE, { maxZoom: 18 }).addTo(el._map); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
-      if (el._k === k && el._w === el.clientWidth) return; el._k = k; el._w = el.clientWidth; el._lay.clearLayers();
+      if (el._k === k && el._w === el.clientWidth && el._h === el.clientHeight) return; el._k = k; el._w = el.clientWidth; el._h = el.clientHeight; el._lay.clearLayers();
       try { el._map.invalidateSize(); } catch (e) {}
       if (el.getAttribute('data-v8map') === 'log') { var lt = D.logTrk || []; if (lt.length > 1 && window.tkSeg) window.tkSeg(lt).forEach(function (r) { L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 6, dashArray: '2 9', lineCap: 'round' } : { color: '#673DE6', weight: 5 }).addTo(el._lay); });
         if (lt.length) { L.circleMarker(lt[0], { radius: 7, color: '#fff', weight: 3, fillColor: '#20A85A', fillOpacity: 1 }).addTo(el._lay); L.circleMarker(lt[lt.length - 1], { radius: 8, color: '#fff', weight: 3, fillColor: '#E8453C', fillOpacity: 1 }).addTo(el._lay); try { el._map.fitBounds(L.latLngBounds(lt.map(function (q) { return [q[0], q[1]]; })), { padding: [24, 24], maxZoom: 16 }); } catch (e) {} } else { try { el._map.setView((D.me || (D.stops && D.stops[0] && D.stops[0].ll) || [35.62, 139.74]), 13); } catch (e) {} }

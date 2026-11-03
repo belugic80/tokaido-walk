@@ -157,11 +157,11 @@ _inner = _m.group(1)
 _ico = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
 _compact = ('<sc-if value="{{ ctl.compact }}" hint-placeholder-val="{{ true }}">'
   '<div style="display:flex;align-items:center;gap:8px">'
-  '<button onClick="{{ ctl.tog }}" style="flex:1;min-width:0;height:54px;display:flex;align-items:center;gap:10px;padding:0 14px 0 10px;border-radius:27px;border:1px solid rgba(255,255,255,.95);background:#fff;box-shadow:0 8px 20px rgba(40,50,140,.14);cursor:pointer;font-family:inherit;color:#18324F;text-align:left">'
+  '<button onClick="{{ ctl.tog }}" style="flex:1;min-width:0;height:46px;display:flex;align-items:center;gap:10px;padding:0 12px 0 8px;border-radius:23px;border:1px solid rgba(255,255,255,.95);background:#fff;box-shadow:0 8px 20px rgba(40,50,140,.14);cursor:pointer;font-family:inherit;color:#18324F;text-align:left">'
   '<span style="flex:none;position:relative;width:34px;height:34px;border-radius:12px;background:#EDF0FF;display:grid;place-items:center"><span style="'+_ico+'font-size:20px;color:#3B5BDB">watch</span><i style="position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#2F9E44;border:2px solid #fff;animation:wpulse 1.6s ease-in-out infinite"></i></span>'
   '<span style="flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">와치 시작 대기</span>'
   '<span style="'+_ico+'font-size:22px;color:#8C96B0">expand_less</span></button>'
-  '<button onClick="{{ start }}" style="flex:none;height:54px;padding:0 20px 0 14px;border:0;border-radius:27px;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px;box-shadow:0 10px 22px rgba(59,91,219,.36);cursor:pointer;font-family:inherit"><span style="'+_ico+'font-size:24px;color:#fff">directions_walk</span>폰에서 시작</button>'
+  '<button onClick="{{ start }}" style="flex:none;height:46px;padding:0 18px 0 12px;border:0;border-radius:23px;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px;box-shadow:0 10px 22px rgba(59,91,219,.36);cursor:pointer;font-family:inherit"><span style="'+_ico+'font-size:24px;color:#fff">directions_walk</span>폰에서 시작</button>'
   '</div></sc-if>')
 _full = _inner.replace('<div style="display:flex;align-items:center;gap:12px;padding:12px 14px', '<div onClick="{{ ctl.tog }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px', 1)
 _full = _full.replace('<button onClick="{{ watchStart }}"', '<button onClick="{{ ctl.demo }}"', 1)
@@ -169,6 +169,14 @@ dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-va
 # 홈 날짜 카드: 일정 변경 버튼을 아이콘만(제목 가림 방지)
 rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;width:44px;height:44px;padding:0;justify-content:center;border-radius:22px;')
 rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span></button>')
+# 일본어 상단 카드 글자 키움 / 하단 걷기 바 높이 축소
+rep('<b style="font-size:{{ fr.jpFs }};font-weight:800;line-height:1.3;', '<b style="word-break:auto-phrase;overflow-wrap:anywhere;max-width:100%;font-size:{{ fr.jpFs }};font-weight:800;line-height:1.3;')
+rep('<b style="font-size:{{ fr.jpBig }};font-weight:800;line-height:1.25;', '<b style="word-break:auto-phrase;overflow-wrap:anywhere;max-width:100%;font-size:{{ fr.jpBig }};font-weight:800;line-height:1.25;')
+rep('<span style="font-size:17px;font-weight:700">{{ jp2.sel.ko }}</span>', '<span style="font-size:23px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>')
+rep('height:70px;border-radius:35px;background:#fff', 'height:58px;border-radius:29px;background:#fff')
+rep('flex:1;min-width:0;height:56px;border:0;background:transparent', 'flex:1;min-width:0;height:48px;border:0;background:transparent')
+rep('flex:none;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8)', 'flex:none;width:46px;height:46px;border-radius:50%;border:0;background:linear-gradient(135deg,#3B5BDB,#6C7FE8)')
+rep('flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #F3C3CB', 'flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #F3C3CB')
 rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}', '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;flex:none;height:46px;min-width:46px;padding:0 10px;border-radius:14px;background:{{ dn2.chipBg }}')
 # 일정 변경 시트: 누르면 실제 동작
 _pi = dc.index('{{ p.bg }}'); _pb = dc.rindex('<button style="', 0, _pi)

@@ -204,7 +204,7 @@ dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
 _ma = dc.index('<sc-if value="{{ tb.more }}"')
 _old = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">\n<div style="display:grid;grid-template-columns:{{ fr.menuCols }};gap:10px">'
 assert dc.count(_old) == 1 and dc.index(_old) > _ma
-dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:8px;padding:8px 0">')
+dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 215px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:12px">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
 _seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:96px;padding:12px;gap:6px')

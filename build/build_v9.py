@@ -244,6 +244,12 @@ _fs = """<sc-if value="{{ dpv.fsOpen }}" hint-placeholder-val="{{ false }}">
 """
 rep('<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">', _fs + '<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">')
 rep('scrollbar-width:none;padding-bottom:110px">', 'scrollbar-width:none;padding-bottom:{{ padB }}">')
+# 지도 화면 중복 범례 정리: 아래쪽 범례 삭제, 위 범례에 '교통 구간' 추가
+_i = dc.index('<div style="display:flex;gap:12px;flex-wrap:wrap;padding:6px 12px;border-radius:14px;background:rgba(255,255,255,.92);')
+_j = dc.index('교통 구간</span></div>', _i) + len('교통 구간</span></div>')
+dc = dc[:_i] + dc[_j:]
+dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span><span style="display:flex;align-items:center;gap:5px"><i style="width:16px;height:4px;border-radius:2px;background:repeating-linear-gradient(90deg,#9775FA 0 4px,transparent 4px 7px)"></i>교통</span>')
+rep('<span style="position:absolute;left:74px;top:calc(env(safe-area-inset-top) + 20px);display:flex;align-items:center;gap:10px;height:32px;', '<span style="position:absolute;left:74px;right:12px;overflow-x:auto;scrollbar-width:none;top:calc(env(safe-area-inset-top) + 20px);display:flex;align-items:center;gap:10px;height:32px;')
 # 지도 범례: 마커 색과 동일(출발 초록·다음 파랑·도착 보라)
 dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 걷기 화면: 걸은 거리 = 실제 측정값, 아래에 걷기/교통(이동) 거리 구분
@@ -274,7 +280,7 @@ _ic = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:norm
 _wcard = ('<div style="border-radius:24px;padding:14px 16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 12px 26px rgba(28,126,214,.28);color:#fff;display:flex;flex-direction:column;gap:8px;min-width:0">'
   '<span style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;font-weight:700;opacity:.9">{{ wxCard.place }}</span><b style="font-size:44px;font-weight:800;letter-spacing:-.05em;line-height:1.05">{{ wxCard.t }}</b><span style="font-size:14px;font-weight:700">{{ wxCard.desc }}</span></span><span style="' + _ic + 'flex:none;width:48px;height:48px;overflow:hidden;font-size:46px;color:#FFE08A">{{ wxCard.icon }}</span></span>'
   '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"><sc-for list="{{ wxd2 }}" as="x" hint-placeholder-count="4"><span style="background:rgba(255,255,255,.2);border-radius:14px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0"><span style="font-size:11px;font-weight:700;white-space:nowrap;opacity:.9">{{ x.k }}</span><b style="font-size:17px;font-weight:800;white-space:nowrap">{{ x.v }}</b></span></sc-for></div>'
-  '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"><sc-for list="{{ wx2 }}" as="d" hint-placeholder-count="7"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border-radius:12px;background:rgba(255,255,255,.92);color:#18324F"><b style="font-size:12px">{{ d.name }}</b><span style="' + _ic + 'font-size:20px;color:{{ d.ic }}">{{ d.icon }}</span><b style="font-size:13px">{{ d.hi }}°</b><span style="font-size:11px;color:#6B7A90">{{ d.lo }}°</span><span style="font-size:10px;font-weight:800;color:{{ d.rc }}">{{ d.rain }}</span></span></sc-for></div></div>\n')
+  '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"><sc-for list="{{ wx2 }}" as="d" hint-placeholder-count="7"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border-radius:12px;background:rgba(255,255,255,.92);color:#18324F"><b style="font-size:16px">{{ d.name }}</b><span style="' + _ic + 'font-size:26px;color:{{ d.ic }}">{{ d.icon }}</span><span style="display:flex;align-items:baseline;gap:4px;white-space:nowrap"><b style="font-size:19px;font-weight:800">{{ d.hi }}°</b><span style="font-size:15px;font-weight:700;color:#5B6B82">{{ d.lo }}°</span></span><span style="font-size:14px;font-weight:800;color:{{ d.rc }}">{{ d.rain }}</span></span></sc-for></div></div>\n')
 dc = dc.replace(_anchor, _anchor + _wcard)
 # 사진 일기 팝업: 사진 추가(업로드) 버튼
 _ico2 = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
@@ -433,6 +439,22 @@ _j0 = dc.index('<sc-for list="{{ jp2.cats }}"'); _j1 = dc.index('</sc-for>', _j0
 dc = dc[:_j0] + dc[_j0:_j1].replace('height:40px;padding:0 14px;border-radius:99px;border:1px solid', 'height:54px;padding:0 24px;border-radius:99px;border:1.5px solid').replace("font:700 14px", "font:800 19px") + dc[_j1:]
 dc = dc.replace('grid-template-columns:{{ fr.jpCols }};gap:10px"', 'grid-template-columns:{{ fr.jpCols }};gap:10px"', 1)
 dc = dc.replace('<span style="font-size:23px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', '<span style="font-size:28px;font-weight:700;line-height:1.35">{{ jp2.sel.ko }}</span>', 1)
+# 주간 날씨(더보기 카드·날씨 화면): 온도·이름 글자 키움
+def _wk(dc, start):
+    _wi = dc.index('<sc-for list="{{ wx2 }}" as="d"', start)
+    _wj = dc.index('</sc-for>', _wi)
+    _wb = dc[_wi:_wj]
+    for a, b in [('<b style="font-size:14px">{{ d.name }}</b>', '<b style="font-size:16px">{{ d.name }}</b>'), ('<b style="font-size:13px">{{ d.name }}</b>', '<b style="font-size:16px">{{ d.name }}</b>'), ('font-size:20px;color:{{ d.ic }}', 'font-size:26px;color:{{ d.ic }}'), ('font-size:22px;color:{{ d.ic }}', 'font-size:26px;color:{{ d.ic }}'), ('<b style="font-size:13px">{{ d.hi }}°</b><span style="font-size:13px;color:#6B7A90">{{ d.lo }}°</span>', '<span style="display:flex;align-items:baseline;gap:4px;white-space:nowrap"><b style="font-size:19px;font-weight:800">{{ d.hi }}°</b><span style="font-size:15px;font-weight:700;color:#5B6B82">{{ d.lo }}°</span></span>'), ('<b style="font-size:14px">{{ d.hi }}°</b><span style="font-size:14px;color:#6B7A90">{{ d.lo }}°</span>', '<span style="display:flex;align-items:baseline;gap:4px;white-space:nowrap"><b style="font-size:19px;font-weight:800">{{ d.hi }}°</b><span style="font-size:15px;font-weight:700;color:#5B6B82">{{ d.lo }}°</span></span>')]:
+        _wb = _wb.replace(a, b)
+    return dc[:_wi] + _wb + dc[_wj:], _wi + 10
+print('WX2 before', dc.count('list="{{ wx2 }}"'), dc.count('<b style="font-size:14px">{{ d.name }}</b>'))
+_p = 0
+while True:
+    try:
+        dc, _p = _wk(dc, _p)
+    except ValueError:
+        break
+print('WX2 after', dc.count('<b style="font-size:14px">{{ d.name }}</b>'), dc.count('<b style="font-size:16px">{{ d.name }}</b>'))
 # 접근성: 12px 이하 글자 키움(시력 고려) — 10·11→13, 12→14. 지도 마커(MAP_JS)는 제외
 import re as _re
 def _fz(m):

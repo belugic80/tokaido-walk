@@ -127,8 +127,17 @@ _TOTIN = _TOT.replace('border-radius:24px;padding:16px;background:rgba(255,255,2
 assert _TOTIN != _TOT
 _ITIN = ('<div class="wd" style="flex:1;border-radius:24px;padding:6px 16px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);display:flex;flex-direction:column;min-width:0">'
          '<span style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘의 경유지</b><span style="font-size:13px;color:#4A5D78">{{ v.dist }}</span></span>'
-         + '<div style="flex:none;height:264px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain">' + _LIST + '</div><div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:12px">' + _TOTIN + '<div style="flex:none">' + _DATEBAR.replace('<div style="display:flex;align-items:center;gap:6px;padding:6px;', '<div style="flex:none;min-height:64px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:6px;', 1) + '</div></div></div>')
+         + '<div style="flex:none;height:330px;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain">' + _LIST + '</div><div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:12px">' + _TOTIN + '<div style="flex:none">' + _DATEBAR.replace('<div style="display:flex;align-items:center;gap:6px;padding:6px;', '<div style="flex:none;min-height:64px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:6px;', 1) + '</div></div></div>')
 dc = dc[:_t0] + _ITIN + dc[_t1:]
+# 다음 날 카드를 지도 아래로 옮겨서, 오른쪽 오늘의 경유지가 더 많이 보이게
+_n0 = dc.index('<sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">\n<button onClick="{{ next }}"')
+_n1 = dc.index('</sc-if>', _n0) + len('</sc-if>')
+_NEXT = dc[_n0:_n1].replace('<button onClick="{{ next }}" style="border-radius:24px;', '<button onClick="{{ next }}" style="flex:none;border-radius:20px;', 1)
+assert 'flex:none;border-radius:20px' in _NEXT
+dc = dc[:_n0] + dc[_n1:]
+_bs = dc.index('<button onClick="{{ goMap }}" style="position:relative;aspect-ratio:2/1'); _mb = dc.index('</button>', _bs) + len('</button>')
+dc = dc[:_bs] + dc[_bs:_mb].replace('<button onClick="{{ goMap }}" style="', '<button onClick="{{ goMap }}" style="flex:1 1 auto;', 1) + _NEXT + dc[_mb:]
+
 _lx = dc.index('<sc-if value="{{ isLog }}"'); _le = dc.index('>오늘 지출<', _lx); _lc = dc.rindex('<div style="border-radius:24px', _lx, _le)
 # (전체 종주는 오늘의 경유지 카드 안으로: 기록 탭에는 넣지 않음)
 # ───── 일정 관리: 예전 기능(교통 이용 구간·휴식일·빠른 변경·숙소 상태) 을 디자인 카드로 추가 ─────

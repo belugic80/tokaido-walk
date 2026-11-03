@@ -125,6 +125,10 @@
 
     // ───── 경유지 팝업 ─────
     const PLc = X.places || [];
+    const _pf = p => p.km <= walked + 0.05 && (isT ? walked > 0 : isPastV);
+    let _fu = -1; PLc.forEach((p,i) => { if (_fu < 0 && !_pf(p)) _fu = i; });
+    const plc = { has: PLc.length > 0, n: PLc.length+'곳', list: PLc.map((p,i) => { const pa = _pf(p), nx = isT && i === _fu, ah = Math.max(0, p.km - (isT ? walked : 0)).toFixed(1), _pp = (p.desc || '').split(' · '), cat = _pp.length > 1 ? _pp[0] : '명물', ds = _pp.length > 1 ? _pp.slice(1).join(' · ') : (p.desc || '');
+      return { n: i+1, name: p.name, cat, desc: ds, jp: p.q, badge: pa ? '✓ 지나옴' : nx ? '다음 · '+ah+'km' : ah+'km 앞', bBg: pa ? '#20A85A' : nx ? '#3B5BDB' : 'rgba(24,50,79,.82)', nf: pa ? '#98A2B3' : '#18324F', df: pa ? '#98A2B3' : '#4A5D78', bd: nx ? '#3B5BDB' : 'transparent', op: pa ? '.75' : '1', open: () => window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.q || p.name), '_blank') }; }) };
     const imgSet = imgs(VW);
     const si = Math.min(S.spot ?? 0, nS-1), sp0 = stops[si], sdn = isDone(si), snx = si === ni && isT && !dayDone, sgoal = si === nS-1, skm = +(Math.max(0, sp0.rel - walked)).toFixed(1);
     const nearP = PLc.filter(p => Math.abs(p.km - sp0.rel) < 0.8).sort((a,b) => Math.abs(a.km - sp0.rel) - Math.abs(b.km - sp0.rel))[0];
@@ -364,7 +368,7 @@
       wt: { hr: walking ? '실시간 수신' : syncT+' 기준' },
       md: { gps: walking ? 'GPS 기록 중' : '일시 정지', bg: walking ? '#E4F8EC' : '#FFF3D8', fg: walking ? '#16804A' : '#8A5A0E', hrDot: walking ? '#2F9E44' : '#C5CCEE', toggle: walking ? '일시 정지' : '계속 걷기' },
       dn: { stats: dnC.stats, wps: dnC.wps, photos: dnC.photos },
-      tt, dn2, sp, spotOpen: S.spot != null, closeSpot: () => set({ spot:null }), sheetOpen: !!S.sheet, mapFull: S.mapFull, mode: S.mode, toast: !!S.toast, done: S.done,
+      plc, tt, dn2, sp, spotOpen: S.spot != null, closeSpot: () => set({ spot:null }), sheetOpen: !!S.sheet, mapFull: S.mapFull, mode: S.mode, toast: !!S.toast, done: S.done,
       openWatch: () => set({ sheet:'watch' }), openPlan: () => set({ sheet:'plan' }), openNext: () => set({ spot:ni, spotImg:0 }), openMap: () => set({ mapFull:true }), closeMap: () => set({ mapFull:false }),
       closeSheet: () => this.closeSheet(), keep: e => e.stopPropagation(),
       start: () => set({ walk:'walking', wsrc:'phone', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),

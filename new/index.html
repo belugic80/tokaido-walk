@@ -137,6 +137,17 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <button onClick="{{ dn2.next }}" aria-label="다음 날" style="flex:none;width:44px;height:44px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.nO }}"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:24px;color:#18324F">chevron_right</span></button>
 </div>
 </div>
+<sc-if value="{{ plc.has }}" hint-placeholder-val="{{ true }}">
+<div style="padding:0 16px;margin-top:12px"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:26px;padding:16px 0 14px;display:flex;flex-direction:column;gap:10px">
+<span style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘 지나는 명물</b><span style="font-size:13px;color:#4A5D78">{{ plc.n }} · 눌러서 지도</span></span>
+<div data-hscroll="1" style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;touch-action:pan-x pan-y;padding:4px 18px 6px">
+<sc-for list="{{ plc.list }}" as="q" hint-placeholder-count="3"><div onClick="{{ q.open }}" style="flex:none;width:260px;scroll-snap-align:start;cursor:pointer;box-sizing:border-box;border-radius:18px;padding:12px 14px;background:#F6F7FF;box-shadow:inset 0 0 0 2px {{ q.bd }};display:flex;flex-direction:column;gap:6px;opacity:{{ q.op }}">
+<span style="display:flex;align-items:center;gap:8px"><b style="flex:none;width:26px;height:26px;border-radius:50%;background:#3B5BDB;color:#fff;font-size:13px;display:grid;place-items:center">{{ q.n }}</b><span style="font-size:12px;font-weight:800;color:#7048E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.cat }}</span><span style="flex:1"></span><span style="flex:none;white-space:nowrap;font-size:12px;font-weight:800;color:#fff;background:{{ q.bBg }};border-radius:99px;padding:3px 9px">{{ q.badge }}</span></span>
+<b style="font-size:17px;font-weight:800;letter-spacing:-.02em;color:{{ q.nf }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.name }}</b>
+<span style="font-size:13px;line-height:1.4;color:{{ q.df }};display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px">{{ q.desc }}</span>
+</div></sc-for>
+</div></div></div>
+</sc-if>
 </div>
 
 <sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">
@@ -1699,6 +1710,10 @@ class Component extends DCLogic {
 
     // ───── 경유지 팝업 ─────
     const PLc = X.places || [];
+    const _pf = p => p.km <= walked + 0.05 && (isT ? walked > 0 : isPastV);
+    let _fu = -1; PLc.forEach((p,i) => { if (_fu < 0 && !_pf(p)) _fu = i; });
+    const plc = { has: PLc.length > 0, n: PLc.length+'곳', list: PLc.map((p,i) => { const pa = _pf(p), nx = isT && i === _fu, ah = Math.max(0, p.km - (isT ? walked : 0)).toFixed(1), _pp = (p.desc || '').split(' · '), cat = _pp.length > 1 ? _pp[0] : '명물', ds = _pp.length > 1 ? _pp.slice(1).join(' · ') : (p.desc || '');
+      return { n: i+1, name: p.name, cat, desc: ds, jp: p.q, badge: pa ? '✓ 지나옴' : nx ? '다음 · '+ah+'km' : ah+'km 앞', bBg: pa ? '#20A85A' : nx ? '#3B5BDB' : 'rgba(24,50,79,.82)', nf: pa ? '#98A2B3' : '#18324F', df: pa ? '#98A2B3' : '#4A5D78', bd: nx ? '#3B5BDB' : 'transparent', op: pa ? '.75' : '1', open: () => window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.q || p.name), '_blank') }; }) };
     const imgSet = imgs(VW);
     const si = Math.min(S.spot ?? 0, nS-1), sp0 = stops[si], sdn = isDone(si), snx = si === ni && isT && !dayDone, sgoal = si === nS-1, skm = +(Math.max(0, sp0.rel - walked)).toFixed(1);
     const nearP = PLc.filter(p => Math.abs(p.km - sp0.rel) < 0.8).sort((a,b) => Math.abs(a.km - sp0.rel) - Math.abs(b.km - sp0.rel))[0];
@@ -1938,7 +1953,7 @@ class Component extends DCLogic {
       wt: { hr: walking ? '실시간 수신' : syncT+' 기준' },
       md: { gps: walking ? 'GPS 기록 중' : '일시 정지', bg: walking ? '#E4F8EC' : '#FFF3D8', fg: walking ? '#16804A' : '#8A5A0E', hrDot: walking ? '#2F9E44' : '#C5CCEE', toggle: walking ? '일시 정지' : '계속 걷기' },
       dn: { stats: dnC.stats, wps: dnC.wps, photos: dnC.photos },
-      tt, dn2, sp, spotOpen: S.spot != null, closeSpot: () => set({ spot:null }), sheetOpen: !!S.sheet, mapFull: S.mapFull, mode: S.mode, toast: !!S.toast, done: S.done,
+      plc, tt, dn2, sp, spotOpen: S.spot != null, closeSpot: () => set({ spot:null }), sheetOpen: !!S.sheet, mapFull: S.mapFull, mode: S.mode, toast: !!S.toast, done: S.done,
       openWatch: () => set({ sheet:'watch' }), openPlan: () => set({ sheet:'plan' }), openNext: () => set({ spot:ni, spotImg:0 }), openMap: () => set({ mapFull:true }), closeMap: () => set({ mapFull:false }),
       closeSheet: () => this.closeSheet(), keep: e => e.stopPropagation(),
       start: () => set({ walk:'walking', wsrc:'phone', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),

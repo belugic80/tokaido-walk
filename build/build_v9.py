@@ -194,6 +194,20 @@ rep('<div data-screen-label="걷기 모드" style="position:absolute;inset:0;z-i
 # 홈 히어로: 아래쪽 어두운 막을 옅게 → 배경 사진이 더 보이게(글자는 그림자로 가독성 유지)
 rep('rgba(14,18,50,.5) 62%,rgba(14,18,50,.86) 100%)', 'rgba(14,18,50,.14) 62%,rgba(14,18,50,.34) 100%)')
 rep('border-radius:20px;background:rgba(255,255,255,.16);backdrop-filter:blur(16px) saturate(1.3)', 'border-radius:20px;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2)')
+# 홈: 오늘 지나는 명물(구버전의 "오늘 지나는 곳") 카드
+_pc = """<sc-if value="{{ plc.has }}" hint-placeholder-val="{{ true }}">
+<div style="padding:0 16px;margin-top:12px"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:26px;padding:16px 0 14px;display:flex;flex-direction:column;gap:10px">
+<span style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">오늘 지나는 명물</b><span style="font-size:13px;color:#4A5D78">{{ plc.n }} · 눌러서 지도</span></span>
+<div data-hscroll="1" style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;touch-action:pan-x pan-y;padding:4px 18px 6px">
+<sc-for list="{{ plc.list }}" as="q" hint-placeholder-count="3"><div onClick="{{ q.open }}" style="flex:none;width:260px;scroll-snap-align:start;cursor:pointer;box-sizing:border-box;border-radius:18px;padding:12px 14px;background:#F6F7FF;box-shadow:inset 0 0 0 2px {{ q.bd }};display:flex;flex-direction:column;gap:6px;opacity:{{ q.op }}">
+<span style="display:flex;align-items:center;gap:8px"><b style="flex:none;width:26px;height:26px;border-radius:50%;background:#3B5BDB;color:#fff;font-size:13px;display:grid;place-items:center">{{ q.n }}</b><span style="font-size:12px;font-weight:800;color:#7048E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.cat }}</span><span style="flex:1"></span><span style="flex:none;white-space:nowrap;font-size:12px;font-weight:800;color:#fff;background:{{ q.bBg }};border-radius:99px;padding:3px 9px">{{ q.badge }}</span></span>
+<b style="font-size:17px;font-weight:800;letter-spacing:-.02em;color:{{ q.nf }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.name }}</b>
+<span style="font-size:13px;line-height:1.4;color:{{ q.df }};display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px">{{ q.desc }}</span>
+</div></sc-for>
+</div></div></div>
+</sc-if>
+"""
+rep('</button>\n</div>\n</div>\n</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"', '</button>\n</div>\n</div>\n' + _pc + '</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"')
 # 지도 범례: 마커 색과 동일(출발 초록·다음 파랑·도착 보라)
 dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 걷기 화면: 걸은 거리 = 실제 측정값, 아래에 걷기/교통(이동) 거리 구분

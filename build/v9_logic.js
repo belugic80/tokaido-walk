@@ -261,7 +261,8 @@
     const lo = Math.max(loMin, Math.min(0, S.lo || 0)), LISO = isoOf(new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() + lo)), LD = new Date(LISO+'T00:00:00');
     const lTrip = Math.round((LD - new Date(2026, 11, 4)) / 864e5) + 1, lIn = lTrip >= 1 && lTrip <= 31;
     const hcL = HCD[LISO] || null, isLT = lo === 0;
-    const lgd = { n: lIn ? lTrip : 0, nl: lIn ? lTrip+'일차' : lTrip < 1 ? '출발 전' : '여행 후', date:(LD.getMonth()+1)+'.'+LD.getDate()+' ('+WDN[LD.getDay()]+')', path: lIn ? ALL[lTrip-1].path : '시나가와 출발 전 준비 기간', rel: lo === 0 ? '오늘' : lo === -1 ? '어제' : lo === -2 ? '그제' : (-lo)+'일 전',
+    const _lgBar = wk === 'none' ? 0 : wk === 'ready' ? (ctlOpen ? 96 : 54) : 66;
+    const lgd = { fixBot: 'calc(env(safe-area-inset-bottom) + '+(96 + _lgBar + (_lgBar ? 8 : 0))+'px)', spacer: (88 + _lgBar)+'px', n: lIn ? lTrip : 0, nl: lIn ? lTrip+'일차' : lTrip < 1 ? '출발 전' : '여행 후', date:(LD.getMonth()+1)+'.'+LD.getDate()+' ('+WDN[LD.getDay()]+')', path: lIn ? ALL[lTrip-1].path : '시나가와 출발 전 준비 기간', rel: lo === 0 ? '오늘' : lo === -1 ? '어제' : lo === -2 ? '그제' : (-lo)+'일 전',
       chipBg: lo === 0 ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'linear-gradient(135deg,#8C96B0,#B3BAD0)',
       prev: () => lo > loMin && set({ lo: lo-1 }), next: () => lo < 0 && set({ lo: lo+1 }), pO: lo > loMin ? '1' : '.3', nO: lo < 0 ? '1' : '.3' };
     const HL = hoursOf(hcL), hmx = Math.max(1, ...HL.vs), hlast = HL.vs.length - 1;

@@ -190,6 +190,16 @@ rep('onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:
 dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 걷기 화면: 걸은 거리 = 실제 측정값, 아래에 걷기/교통(이동) 거리 구분
 rep('{{ pg.walked }}</b>\n<span style="font-size:22px;font-weight:700;color:#4A5D78">km</span>\n</div>', '{{ pg.walked }}</b>\n<span style="font-size:22px;font-weight:700;color:#4A5D78">km</span>\n<span style="margin-top:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%"><span style="padding:10px 6px;border-radius:16px;background:rgba(24,50,79,.06);display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700;color:#4A5D78">총 이동</span><b style="font-size:20px;color:#18324F">{{ pg.mvTot }}km</b></span><span style="padding:10px 6px;border-radius:16px;background:#EDF0FF;display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700;color:#3B5BDB">걷기</span><b style="font-size:20px;color:#2C3FA8">{{ pg.wkT }}km</b></span><span style="padding:10px 6px;border-radius:16px;background:#F3F0FF;display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700;color:#7048E8">교통</span><b style="font-size:20px;color:#5A33C9">{{ pg.trT }}km</b></span></span>\n</div>')
+# 하루 기록: 날짜 이동 카드를 하단(탭바·걷기바 바로 위)에 고정
+_k = dc.index('<div style="padding:0 16px 12px"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;flex-direction:row;align-items:center;padding:10px 10px 10px 12px">')
+_e = dc.index('</div></div>', _k) + len('</div></div>')
+_blk = dc[_k:_e]
+assert 'lgd.prev' in _blk
+_new = _blk.replace('<div style="padding:0 16px 12px">', '<div style="position:fixed;left:16px;right:16px;bottom:{{ lgd.fixBot }};z-index:4;max-width:900px;margin:0 auto">', 1)
+dc = dc[:_k] + _new + dc[_e:]
+_t = '</div>\n</div>\n</sc-if>\n<sc-if value="{{ tb.more }}"'
+assert dc.count(_t) == 1
+dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
 # 일정 관리 화면: 하루 목적지 + 쉬는 날 선택 카드(디자인 마크업에 없어 추가)
 _k = dc.index('이동 방식</b>'); _c = dc.rindex('<div style="background:#fff', 0, _k)
 _card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
@@ -323,6 +333,16 @@ for _a, _b in [
 ]:
     assert dc.count(_a) == 1, _a
     dc = dc.replace(_a, _b)
+# 하루 기록: 걸은 길(GPS) 지도를 시간대별 걸음 바로 아래로 이동
+_la = dc.index('<sc-if value="{{ tb.log }}"'); _lb = dc.index('<sc-if value="{{ tb.more }}"')
+_blk = dc[_la:_lb]
+_ms = _blk.rindex('<div style="flex:1;background:#fff', 0, _blk.index('걸은 길 · GPS'))
+_me = _blk.index('{{ lg2.gpsNote }}</b></span>\n</div>', _ms) + len('{{ lg2.gpsNote }}</b></span>\n</div>')
+_card = _blk[_ms:_me].replace('<div style="flex:1;background:#fff', '<div style="background:#fff', 1)
+_blk = _blk[:_ms] + _blk[_me:]
+_hs = _blk.rindex('<div style="background:#fff', 0, _blk.index('걷는 동안 심박'))
+_blk = _blk[:_hs] + _card + '\n' + _blk[_hs:]
+dc = dc[:_la] + _blk + dc[_lb:]
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

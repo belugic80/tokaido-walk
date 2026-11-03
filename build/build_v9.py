@@ -186,6 +186,8 @@ rep('<span style="flex:none;height:46px;min-width:46px;padding:0 10px;border-rad
 rep('<span style="grid-column:{{ p.gc }};min-height:110px;border-radius:18px;', '<span style="position:relative;overflow:hidden;grid-column:{{ p.gc }};min-height:110px;border-radius:18px;')
 # 한 줄 입력칸: textarea 자식 바인딩이 [object Object]로 나오던 문제 → value 속성
 rep('onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:1px solid #DCE0F7;border-radius:14px;padding:10px 12px;font:600 15px Pretendard Variable,Pretendard,sans-serif;color:#18324F;background:#fff;resize:none;outline:none">{{ dd2.noteV }}</textarea>', 'value="{{ dd2.noteV }}" onChange="{{ dd2.onNote }}" style="width:100%;box-sizing:border-box;border:1px solid #DCE0F7;border-radius:14px;padding:10px 12px;font:600 15px Pretendard Variable,Pretendard,sans-serif;color:#18324F;background:#fff;resize:none;outline:none"></textarea>')
+# 지도 범례: 마커 색과 동일(출발 초록·다음 파랑·도착 보라)
+dc = dc.replace('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>다음</span>', '<i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>')
 # 일정 관리 화면: 하루 목적지 + 쉬는 날 선택 카드(디자인 마크업에 없어 추가)
 _k = dc.index('이동 방식</b>'); _c = dc.rindex('<div style="background:#fff', 0, _k)
 _card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'

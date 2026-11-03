@@ -1,0 +1,339 @@
+  nInit() { return { walk: null, wsrc: 'watch', sheet: null, mode: false, toast: null, lo: 0, ntab: 'home', sub: null, dayN: null, dp: null, dpi: 0, jw: null, pd: null, trm: 'train', planSaved: false, jc: '필수', ji: 0, jpBig: false, condSaved: false, condEdit: false, cur: 'jpy', amt: '', ncat: '식비', sf: 'all', nfxDir: 'jk', fxv: '3,000', wtIn: '', dark: false, spot: null, spotImg: 0, done: false, mapFull: false, amen: null, lc: {}, tick: 0 }; }
+  renderVals() {
+    const O = this.oldVals(), X = O._x;
+    const S = this.state, set = o => this.setState(o), F = __WIDE__;
+    const WDN = ['일','월','화','수','목','금','토'], WDL = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+    const df = this.dayInfo().diff, started = df >= 0 && df <= 30, TD = X.today, VW = X.view;
+    const isT = X.isToday && started, isPastV = X.isPast, HT = window.TK_HOTELS || {};
+    const fmt = n => Math.round(n).toLocaleString('ko-KR'), dig = v => String(v).replace(/[^0-9]/g,'');
+    const KO = ST.map(t => t.ko.replace(/\(.*\)/, '')), JP = ST.map(t => t.jp);
+    const isoOf = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const dateOf = n => new Date(2026, 11, 3+n), ISO = X.iso;
+    const HCD = (S.hc && S.hc.days) || {}, hcOf = n => HCD[isoOf(dateOf(n))] || null;
+    const hmm = m => Math.floor(m/60)+':'+String(Math.round(m%60)).padStart(2,'0');
+    const durK = m => m >= 60 ? Math.floor(m/60)+'시간 '+Math.round(m%60)+'분' : Math.round(m)+'분';
+    const gmap = (q) => 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+q;
+    const llq = ll => ll ? ll[0]+','+ll[1] : '';
+    const dayOf = n => { const P = PLAN[n], q = dayData(n), d = dateOf(n), rest = P[0] === P[1];
+      return { n, s:P[0], e:P[1], rest, km:q.dist, tr:q.trKm||0, stops:q.stops, date:(d.getMonth()+1)+'.'+d.getDate()+' ('+WDN[d.getDay()]+')',
+        path: rest ? KO[P[0]]+' · 휴식' : KO[P[0]]+' → '+KO[P[1]], jp: rest ? JP[P[0]] : JP[P[0]]+' → '+JP[P[1]] }; };
+    const ALL = Array.from({length:31}, (x,k) => dayOf(k+1));
+    const st2 = d => !started ? (d.rest ? '휴식' : '예정') : d.n < TD ? (d.rest ? '휴식' : '완료') : d.n === TD ? '오늘' : d.rest ? '휴식' : '예정';
+    const stC = t => t==='완료' ? ['#E4F8EC','#16804A'] : t==='오늘' ? ['#EDF0FF','#3B5BDB'] : t==='휴식' ? ['#E7F5FF','#1C7ED6'] : ['rgba(24,50,79,.06)','#6B7A90'];
+    const chipOf = on => ({ bg: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : '#fff', fg: on ? '#fff' : '#4A5D78', bd: on ? 'transparent' : '#DCE0F7' });
+    const qmap = q => 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+    const photoOf = n => '/assets/dayhero/'+n+'.jpg';
+    const HEROS = __HEROS__;
+    const imgs = n => [0,1,2,3].map(j => "url('"+(j === 0 ? photoOf(n) : '/assets/hero/'+HEROS[(n+j*5) % HEROS.length])+"') center/cover no-repeat");
+    const nowD = new Date(), nowMin = nowD.getHours()*60 + nowD.getMinutes();
+
+    // ───── 오늘(보고 있는 날) 구간 ─────
+    const D = dayOf(VW), dd = X.dd, stops = dd.stops, nS = stops.length, total = dd.dist;
+    const hcV = hcOf(VW) || (isT ? X.hcT : null);
+    const reachedIdx = isT ? X.reached : isPastV ? nS - 1 : -1;
+    const walked = isT ? X.walked : isPastV ? total : 0;
+    const left = Math.max(0, total - walked), pct = total > 0 ? walked / total : 0;
+    const dayDone = isT && X.done && X.stage > 0;
+    const ready = isT ? X.stage <= 0 : !started && VW === TD;
+    const wk = !isT ? (ready ? 'ready' : 'none') : dayDone ? 'done' : ready ? 'ready' : (S.walk === 'paused' ? 'paused' : 'walking');
+    const walking = wk === 'walking';
+    const passedV = ((S.passed || {})[isoOf(dateOf(VW))]) || {};
+    const ni = Math.min(nS - 1, Math.max(1, reachedIdx + 1)), nx = stops[ni] || stops[nS-1];
+    const isDone = k => k <= reachedIdx;
+    const nkm = +(Math.max(0, nx.rel - walked)).toFixed(1), nmin = Math.round(nkm * MIN_PER_KM);
+    const ORD = ['첫','두','세','네','다섯','여섯','일곱','여덟','아홉','열'];
+    const stName = k => stops[k].ko.replace(/\(.*\)/, '');
+    const wStartOk = isT && S.wStart && S.wDay === ISO;
+    const elapsedS = wStartOk ? Math.max(0, ((S.walk === 'paused' ? (S.wPauseAt || Date.now()) : Date.now()) - S.wStart - (S.wPausedMs || 0)) / 1000) : 0;
+    const hcMin = hcV && hcV.min != null ? hcV.min : null;
+    const elapsedMin = hcMin != null && !wStartOk ? hcMin : Math.floor(elapsedS / 60);
+    const hms = s => Math.floor(s/3600)+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
+    const timeStr = wStartOk ? hms(elapsedS) : hmm(hcMin != null ? hcMin : 0) + (hcMin != null ? '' : '');
+    const etaMin = isT && walked > 0 && wk !== 'done' ? nowMin + left * MIN_PER_KM : X.eta;
+    const stepsV = hcV ? (hcV.steps || 0) : 0;
+    const dayWx = (() => { const w = S.wlive, d = w && w.d, k = d ? d.time.indexOf(isoOf(dateOf(VW))) : -1; if (k < 0) return null; const c = d.weather_code[k]; return { icon: c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', hi: Math.round(d.temperature_2m_max[k]), lo: Math.round(d.temperature_2m_min[k]), now: k === 0 && w.now != null ? Math.round(w.now) : null }; })();
+    const dd0 = dateOf(VW), relV = !started ? 'D-'+(-df) : VW === TD ? '오늘' : VW === TD-1 ? '어제' : VW === TD+1 ? '내일' : VW < TD ? (TD-VW)+'일 전' : (VW-TD)+'일 뒤';
+    const hr = { chip: wk, day: VW + (!started ? ' · D-'+(-df) : ''), when: relV+' · '+(dd0.getMonth()+1)+'월 '+dd0.getDate()+'일 '+WDL[dd0.getDay()],
+      title: D.rest ? KO[D.s]+' · 휴식' : stName(0)+' → '+stName(nS-1), jpl: (D.rest ? JP[D.s] : stops[0].jp+' → '+stops[nS-1].jp) + (D.rest ? '' : ' · 경유지 '+Math.max(0, nS-2)+'곳'), photo: photoOf(VW),
+      wx: { icon: dayWx ? dayWx.icon : 'partly_cloudy_day', t: dayWx ? (dayWx.now != null ? dayWx.now : dayWx.hi)+'°' : '—', lo: dayWx ? dayWx.lo+'°' : '—' },
+      metrics: [{ k:'오늘 거리', v: (D.rest ? '휴식' : total+'km'), s:'', sc:'rgba(255,255,255,.75)', bl:'0' },
+        { k:'걸은 거리', v: (isT || isPastV ? (isPastV && hcV && hcV.km ? (+hcV.km).toFixed(1) : walked.toFixed(1)) : '0.0')+'km', s: isT || isPastV ? Math.round(pct*100)+'%' : '', sc:'#C9D4FF', bl:'1px solid rgba(255,255,255,.28)' },
+        { k: ready || !isT && !isPastV ? '예상 시간' : isPastV ? '걸은 시간' : '도착 예정', v: ready || !isT && !isPastV ? hmm(total * MIN_PER_KM) : isPastV ? (hcMin != null ? hmm(hcMin) : '—') : hhmm(etaMin), s: isT && !ready ? '남은 '+left.toFixed(1)+'km' : '', sc:'rgba(255,255,255,.75)', bl:'1px solid rgba(255,255,255,.28)' }] };
+    const pg = { walked: walked.toFixed(1), left: left.toFixed(1), eta: ready || !isT ? hhmm(X.eta) : hhmm(etaMin), w: (pct*100)+'%', pct: Math.round(pct*100)+'%', time: timeStr, a: stops[0].ko.replace(/\(.*\)/, '')+' 宿', b: stName(nS-1)+' 宿',
+      ticks: [...stops.map((s,k) => { const n = k === ni && isT && !dayDone, sz = n ? 16 : 12; return { l: (total > 0 ? s.rel/total*100 : 0)+'%', s: sz+'px', ml: (-sz/2)+'px', top: (11-sz/2)+'px', c: k === 0 ? '#2F9E44' : k === nS-1 ? '#7048E8' : n ? '#3B5BDB' : isDone(k) ? '#8B9CF0' : '#C5CCEE' }; }), ...(isT ? [{ l: (pct*100)+'%', s:'18px', ml:'-9px', top:'2px', c:'#1C7ED6' }] : [])] };
+    const LIVE = { tb:'#E4F8EC', tf:'#16804A', dotD:'block' }, OFF = { tb:'rgba(24,50,79,.06)', tf:'#6B7A90', dotD:'none' };
+    const hrSer = hcV && hcV.series && hcV.series.length >= 2 ? hcV.series : null, hrNow = hrSer ? hrSer[hrSer.length-1][1] : (hcV && hcV.hr) || 0;
+    const syncT = (S.hc && S.hc.at) ? (() => { const d = new Date(S.hc.at); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); })() : '—';
+    const tiles = [
+      { key:'steps', icon:'footprint', k:'걸음', v: fmt(stepsV), u:'', tag:'시간대별 ›', ...OFF },
+      { key:'hr', icon:'favorite', k:'심박', v: hrNow ? String(hrNow) : '—', u: hrNow ? 'bpm' : '', tag: walking ? '실시간' : syncT+' 기준', ...(walking ? LIVE : OFF) },
+      { key:'elev', icon:'local_fire_department', k:'소모 열량', v: hcV && hcV.kcal ? fmt(hcV.kcal) : '—', u: hcV && hcV.kcal ? 'kcal' : '', tag:'워치', ...OFF },
+      { key:'time', icon:'schedule', k:'걸은 시간', v: hcMin != null || wStartOk ? hmm(wStartOk ? elapsedMin : hcMin) : '0:00', u:'', tag: walking ? '기록 중' : wk === 'paused' ? '멈춤' : ready ? '대기' : '', ...(walking ? LIVE : OFF) }
+    ].map(t => ({ ...t, open: () => set({ sheet:t.key }) }));
+    const wps = stops.map((s,k) => { const dn = isDone(k), n = k === ni && isT && !dayDone, ps = passedV[s.ko.replace(/\(.*\)/, '')];
+      return { name: stName(k), s: n || k === 0 || k === nS-1 ? '16px' : '12px', c: k === 0 ? '#2F9E44' : k === nS-1 ? '#7048E8' : n ? '#3B5BDB' : dn ? '#8B9CF0' : '#fff', bd: n || dn || k === nS-1 ? '2px solid #fff' : '2px solid #C5CCEE', sh: n ? '0 0 0 4px rgba(59,91,219,.22)' : 'none',
+        lt: k === 0 ? '50%' : '0', lb: k === nS-1 ? '50%' : '0', lc: k < ni ? '#8B9CF0' : '#DCE0F7', nf: dn || n ? '#18324F' : '#4A5D78',
+        right: dn ? (ps ? ps+(k === 0 ? ' 출발' : ' 통과') : (k === 0 ? '출발지' : '지나옴')) : n ? nkm+'km · '+nmin+'분' : hhmm(START_MIN + s.rel * MIN_PER_KM)+' 예정', fw: n ? '800' : '600', rf: n ? '#3B5BDB' : dn ? '#6B7A90' : '#4A5D78', open: () => set({ spot:k, spotImg:0 }) }; });
+    const dnN = stops.filter((s,k) => isDone(k)).length;
+    const SRC = S.wsrc === 'phone' ? { src:'폰에서 시작', srcIc:'smartphone', srcBg:'#F3F0FF', srcFg:'#7048E8', sub0:'폰에서 시작' } : { src:'와치에서 시작', srcIc:'watch', srcBg:'#EDF0FF', srcFg:'#3B5BDB', sub0:'Galaxy Watch9' };
+    const syncOk = !!(S.hc && S.hc.at && !S.hc.err);
+    const ST_ = walking ? { label:'GPS 기록 중', dot:'#2F9E44', halo:'rgba(47,158,68,.18)' } : wk === 'paused' ? { label:'일시 정지', dot:'#E0861A', halo:'rgba(224,134,26,.2)' } : syncOk ? { label:'워치 연결됨', dot:'#3B5BDB', halo:'rgba(59,91,219,.15)' } : { label:'연결 확인 중', dot:'#C5CCEE', halo:'rgba(197,204,238,.3)' };
+    const toggle = () => { if (S.walk === 'paused') set({ walk:'walking', wPausedMs: (S.wPausedMs || 0) + (Date.now() - (S.wPauseAt || Date.now())), wPauseAt: null }); else set({ walk:'paused', wPauseAt: Date.now() }); };
+    const ctl = { ready: wk === 'ready', active: wk === 'walking' || wk === 'paused' || wk === 'done', dot: ST_.dot, halo: ST_.halo,
+      label: wk === 'done' ? '오늘 걷기 완료 · '+timeStr : (walking ? '기록 중 · ' : '일시 정지 · ')+timeStr,
+      sub: wk === 'done' ? '눌러서 하루 요약 보기' : walking ? SRC.sub0+' · 눌러서 걷기 모드' : '▶ 계속 걷기 · 와치·폰 어디서든', ...SRC, icon: wk === 'done' ? 'check' : walking ? 'pause' : 'play_arrow', toggle: wk === 'done' ? () => set({ done:true }) : toggle };
+    const bars = (arr, hi, labels, full) => { const mx = Math.max(1, ...arr); return arr.map((v,k) => { const last = hi && k === arr.length-1; return { h: Math.max(6, Math.round(v/mx*(full ? 150 : 112)))+'px', c: last ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#3B5BDB)', sh: last ? '0 6px 14px rgba(112,72,232,.3)' : 'none', v: labels ? v.toLocaleString('ko-KR') : '', vc: last ? '#7048E8' : '#4A5D78', l: labels ? labels[k] : '', lc: last ? '#7048E8' : '#6B7A90', fw: last ? '800' : '600' }; }); };
+    // 시간대별 걸음
+    const hoursOf = hc => { const hv = (hc && hc.hourly) || {}, ks = Object.keys(hv).map(Number).sort((a,b) => a-b); if (!ks.length) return { hs:[], vs:[] }; const lo = Math.min(7, ks[0]), hi = ks[ks.length-1]; const hs = Array.from({length:hi-lo+1}, (x,k) => lo+k); return { hs, vs: hs.map(h => Math.round(+hv[h] || 0)) }; };
+    const HV = hoursOf(hcV);
+    // 심박 12구간
+    const hrBuckets = (ser, n) => { if (!ser || ser.length < 2) return []; const out = []; for (let i = 0; i < n; i++) { const a = Math.floor(i*ser.length/n), b = Math.max(a+1, Math.floor((i+1)*ser.length/n)), sl = ser.slice(a,b).map(x => x[1]); out.push(Math.round(sl.reduce((q,v) => q+v, 0)/sl.length)); } return out; };
+    const hrAvg = hcV && hcV.hr ? hcV.hr : 0, hrMaxV = hcV && hcV.hrMax ? hcV.hrMax : (hrSer ? Math.max(...hrSer.map(x => x[1])) : 0), hrMinV = hrSer ? Math.min(...hrSer.map(x => x[1])) : 0;
+    const spd = hcV && hcV.km > .3 && hcV.min ? (hcV.km / (hcV.min/60)).toFixed(1) : '—', stride = hcV && hcV.steps > 500 && hcV.km > .3 ? Math.round(hcV.km*100000/hcV.steps) : 0;
+    const cm = x => String(x).padStart(2,'0'), hmOf = m => cm(Math.floor(m/60)%24)+':'+cm(Math.round(m%60));
+    const passList = stops.map(s => ({ n: s.ko.replace(/\(.*\)/, ''), t: passedV[s.ko.replace(/\(.*\)/, '')] })).filter(x => x.t);
+    const SH = {
+      hr: { icon:'favorite', grad:'linear-gradient(135deg,#7048E8,#9775FA)', eyebrow: walking ? '실시간 · Galaxy Watch9' : syncT+' 기준', title:'심박', big: hrNow ? hrNow+' bpm' : '기록 없음', sub: hrAvg ? '평균 '+hrAvg+' · 최고 '+(hrMaxV || '—')+(hrMinV ? ' · 최저 '+hrMinV : '') : '워치 동기화 후 표시돼요', bars: bars(hrBuckets(hrSer, 12).length ? hrBuckets(hrSer, 12) : [0], true), xl: hrSer ? [hmOf(hrSer[0][0]), hmOf((hrSer[0][0]+hrSer[hrSer.length-1][0])/2), hmOf(hrSer[hrSer.length-1][0])] : [], rows:[['평균', hrAvg ? hrAvg+' bpm' : '—'],['최고', hrMaxV ? hrMaxV+' bpm' : '—'],['측정 간격','약 5분']] },
+      steps: { icon:'footprint', grad:'linear-gradient(135deg,#3B5BDB,#6C8CF5)', eyebrow: syncT+' 기준 · 5분마다 동기화', title:'시간대별 걸음', big: fmt(stepsV)+' 걸음', sub: HV.vs.length ? '가장 많이 걸은 때 '+HV.hs[HV.vs.indexOf(Math.max(...HV.vs))]+'시 '+fmt(Math.max(...HV.vs))+'걸음 · 옆으로 밀어 이전 시간' : '시간대별 기록이 아직 없어요', bars: bars(HV.vs.length ? HV.vs : [0], true, HV.hs.length ? HV.hs.map(h => h+'시') : [''], true), full:true, xl:[], rows:[['거리', hcV && hcV.km ? (+hcV.km).toFixed(1)+'km' : '—'],['평균 속도', spd === '—' ? '—' : spd+'km/h'],['평균 보폭', stride ? stride+'cm' : '—']] },
+      elev: { icon:'local_fire_department', grad:'linear-gradient(135deg,#E0861A,#FFB454)', eyebrow:'워치 · 활동 열량', title:'소모 열량', big: hcV && hcV.kcal ? fmt(hcV.kcal)+' kcal' : '기록 없음', sub:'걷는 동안 쓴 열량', bars: [], xl:[], rows:[['평균 심박', hrAvg ? hrAvg+' bpm' : '—'],['걸음', fmt(stepsV)],['거리', hcV && hcV.km ? (+hcV.km).toFixed(1)+'km' : '—']] },
+      time: { icon:'schedule', grad:'linear-gradient(135deg,#5B6FD4,#8B9CF0)', eyebrow:'휴식 제외', title:'걸은 시간', big: hcMin != null || wStartOk ? hmm(wStartOk ? elapsedMin : hcMin) : '0:00', sub: passList.length ? '출발 '+passList[0].t : '출발 전', rows: passList.length ? passList.map(p => [p.n, p.t+(p === passList[0] ? ' 출발' : ' 통과')]).concat([['남은 구간 예상', isT && !dayDone ? hhmm(etaMin)+' 도착 예정' : '—']]) : [['예상 걷는 시간', hmm(total * MIN_PER_KM)],['도착 예정', hhmm(X.eta)]] },
+      watch: { icon:'watch', grad:'linear-gradient(135deg,#3B5BDB,#6C8CF5)', eyebrow:'건강 데이터 연동', title:'Galaxy Watch9', big: syncOk ? '연결됨' : S.hc && S.hc.err ? '확인 필요' : '확인 중', sub:'심박·걸음·거리는 약 5분마다 들어옵니다', rows:[['마지막 동기화', syncT],['동기화 실패', S.hc && S.hc.err ? '있음' : '없음'],['위치 기록 점수', (() => { const L = (S.hc && S.hc.locs) || {}, a = L[ISO]; return a ? a.length+'점' : '0점'; })()]] },
+      next: { icon:'location_on', grad:'linear-gradient(135deg,#7048E8,#9775FA)', eyebrow:'다음 목적지 · '+(ORD[ni-1] || (ni)+'번째')+' 경유지', title: stName(ni), big: nkm+'km', sub:'약 '+nmin+'분 · '+nx.jp, isNext:true, rows:[['위치', nx.jp+(nx.i <= 52 ? ' · 도카이도 '+(nx.i+1)+'번째 역참' : '')],['도착 후 남은 거리', Math.max(0, total - nx.rel).toFixed(1)+'km'],['도착 예정', hhmm(START_MIN + nx.rel*MIN_PER_KM)]], cta:'구글 지도 도보 길찾기', href: gmap(llq(nx.ll)), hasCheck: isT && !dayDone, check: () => { O.advance(); this.arriveToast(); } },
+      plan: { icon:'edit_calendar', grad:'linear-gradient(135deg,#5B6FD4,#8B9CF0)', eyebrow:'DAY '+VW+' · '+relV, title:'일정 변경', isPlan:true }
+    };
+    const c = SH[S.sheet] || {};
+    const sh = { ...c, barW: c.full ? 'max-content' : '100%', colFlex: c.full ? 'none' : '1', colMin: c.full ? '58px' : '0', barH: c.full ? '210px' : '120px', gap: c.full ? '8px' : '5px', hasBig: !!c.big, hasBars: !!(c.bars && c.bars.length), hasRows: !!c.rows, isNext: !!c.isNext, isPlan: !!c.isPlan, hasCta: !!c.cta, hasCheck: !!c.hasCheck, check: c.check || (() => {}), bars: c.bars || [], xl: c.xl || [], rows: (c.rows || []).map(([k,v],i) => ({ k, v, top: i ? '1px solid #EEF0F7' : '0' })) };
+    const goPlan = (day) => () => { set({ sheet:null, sub:'plan', ntab:'more', pd: day, planSaved:false, mapFull:false }); };
+    const MGx = S.mg || {};
+    const planOpts = [['flag','오늘 목적지 변경','도착 지점을 다른 역참으로 바꿔요','#EDF0FF','#3B5BDB', goPlan(VW)],['train','구간 열차 이동','걷지 않은 구간은 기록에서 따로 표시됩니다','#F3F0FF','#7048E8', goPlan(VW)],['bedtime','휴식일 추가','내일을 쉬고 이후 일정을 하루씩 미룹니다','#E7F5FF','#1C7ED6', () => { const n = Math.min(31, VW+1); set({ mg:{...MGx, rest:{...(MGx.rest||{}), [n]: true}}, sheet:null }); }],['event_repeat','내일 일정 재조정','오늘 도착지에 맞춰 내일 출발지를 바꿉니다','#FFF4E5','#B5650B', goPlan(Math.min(31, VW+1))]].map(([icon,label,sub,bg,fg,run]) => ({ icon,label,sub,bg,fg,run }));
+    const active = S.mapFull ? 'map' : S.ntab;
+    const tabs = [['home','home','홈'],['map','map','지도'],['journey','route','여정'],['log','edit_note','기록'],['more','more_horiz','더보기']].map(([k,icon,label]) => { const on = k === active; return { icon, label, bg: on ? '#EDF0FF' : 'transparent', fg: on ? '#3B5BDB' : '#6B7A90', pick: () => k === 'map' ? set({ mapFull:true, sub:null }) : set({ ntab:k, mapFull:false, sub:null }) }; });
+
+    // ───── 경유지 팝업 ─────
+    const PLc = X.places || [];
+    const imgSet = imgs(VW);
+    const si = Math.min(S.spot ?? 0, nS-1), sp0 = stops[si], sdn = isDone(si), snx = si === ni && isT && !dayDone, sgoal = si === nS-1, skm = +(Math.max(0, sp0.rel - walked)).toFixed(1);
+    const nearP = PLc.filter(p => Math.abs(p.km - sp0.rel) < 0.8).sort((a,b) => Math.abs(a.km - sp0.rel) - Math.abs(b.km - sp0.rel))[0];
+    const spDesc = (sp0.i <= 52 ? '도카이도 '+(sp0.i+1)+'번째 역참 '+sp0.ko.replace(/\(.*\)/, '')+'('+sp0.jp+')입니다. ' : '')+(nearP ? nearP.name+' — '+((nearP.long || nearP.desc || '').replace(/^\[[^\]]*\]\s*/, '')) : '근처 명소·맛집은 오늘 탭의 지나는 곳에서 볼 수 있어요.');
+    const spPass = passedV[sp0.ko.replace(/\(.*\)/, '')];
+    const sp = { eyebrow: 'DAY '+VW+' · '+(si+1)+'번째 경유지', name: stName(si), jp: sp0.jp, sub: sgoal ? '도착 지점 · 숙소' : si === 0 ? '출발 지점' : '경유 지점', desc: spDesc, bg: imgSet[0], img: imgSet[S.spotImg % 4], imgN: (S.spotImg % 4)+1,
+      badge: sdn ? (spPass ? spPass+(si === 0 ? ' 출발' : ' 통과') : '지나옴') : snx ? '다음 경유지' : sgoal ? '오늘 도착지' : '예정', bi: sdn ? 'check_circle' : sgoal ? 'flag' : 'location_on', bf: sdn ? '#16804A' : snx ? '#7048E8' : '#3B5BDB',
+      metrics: [{ icon:'straighten', k:'남은 거리', v: sdn ? '통과' : skm+' km', c: sdn ? '#16804A' : '#18324F' }, { icon:'schedule', k:'예상 시간', v: sdn ? (spPass || '—') : durK(skm * MIN_PER_KM), c:'#18324F' }, { icon:'route', k:'누적 거리', v: (dd.startKm + sp0.rel).toFixed(1)+' km', c:'#18324F' }],
+      gallery: imgSet.map((bg,k) => ({ bg, ol: k === S.spotImg % 4 ? '2px solid #5B6FD4' : 'none', pick: () => set({ spotImg:k }) })),
+      tabs: stops.map((t,k) => { const on = k === si; return { n:k+1, label:t.ko.replace(/\(.*\)/, ''), bg: on ? '#fff' : 'rgba(255,255,255,.16)', fg: on ? '#3B5BDB' : '#fff', bd: on ? '#fff' : 'rgba(255,255,255,.38)', nb: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'rgba(255,255,255,.25)', nf:'#fff', pick: () => set({ spot:k, spotImg:0 }) }; }),
+      dir: gmap(llq(sp0.ll)) };
+
+    // ───── 날짜 이동 ─────
+    const dinfo = n => ({ n, date: dayOf(n).date, path: dayOf(n).path, km: dayOf(n).rest ? '휴식' : dayOf(n).km+'km' });
+    const rel = n => !started ? 'D-'+(Math.max(1, n-1)-df-1+1) : n === TD ? '오늘' : n === TD-1 ? '어제' : n === TD+1 ? '내일' : n < TD ? (TD-n)+'일 전' : (n-TD)+'일 뒤';
+    const dv = VW, nxd = Math.min(dv+1, 31);
+    const dn2 = { cur: { ...dinfo(dv), rel: relV }, nx: { ...dinfo(nxd), rel: rel(nxd) },
+      chipBg: dv === TD ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : dv < TD ? 'linear-gradient(135deg,#8C96B0,#B3BAD0)' : 'linear-gradient(135deg,#7048E8,#9775FA)',
+      prev: () => dv > 1 && (this.goView(dv-1), set({ spot:null, sheet:null })), next: () => dv < 31 && (this.goView(dv+1), set({ spot:null, sheet:null })), pO: dv > 1 ? '1' : '.3', nO: dv < 31 ? '1' : '.3', openNext: () => this.goView(nxd), goToday: () => this.goView(TD) };
+
+    // ───── 전체 종주 ─────
+    const posKm = X.posKmF, tkm = posKm, tt = { km: tkm.toFixed(1), w: (tkm/487.7*100)+'%', pct: Math.round(tkm/487.7*100)+'%', st: X.stationsDone, left: started ? (31 - TD + (dayDone ? 0 : 1))+'일' : '31일' };
+    const WKS = [[1,7],[8,14],[15,21],[22,28],[29,31]], wkKm = WKS.map(([a,b]) => ALL.slice(a-1,b).reduce((q,d) => q+d.km, 0)), wmx = Math.max(1, ...wkKm);
+    const curWk = Math.max(0, WKS.findIndex(([a,b]) => TD >= a && TD <= b)), jwSel = S.jw != null ? S.jw : curWk;
+    const walkedDays = started ? ALL.filter(d => d.n < TD && !d.rest).length + (dayDone ? 1 : 0) : 0;
+    const jn = { stats:[{icon:'check_circle',k:'걸은 날',v:walkedDays+'일'},{icon:'today',k:'남은 날',v:(31 - walkedDays - ALL.filter(d => d.rest && (!started || d.n >= TD)).length)+'일'},{icon:'bedtime',k:'휴식일',v:ALL.filter(d => d.rest).length+'일'},{icon:'train',k:'교통 이용',v:ALL.filter(d => d.tr > 0).length+'일'}],
+      dots: Array.from({length:53},(x,k) => { const cur = k === Math.min(52, X.stationsDone-1) && X.stationsDone > 0 && X.stationsDone < 53; return { c: k === 0 ? '#2F9E44' : k === 52 ? '#7048E8' : cur ? '#fff' : k < X.stationsDone ? '#8B9CF0' : '#E6E9F7', sh: cur ? '0 0 0 2px #3B5BDB' : 'none' }; }),
+      weeks: WKS.map(([a,b],k) => { const sts = !started ? '예정' : b < TD ? '완료' : a <= TD ? '진행 중' : '예정', c = stC(sts === '진행 중' ? '오늘' : sts); return { label:(k+1)+'주', km: wkKm[k].toFixed(1)+'km', w:(wkKm[k]/wmx*100)+'%', path: KO[ALL[a-1].s]+' → '+KO[ALL[b-1].e], st: sts, sb:c[0], sf:c[1], c: sts === '완료' ? 'linear-gradient(90deg,#3B5BDB,#8B9CF0)' : sts === '진행 중' ? 'linear-gradient(90deg,#5B6FD4,#C9B8F5)' : 'rgba(91,111,212,.2)' }; }),
+      tabs: WKS.map((w,k) => ({ label:(k+1)+'주', ...chipOf(jwSel === k), pick: () => set({ jw:k }) })),
+      days: ALL.slice(WKS[jwSel][0]-1, WKS[jwSel][1]).map((d,k) => { const s2 = st2(d), cc = stC(s2), now = started && d.n === TD; return { n:d.n, path:d.path, date:d.date, km: d.rest ? '휴식' : d.km+'km', st:s2, sb:cc[0], sf:cc[1], top: k ? '1px solid #EEF0F7' : '0',
+        bg: now ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : started && d.n < TD ? '#EDF0FF' : '#fff', fg: now ? '#fff' : started && d.n < TD ? '#3B5BDB' : '#18324F', bd: now || started && d.n < TD ? '0' : '1.5px solid #DCE0F7', open: () => set({ sub:'day', dayN:d.n }) }; }) };
+
+    // ───── 하루 자세히 ─────
+    const dN = S.dayN != null ? S.dayN : VW, DY = ALL[dN-1], dpast = started && dN < TD, disT = started && dN === TD, hcDy = hcOf(dN) || (disT ? X.hcT : null);
+    const dwp = DY.stops, NL = S.noteLog || {}, isoDy = isoOf(dateOf(dN)), noteDy = NL[isoDy] || '';
+    const dpl = dayData(dN);
+    const slotPh = (n, j) => ({ id: 'day-'+n+'-photo-'+j });
+    const dd2 = { n:dN, date:DY.date, path:DY.path, jp:DY.jp, st:st2(DY), sf:stC(st2(DY))[1], grad: imgs(dN)[0],
+      plan:[{k:'거리',v: DY.rest ? '휴식' : DY.km+'km'},{k:'걷는 시간',v: DY.rest ? '—' : hmm(Math.max(0, DY.km - DY.tr) * MIN_PER_KM)},{k:'걸음',v: DY.rest ? '—' : fmt(Math.max(0, DY.km - DY.tr) * 1340)}],
+      act: (dpast || disT) && hcDy ? [{k:'거리',v:(+hcDy.km || 0).toFixed(1)+'km'},{k:'걸은 시간',v: hcDy.min != null ? hmm(hcDy.min) : '—'},{k:'걸음',v: fmt(hcDy.steps || 0)}] : [{k:'거리',v:'—'},{k:'걸은 시간',v:'—'},{k:'걸음',v:'—'}],
+      wps: dwp.map((s,k) => ({ no: s.i <= 52 ? s.i+1 : '·', ko:s.ko.replace(/\(.*\)/, ''), jp:s.jp, km: DY.rest ? '휴식' : s.rel.toFixed(1)+'km', top: k ? '1px solid #EEF0F7' : '0', bg: k === dwp.length-1 ? '#7048E8' : '#3B5BDB' })), wpN: dwp.length+'곳',
+      lodge: (() => { const h = HT[dN] || HT[String(dN)]; return h && h.ko ? h.ko : KO[DY.e]+' · 숙소 미정'; })(), ls: (() => { const h = HT[dN] || HT[String(dN)]; return h && h.ko ? '예약 확정' : '미정'; })(),
+      lb: (() => { const h = HT[dN] || HT[String(dN)]; return h && h.ko ? '#E4F8EC' : '#FFF3D8'; })(), lf: (() => { const h = HT[dN] || HT[String(dN)]; return h && h.ko ? '#16804A' : '#8A5A0E'; })(),
+      photos: [0,1,2].map(j => ({ slot: 'day-'+dN+'-photo-'+(j+1), cls: disT || dpast ? '' : 'ro', bg: dpast || disT ? '#F1F3FA' : '#F1F3FA', icon: dpast || disT ? '' : 'add_a_photo', fg: '#8C96B0', gc: j === 0 ? '1 / -1' : 'auto' })),
+      note: noteDy ? '“'+noteDy+'”' : (dpast || disT ? '남긴 글이 없어요. 아래에 한 줄을 남겨 보세요.' : '아직 기록이 없습니다. 걷고 난 뒤 사진과 한 줄을 남겨 보세요.'), noteV: noteDy, canNote: dpast || disT, onNote: e => set({ noteLog:{...NL,[isoDy]:e.target.value}, noteSaved:false }),
+      tkEmpty: !(dpast || disT) || DY.rest, trkO: dpast || disT ? '1' : '0', planO: '1', tkN: DY.rest ? '휴식일' : dpast || disT ? (((S.hc && S.hc.locs) || {})[isoDy] || []).length+'점' : '기록 없음', tkB: dpast ? '#E4F8EC' : disT ? '#EDF0FF' : 'rgba(24,50,79,.06)', tkF: dpast ? '#16804A' : disT ? '#3B5BDB' : '#6B7A90',
+      tkKm: (dpast || disT) && hcDy ? (+hcDy.km || 0).toFixed(1)+'km 기록' : '계획 '+DY.km+'km', tkSrc: '폰 GPS · OwnTracks',
+      prev: () => dN > 1 && set({ dayN:dN-1 }), next: () => dN < 31 && set({ dayN:dN+1 }) };
+
+    // ───── 일정 관리 ─────
+    const PDi = S.pd != null ? S.pd : VW, P2 = ALL[PDi-1], pEnd = P2.e;
+    const perKm = i => +(ST[i+1].km - ST[i].km).toFixed(1);
+    const trSelN = TRN[PDi] ? TRN[PDi] : null, inTr = i => !!trSelN && i >= trSelN.a && i < trSelN.b;
+    const segIdx = Array.from({length:Math.max(0, pEnd - P2.s)}, (x,k) => P2.s+k);
+    const trKm = +segIdx.filter(inTr).reduce((q,i) => q + perKm(i), 0).toFixed(1), pkm = +segIdx.reduce((q,i) => q + perKm(i), 0).toFixed(1);
+    const setMode = (i, ride) => { const cur = segIdx.filter(inTr); const nx2 = ride ? [...new Set([...cur, i])] : cur.filter(x => x !== i); const mode = { ...(MGx.mode || {}) }; if (nx2.length) mode[PDi] = { a: Math.min(...nx2), b: Math.max(...nx2)+1, k: S.trm }; else delete mode[PDi]; set({ mg:{...MGx, mode}, planSaved:false }); };
+    const HTd = HT[PDi] || HT[String(PDi)], confP = !!(HTd && HTd.ko), LFd = ((MGx.lf || {})[PDi]) || {};
+    const pl2 = { n:PDi, date:P2.date, a:KO[P2.s], b:KO[pEnd], km: pEnd === P2.s ? '휴식' : pkm+'km', warn: pkm - trKm > 30, walkKm:(Math.max(0,pkm-trKm)).toFixed(1)+'km', trKm: trKm+'km', walkT: durK(Math.max(0,pkm-trKm) * MIN_PER_KM), trNote: trKm ? ({train:'열차',bus:'버스',taxi:'택시'}[S.trm] || '열차')+' · 약 '+Math.max(10, Math.round(trKm*2.2))+'분' : '교통 이용 없음', hasTr: trKm > 0,
+      segs: segIdx.map((i,k) => { const on = inTr(i); return { from:KO[i], to:KO[i+1], km: perKm(i)+'km · '+(on ? '교통' : '걷기'), top: k ? '1px solid #EEF0F7' : '0', bar: on ? 'repeating-linear-gradient(135deg,#9775FA 0 6px,#C9B8F5 6px 10px)' : 'linear-gradient(90deg,#3B5BDB,#6C8CF5)',
+          wb: on ? 'transparent' : '#fff', wf: on ? '#6B7A90' : '#3B5BDB', ws: on ? 'none' : '0 2px 6px rgba(40,50,140,.15)', rb: on ? '#7048E8' : 'transparent', rf: on ? '#fff' : '#6B7A90', rs: on ? '0 2px 6px rgba(112,72,232,.3)' : 'none', walk: () => setMode(i, false), ride: () => setMode(i, true) }; }),
+      days: ALL.map(d => { const on = d.n === PDi, ch = MGx.ends && MGx.ends[d.n] != null || MGx.rest && MGx.rest[d.n]; return { n:d.n, bg: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : '#fff', fg: on ? '#fff' : started && d.n < TD ? '#8C96C2' : '#18324F', bd: on ? 'transparent' : '#DCE0F7', sh: on ? '0 6px 14px rgba(91,111,212,.3)' : 'none', dot: ch ? '#E0861A' : started && d.n === TD ? (on ? '#fff' : '#3B5BDB') : 'transparent', pick: () => set({ pd:d.n, planSaved:false }) }; }),
+      ends: Array.from({length:Math.max(1, Math.min(F ? 7 : 5, 56-P2.s))}, (x,k) => P2.s+k).map(i => { const on = i === pEnd; return { name:KO[i], jp:JP[i], km: i === P2.s ? '휴식' : (ST[i].km - ST[P2.s].km).toFixed(1)+'km', bg: on ? '#EDF0FF' : '#fff', bd: on ? '#8B9CF0' : '#E6E9F7', ring: on ? '0' : '2px solid #C5CCEE', dot: on ? '#3B5BDB' : 'transparent', dd: on ? 'block' : 'none', pick: () => set({ mg:{...MGx, ends:{...(MGx.ends||{}), [PDi]: i}, rest:{...(MGx.rest||{}), [PDi]: i === P2.s}}, planSaved:false }) }; }),
+      modes: [['train','열차'],['bus','버스'],['taxi','택시']].map(([k,label]) => ({ label, ...chipOf(S.trm === k), pick: () => { const mode = { ...(MGx.mode || {}) }; if (mode[PDi]) mode[PDi] = { ...mode[PDi], k }; set({ trm:k, mg:{...MGx, mode}, planSaved:false }); } })),
+      ls: confP ? '예약 확정' : '미정', lb: confP ? '#E4F8EC' : '#FFF3D8', lf: confP ? '#16804A' : '#8A5A0E',
+      fields: [['name','숙소 이름', confP ? HTd.ko : ''],['price','1박 요금 (엔)',''],['in','체크인','']].map(([k,label,def]) => ({ k:label, v: LFd[k] ?? def, on: e => set({ mg:{...MGx, lf:{...(MGx.lf||{}), [PDi]:{...LFd,[k]:e.target.value}}}, planSaved:false }) })),
+      line30: Math.round(30/42*120)+'px', chart: ALL.map(d => { const on = d.n === PDi; return { h: Math.max(4, Math.round(d.km/42*120))+'px', c: on ? '#7048E8' : d.km > 30 ? '#F06A7F' : started && d.n < TD ? '#8B9CF0' : '#C5CCEE', ol: on ? '2px solid #C9B8F5' : 'none', pick: () => set({ pd:d.n, planSaved:false }) }; }),
+      search: qmap(JP[pEnd]+' ホテル'), mapEmbed: 'https://www.google.com/maps?q='+encodeURIComponent(((LFd.name ?? '') || (confP && HTd.ll && !/^35\.0,138\.5$/.test(HTd.ll) ? HTd.ll : JP[pEnd]+'駅 ホテル')))+'&z=15&output=embed',
+      sum:[{icon:'route',k:'31일 거리',v:Math.round(ST[Math.min(55, ALL[30].e)].km)+'km'},{icon:'flag',k:'30km 초과',v:ALL.filter(d => d.km - d.tr > 30).length+'일'},{icon:'hotel',k:'숙소 확정',v:Object.values(HT).filter(h => h && h.ko).length+' / 31'}],
+      saveLabel: S.planSaved ? '저장됨 ✓' : '변경 저장', saveBg: S.planSaved ? 'linear-gradient(135deg,#2F9E44,#51CF66)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)', save: () => set({ planSaved:true }), reset: () => set({ mg:{}, planSaved:false }) };
+
+    // ───── 스탬프 · 배지 ─────
+    const SM = S.smode || {}, tStart = started ? dayData(TD).startKm : -1, MOD = k => SM[k] ?? (ST[k].km <= tStart + .01 ? 'w' : 'n'), sts = Array.from({length:53},(x,k) => ({w:1,t:2,n:0})[MOD(k)]), wN = sts.filter(x => x === 1).length, tN = sts.filter(x => x === 2).length;
+    const BGS = (O.badges || []);
+    const stp2 = { pct: Math.round((wN+tN)/53*100)+'%', done: wN+tN, badgeN: BGS.filter(x => x.c === '#8A5A12').length+' / '+BGS.length,
+      sum:[{icon:'footprint',k:'걸어서',v:wN+'곳'},{icon:'train',k:'교통',v:tN+'곳'},{icon:'flag',k:'남은 곳',v:(53-wN-tN)+'곳'}],
+      filters: [['all','전체'],['got','받은 도장'],['left','남은 곳']].map(([k,label]) => ({ label, ...chipOf(S.sf === k), pick: () => set({ sf:k }) })),
+      list: sts.map((v,k) => ({v,k})).filter(o => S.sf === 'all' || (S.sf === 'got' ? o.v > 0 : o.v === 0)).map(({v,k}) => ({ no:k+1, jp:JP[k], ko:KO[k], bg: v === 1 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : v === 2 ? '#F3F0FF' : '#fff', fg: v === 1 ? '#fff' : v === 2 ? '#7048E8' : '#8C96C2', bd: v === 1 ? '0' : v === 2 ? '1.5px dashed #9775FA' : '1.5px solid #DCE0F7', sh: v === 1 ? '0 4px 10px rgba(112,72,232,.25)' : 'none', pick: () => { const cur = MOD(k); set({ smode:{...SM,[k]: cur === 'n' ? 'w' : cur === 'w' ? 't' : 'n'} }); } })),
+      badges: BGS.map(g => { const ok = g.c === '#8A5A12', hide = g.t === '???'; return { icon: hide ? 'lock' : ok ? 'military_tech' : 'flag', t: g.t, s: ok ? g.s : hide ? '시크릿' : '도전 중', o: ok ? '1' : '.6', bg: ok ? '#fff' : 'rgba(255,255,255,.5)', bd: ok ? '#E0D7FB' : '#E6E9F7', ib: ok ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'rgba(24,50,79,.08)', if: ok ? '#fff' : '#8C96C2' }; }) };
+
+    // ───── 사진 일기 ─────
+    const diaryN = Math.max(1, Math.min(31, started ? TD : 1));
+    const diary2 = Array.from({length:diaryN}, (x,k) => ALL[diaryN-1-k]).map(d => { const has = started && d.n <= TD, nt = NL[isoOf(dateOf(d.n))], isTd = d.n === TD && started;
+      return { n:d.n, date:d.date, path:d.path, km: d.rest ? '휴식' : d.km+'km', grad: has ? imgs(d.n)[0] : 'linear-gradient(135deg,#B8BED8,#D6D9EA)', icon: has ? '' : 'add_a_photo', note: nt ? '“'+nt+'”' : has ? '남긴 글 없음' : '오늘 사진과 한 줄을 남겨 보세요', nc: nt ? '#3A4D68' : '#6B7A90', slot: 'day-'+d.n+'-photo-1', slotCls: isTd ? '' : 'ro', stopIf: isTd ? (e => e.stopPropagation()) : null, open: () => set({ dp:d.n, dpi:0 }) }; });
+    const DPN = S.dp != null ? S.dp : 1, DPD = ALL[DPN-1], dpPast = started && DPN < TD, dpTd = started && DPN === TD, dpHas = (dpPast || dpTd) && !DPD.rest, dpHc = hcOf(DPN), dpIm = imgs(DPN), dpCnt = 4, dpi = Math.min(S.dpi || 0, dpCnt-1), dpNote = NL[isoOf(dateOf(DPN))];
+    const dpv = { n:DPN, date:DPD.date, km: DPD.rest ? '휴식' : DPD.km+'km', path:DPD.path, jp:DPD.jp, cnt:dpCnt, imgN:dpi+1, bg: dpIm[dpi], img: dpHas ? dpIm[dpi] : 'linear-gradient(135deg,#8B9CF0,#C9B8F5)', hasPh: dpHas,
+      thumbs: dpIm.map((bg,k) => ({ bg, ol: k === dpi ? '2px solid #5B6FD4' : 'none', pick: () => set({ dpi:k }) })),
+      stats: dpHas && dpHc ? [{k:'거리',v:(+dpHc.km||0).toFixed(1)+'km'},{k:'걸은 시간',v: dpHc.min != null ? hmm(dpHc.min) : '—'},{k:'걸음',v:fmt(dpHc.steps||0)}] : [{k:'계획 거리',v:DPD.rest?'휴식':DPD.km+'km'},{k:'걷는 시간',v:DPD.rest?'—':hmm(DPD.km*MIN_PER_KM)},{k:'숙소',v:(HT[DPN]||HT[String(DPN)]||{}).ko ? '확정' : '미정'}],
+      noteK: dpHas ? 'JOURNAL · 사진과 한 줄' : DPD.rest ? 'REST DAY · 휴식일' : 'PLAN · 아직 기록 없음', note: dpNote ? '“'+dpNote+'”' : dpHas ? '남긴 글이 없어요.' : DPD.rest ? '걷지 않고 쉬는 날입니다. 빨래와 발 정비를 해 두세요.' : '걷고 난 뒤 사진과 한 줄을 남겨 보세요.',
+      wps: DPD.stops.map((s,k) => ({ no: s.i <= 52 ? s.i+1 : '·', ko:s.ko.replace(/\(.*\)/, ''), jp:s.jp, km: DPD.rest ? '휴식' : s.rel.toFixed(1)+'km', top: k ? '1px solid #EEF0F7' : '0', bg: k === DPD.stops.length-1 ? '#7048E8' : '#3B5BDB' })),
+      prev: () => DPN > 1 && set({ dp:DPN-1, dpi:0 }), next: () => DPN < Math.max(1, TD) && set({ dp:DPN+1, dpi:0 }), pO: DPN > 1 ? '1' : '.3', nO: DPN < Math.max(1, TD) ? '1' : '.3',
+      detail: () => set({ dp:null, sub:'day', dayN:DPN }), close: () => set({ dp:null }) };
+
+    // ───── 일본어 ─────
+    const PHD = { '필수': PH.filter(p => p[4]).map(p => [p[3], p[1], p[2]]) }; PH.forEach(p => (PHD[p[0]] = PHD[p[0]] || []).push([p[3], p[1], p[2]]));
+    const JC = PHD[S.jc] ? S.jc : '필수', pls = PHD[JC], ji = Math.min(S.ji, pls.length-1);
+    const jp2 = { cats: Object.keys(PHD).map(c => ({ label: c === '필수' ? '★ 필수' : c, ...chipOf(JC === c), pick: () => set({ jc:c, ji:0 }) })), sel: { cat:JC, ko:pls[ji][0], jp:pls[ji][1], read:pls[ji][2] },
+      list: pls.map((p,k) => ({ ko:p[0], jp:p[1], read:p[2], bd: k === ji ? '2px solid #8B9CF0' : '1px solid rgba(255,255,255,.95)', bg: k === ji ? '#F6F4FF' : 'rgba(255,255,255,.85)', pick: () => set({ ji:k }) })),
+      badge: (JC === '필수' ? '★ ' : '')+JC+' · '+(ji+1)+' / '+pls.length, big: !!S.jpBig, openBig: () => set({ jpBig:true }), closeBig: () => set({ jpBig:false }),
+      prev: () => set({ ji:(ji+pls.length-1)%pls.length }), next: () => set({ ji:(ji+1)%pls.length }) };
+
+    // ───── 날씨 · 환율 ─────
+    const WL = S.wlive && S.wlive.d, WIC = c => c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', WNM = c => c <= 1 ? '맑음' : c <= 3 ? '구름 조금' : c <= 48 ? '흐림' : c <= 67 ? '비' : c <= 77 ? '눈' : c <= 82 ? '소나기' : '흐림';
+    const wx2 = WL ? WL.time.slice(0,7).map((t,k) => { const icon = WIC(WL.weather_code[k]), rain = (WL.precipitation_probability_max[k] ?? 0)+'%'; return { name: k === 0 ? '오늘' : WDN[new Date(t+'T00:00:00').getDay()], icon, hi: Math.round(WL.temperature_2m_max[k]), lo: Math.round(WL.temperature_2m_min[k]), rain, bg: k === 0 ? 'rgba(91,111,212,.12)' : 'transparent', ic: icon === 'sunny' ? '#E0861A' : icon === 'rainy' ? '#1C7ED6' : '#8C96B0', rc: parseInt(rain) >= 50 ? '#1C7ED6' : '#6B7A90' }; }) : [];
+    const hm5 = t => t ? t.slice(11,16) : '—';
+    const wxd2 = [{icon:'wb_twilight',k:'일출',v:WL ? hm5(WL.sunrise[0]) : '—'},{icon:'bedtime',k:'일몰',v:WL ? hm5(WL.sunset[0]) : '—'},{icon:'thermostat',k:'지금',v:S.wlive && S.wlive.now != null ? Math.round(S.wlive.now)+'°' : '—'},{icon:'umbrella',k:'오늘 강수',v:WL ? (WL.precipitation_probability_max[0] ?? 0)+'%' : '—'}];
+    const wxCard = { place: 'WEATHER · 지금 · '+((S.wlive && S.wlive.name) || KO[Math.min(55, X.stationsDone)] || '현재 위치'), icon: S.wlive ? WIC(S.wlive.code) : 'partly_cloudy_day', t: S.wlive && S.wlive.now != null ? Math.round(S.wlive.now)+'°' : '—', desc: S.wlive ? WNM(S.wlive.code)+(WL ? ' · 오늘 '+Math.round(WL.temperature_2m_min[0])+'° ~ '+Math.round(WL.temperature_2m_max[0])+'°' : '') : '날씨를 불러오는 중' };
+    const rate = ((S.fxAuto && S.fxAuto.r) || (S.fxRate && +S.fxRate) || 905) / 100, fv = Number(dig(S.fxv)) || 0, jk = (S.nfxDir || 'jk') === 'jk';
+    const fx2 = { from: jk ? '엔' : '원', to: jk ? '원' : '엔', fu: jk ? '¥' : '₩', tu: jk ? '₩' : '¥', val:S.fxv, res: fmt(jk ? fv*rate : fv/rate), on: e => { const d = dig(e.target.value); set({ fxv: d ? Number(d).toLocaleString('ko-KR') : '' }); }, swap: () => set({ nfxDir: jk ? 'kj' : 'jk' }),
+      quick: (jk ? [1000,3000,5000,10000] : [10000,30000,50000,100000]).map(n => ({ label:(jk?'¥':'₩')+fmt(n), ...chipOf(fv === n), pick: () => set({ fxv:fmt(n) }) })) };
+    const fxLabel = '100엔 = '+Math.round(rate*100)+'원'+(S.fxAuto ? ' · '+S.fxAuto.t : ' · 기본값');
+    const sos = [{label:'경찰',note:'사건 · 분실',num:'110',href:'tel:110'},{label:'구급 · 소방',note:'다쳤을 때 · 화재',num:'119',href:'tel:119'},{label:'영사콜센터',note:'해외 안전 · 24시간',num:'+82-2-3210-0404',href:'tel:+82232100404'}];
+
+    // ───── 더보기 ─────
+    const HTn = Object.values(HT).filter(h => h && h.ko).length, NLk = Object.keys(NL).filter(k => NL[k]);
+    const mo2 = [['plan','edit_calendar','일정 관리','날짜별 목적지 · 숙소','linear-gradient(135deg,#3B5BDB,#6C8CF5)','rgba(59,91,219,.3)'],['stamp','approval','스탬프 · 배지',(wN+tN)+' / 53 역참 · 배지 '+BGS.filter(x => x.c === '#8A5A12').length,'linear-gradient(135deg,#7048E8,#9775FA)','rgba(112,72,232,.3)'],['diary','photo_library','사진 일기',NLk.length ? '남긴 글 '+NLk.length+'일' : '날짜별 사진과 한 줄','linear-gradient(135deg,#1C7ED6,#4DABF7)','rgba(28,126,214,.3)'],['jp','translate','일본어','상황별 문장 · 크게 보여주기','linear-gradient(135deg,#5B6FD4,#C9B8F5)','rgba(91,111,212,.3)'],['info','sunny','날씨 · 환율','7일 날씨 · 엔⇄원','linear-gradient(135deg,#1C7ED6,#8B9CF0)','rgba(28,126,214,.3)'],['journey','route','전체 여정','31일 · '+tt.pct+' 완주','linear-gradient(120deg,#5B6FD4,#8B9CF0,#C9B8F5)','rgba(91,111,212,.3)']].map(([k,icon,label,sub,grad,glow]) => ({ icon,label,sub,grad,glow, open: () => k === 'journey' ? set({ ntab:'journey' }) : set({ sub:k }) }));
+    const lastLoc = (() => { const L = (S.hc && S.hc.locs) || {}, ks = Object.keys(L).sort(), a = ks.length ? L[ks[ks.length-1]] : null, t = a && a.length ? a[a.length-1][2] : 0; if (!t) return '기록 없음'; const d = new Date(t*1000); return '마지막 '+(d.getMonth()+1)+'/'+d.getDate()+' '+cm(d.getHours())+':'+cm(d.getMinutes()); })();
+    const setRows = [{icon:'watch',label:'Galaxy Watch9',sub:'심박·걸음 약 5분마다',v: syncOk ? '동기화됨' : '확인 중',bg: syncOk ? '#E4F8EC' : '#FFF3D8',fg: syncOk ? '#16804A' : '#8A5A0E',pick:()=>this.loadHc()},{icon:'my_location',label:'위치 기록 (OwnTracks)',sub:'걸은 길 지도에 표시',v:lastLoc,bg:'rgba(24,50,79,.06)',fg:'#4A5D78',pick:()=>{}},{icon:'dark_mode',label:'다크 모드',sub:'밤에 눈부심 줄이기',v:S.dark?'켜짐':'꺼짐',bg:S.dark?'#EDF0FF':'rgba(24,50,79,.06)',fg:S.dark?'#3B5BDB':'#6B7A90',pick:()=>set({dark:!S.dark})}].map((r,k) => ({ ...r, top: k ? '1px solid #EEF0F7' : '0' }));
+
+    // ───── 기록 (날짜별) ─────
+    const loIso = isoOf(new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() + Math.min(0, S.lo || 0))), loD = new Date(loIso+'T00:00:00');
+    const hcKeys = Object.keys(HCD).sort(), loMin = Math.min(0, Math.round((new Date((hcKeys[0] || ISO)+'T00:00:00') - new Date(ISO+'T00:00:00')) / 864e5));
+    const lo = Math.max(loMin, Math.min(0, S.lo || 0)), LISO = isoOf(new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() + lo)), LD = new Date(LISO+'T00:00:00');
+    const lTrip = Math.round((LD - new Date(2026, 11, 4)) / 864e5) + 1, lIn = lTrip >= 1 && lTrip <= 31;
+    const hcL = HCD[LISO] || null, isLT = lo === 0;
+    const lgd = { n: lIn ? lTrip : 0, nl: lIn ? lTrip+'일차' : lTrip < 1 ? '출발 전' : '여행 후', date:(LD.getMonth()+1)+'.'+LD.getDate()+' ('+WDN[LD.getDay()]+')', path: lIn ? ALL[lTrip-1].path : '시나가와 출발 전 준비 기간', rel: lo === 0 ? '오늘' : lo === -1 ? '어제' : lo === -2 ? '그제' : (-lo)+'일 전',
+      chipBg: lo === 0 ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : 'linear-gradient(135deg,#8C96B0,#B3BAD0)',
+      prev: () => lo > loMin && set({ lo: lo-1 }), next: () => lo < 0 && set({ lo: lo+1 }), pO: lo > loMin ? '1' : '.3', nO: lo < 0 ? '1' : '.3' };
+    const HL = hoursOf(hcL), hmx = Math.max(1, ...HL.vs), hlast = HL.vs.length - 1;
+    const lstep = hcL ? (hcL.steps || 0) : 0, GOAL = 20000, lserBase = hcL && hcL.series && hcL.series.length >= 2 ? hcL.series : null;
+    const lserV = lserBase ? lserBase.map(a => a[1]) : [], pts = (arr, w, h, mn, mx) => arr.length < 2 ? '' : arr.map((v,k) => (k/(arr.length-1)*w).toFixed(1)+','+((mx-v)/(mx-mn)*h).toFixed(1)).join(' ');
+    const plannedC = (() => { let q = 0; return ALL.map(d => (q += d.km)); })(), actC = (() => { let q = 0; return ALL.map(d => { if (!started || d.n > TD) return null; const h = hcOf(d.n) || (d.n === TD ? X.hcT : null); q += h ? (+h.km || 0) : 0; return q; }); })();
+    const cpx = (arr) => arr.map((v,k) => v == null ? null : ((k+1)/31*300).toFixed(1)+','+(140 - v/488*130).toFixed(1)).filter(Boolean).join(' ');
+    const actNow = started ? actC[Math.min(30, TD-1)] : null, planNow = started ? plannedC[Math.min(30, TD-1)] : 0;
+    const CKs = ['발바닥','무릎','종아리','어깨','피로'], BL = S.bodyLog || {}, bToday = BL[LISO] || {}, condV = Object.fromEntries(CKs.map(k => [k, bToday[k] != null ? bToday[k] : 0]));
+    const prevIso = n => { const d = new Date(LD); d.setDate(d.getDate()-n); return isoOf(d); };
+    const hist = n => { const b = BL[prevIso(n)] || null; return Object.fromEntries(CKs.map(k => [k, b && b[k] != null ? b[k] : null])); };
+    const H1 = hist(1), H2 = hist(2), lvl = n => n == null ? ['#F1F3FA','#B3BAD0'] : n >= 4 ? ['#FDE9EC','#B8364A'] : n >= 2 ? ['#F3F0FF','#7048E8'] : n >= 1 ? ['#EDF0FF','#3B5BDB'] : ['#F1F3FA','#8C96B0'];
+    const sumOf = o => CKs.reduce((q,k) => q + (o[k] || 0), 0), cs = sumOf(condV), s1 = sumOf(H1), s0 = sumOf(H2), cd = cs - s1;
+    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 15 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 8 ? ['주의','#F3F0FF','#7048E8'] : ['가벼움','#E4F8EC','#16804A'];
+    const EL = S.expLog || {}, expT = EL[LISO] || [], toW = e => e.c === 'jpy' ? e.v*rate : e.v, totW = expT.reduce((q,e) => q+toW(e), 0);
+    const cumW = Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.reduce((r,e) => r + toW(e), 0), 0), cumDays = Math.max(1, Object.keys(EL).filter(k => (!started || k >= '2026-12-04') && EL[k].length).length);
+    const sleepDays = Array.from({length:7}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(6-k)); const iso = isoOf(d), h = HCD[iso]; return { l: WDN[d.getDay()], v: h && h.sleep ? h.sleep/60 : 0 }; });
+    const slV = sleepDays.filter(x => x.v > 0), slAvg = slV.length ? slV.reduce((q,x) => q+x.v, 0)/slV.length : 0;
+    const wDays = Object.keys(HCD).filter(k => HCD[k].weight && k <= LISO).sort().slice(-12), WT = wDays.map(k => +HCD[k].weight);
+    const wNowV = (isLT && S.wToday) || (hcL && hcL.weight) || (WT.length ? WT[WT.length-1] : null), wBase = WT.length ? WT[0] : wNowV;
+    const wMin = WT.length ? Math.min(...WT, wNowV || 99)-0.5 : 70, wMax = WT.length ? Math.max(...WT, wNowV || 0)+0.5 : 80;
+    const lg2 = { dash: (314.2*Math.min(1, lstep/GOAL)).toFixed(1)+' 314.2', ring: Math.min(100, Math.round(lstep/GOAL*100))+'%', steps: fmt(lstep), goalLeft: lstep >= GOAL ? '목표 달성 🎉' : fmt(GOAL-lstep)+'걸음 남음', sync: { t: syncOk ? 'Galaxy Watch9 연결됨' : '워치 확인 중', s: '마지막 동기화 '+syncT+(hcL && hcL.hr ? ' · 평균 심박 '+hcL.hr : ''), chip: syncOk ? '정상' : '확인' },
+      hourNote: HL.vs.length ? '가장 많이 '+HL.hs[HL.vs.indexOf(Math.max(...HL.vs))]+'시 · 옆으로 밀기' : '시간대 기록 없음',
+      hours: HL.vs.map((v,k) => { const last = k === hlast && isLT; return { v: fmt(v), l: HL.hs[k]+'시', h: Math.max(3, Math.round(v/hmx*118))+'px', c: last ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#3B5BDB)', vc: last ? '#7048E8' : '#4A5D78' }; }),
+      hrPts: pts(lserV, 300, 120, Math.min(70, ...(lserV.length ? lserV : [70])), Math.max(150, ...(lserV.length ? lserV : [150]))), hrAvgT: hcL && hcL.hr ? '평균 '+hcL.hr+' bpm' : '기록 없음',
+      hx0: lserBase ? hmOf(lserBase[0][0]) : '', hx1: lserBase ? hmOf((lserBase[0][0]+lserBase[lserBase.length-1][0])/2) : '', hx2: lserBase ? (isLT ? '지금' : hmOf(lserBase[lserBase.length-1][0])) : '',
+      hrStat:[{k:'최저',v: lserV.length ? Math.min(...lserV) : '—'},{k:'평균',v: hcL && hcL.hr ? hcL.hr : '—'},{k:'최고',v: hcL && hcL.hrMax ? hcL.hrMax : lserV.length ? Math.max(...lserV) : '—'}],
+      planPts: cpx(plannedC), actPts: cpx(actC), nowX: started ? (Math.min(31, TD)/31*300).toFixed(1) : '0', nowY: started && actNow != null ? (140 - actNow/488*130).toFixed(1) : '140',
+      cumTitle: started ? '실제 vs 계획' : '출발 후 표시', cumNote: started ? (actNow < planNow ? '계획보다 '+(planNow-actNow).toFixed(1)+'km 덜 걸음' : '계획보다 '+(actNow-planNow).toFixed(1)+'km 더 걸음') : '12/4 출발 후 계획과 비교해요',
+      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:false }) }; }) })),
+      condSum: cs, sumLabel: labC[0], sumBg: labC[1], sumFg: labC[2], sumNote: condV[worst] ? worst+'이(가) 가장 불편 ('+condV[worst]+')' + (BL[prevIso(1)] || BL[prevIso(2)] ? ' · 그제 '+s0+' → 어제 '+s1+' → 오늘 '+cs : '') : '아픈 곳 없음',
+      trend: !BL[prevIso(1)] ? '어제 기록 없음' : cd < 0 ? '어제보다 ↓'+(-cd) : cd > 0 ? '어제보다 ↑'+cd : '어제와 같음', trFg: !BL[prevIso(1)] ? '#6B7A90' : cd < 0 ? '#16804A' : cd > 0 ? '#B8364A' : '#6B7A90',
+      histHead: [{t:'그제',c:'#8C96B0'},{t:'어제',c:'#6B7A90'},{t:'오늘',c:'#3B5BDB'}],
+      hist: CKs.map(k => ({ label:k, v:[H2[k],H1[k],condV[k]].map((n,i) => { const cc = lvl(n); return { n: n == null ? '–' : n, bg:cc[0], fg:cc[1], ol: i === 2 ? '2px solid #C5CCEE' : 'none' }; }) })),
+      histSum: [{t: BL[prevIso(2)] ? s0 : '–',c:'#8C96B0'},{t: BL[prevIso(1)] ? s1 : '–',c:'#6B7A90'},{t:cs,c:'#3B5BDB'}],
+      editing: !!S.condEdit, condBtn: S.condEdit ? '저장' : S.condSaved ? '저장됨 ✓ · 수정' : '오늘 기록', condBg: S.condEdit ? 'linear-gradient(135deg,#3B5BDB,#6C8CF5)' : S.condSaved ? '#E4F8EC' : '#EDF0FF', condFg: S.condEdit ? '#fff' : S.condSaved ? '#16804A' : '#3B5BDB',
+      toggleCond: () => S.condEdit ? set({ condEdit:false, condSaved:true, bodyLog:{...BL,[LISO]:{...condV}} }) : set({ condEdit:true }),
+      cur: [['jpy','엔'],['krw','원']].map(([k,label]) => { const on = S.cur === k; return { label, bg: on ? '#fff' : 'transparent', fg: on ? '#3B5BDB' : '#6B7A90', sh: on ? '0 2px 6px rgba(40,50,140,.15)' : 'none', pick: () => set({ cur:k }) }; }),
+      amt: S.amt, onAmt: e => { const d = dig(e.target.value); set({ amt: d ? Number(d).toLocaleString('ko-KR') : '' }); },
+      cats: ['식비','숙박','교통','기타'].map(cx => ({ label:cx, ...chipOf(S.ncat === cx), pick: () => set({ ncat:cx }) })),
+      add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'' }); },
+      items: expT.map((e,k) => ({ cat:e.cat, note:e.note, v: e.c === 'jpy' ? '¥'+fmt(e.v) : '₩'+fmt(e.v), del: () => set({ expLog:{...EL,[LISO]:expT.filter((x,j) => j !== k)} }) })), total:'₩'+fmt(totW), cum:'₩'+fmt(cumW), cumNoteE: (started ? TD+'일차까지 누적' : '누적')+' · 하루 평균 ₩'+fmt(cumW/cumDays),
+      sleep: sleepDays.map(x => ({ h: Math.max(3, Math.round(x.v/10*116))+'px', l: x.l, c: x.v >= 8 ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#5B6FD4)' })), sleepLine: Math.round(20 + 8/10*116)+'px',
+      wtPts: pts(WT.length >= 2 ? WT : [], 300, 110, wMin, wMax), wtBase: wBase ? ((wMax-wBase)/(wMax-wMin)*110).toFixed(1) : '55', wtNow: wNowV ? (+wNowV).toFixed(1) : '—',
+      wtIn: S.wInput ?? '', onWt: O.onWInput, saveWt: O.saveW };
+    const lcs = S.lc || {}, lgc = {};
+    [['cond', lg2.condSum+' / 25 · '+lg2.sumLabel, lg2.sumFg], ['exp', lg2.total+(isLT ? ' · 오늘' : ''), '#3B5BDB'], ['sleep', slAvg ? '평균 '+slAvg.toFixed(1)+'h' : '기록 없음', '#3B5BDB'], ['wt', wNowV ? lg2.wtNow+'kg' + (wBase && WT.length > 1 ? ' · 처음 대비 '+((wNowV-wBase) > 0 ? '+' : '−')+Math.abs(wNowV-wBase).toFixed(1) : '') : '기록 없음', '#16804A']].forEach(([k,sum,cc]) => { const open = lcs[k] ?? F; lgc[k] = { open, sum, c:cc, rot: open ? 'rotate(180deg)' : 'none', toggle: () => set({ lc:{...lcs,[k]:!open} }) }; });
+
+    // ───── 걷기 모드 ─────
+    const wmH = HL.vs.length ? HL : hoursOf(hcV), wmMax = Math.max(1, ...wmH.vs);
+    const wm = { cols: wmH.vs.map((v,k) => { const last = k === wmH.vs.length-1 && isT; const ps = passList.find(p => +p.t.slice(0,2) === wmH.hs[k]);
+        return { v: fmt(v), l: wmH.hs[k]+'시', h: Math.max(3, Math.round(v/wmMax*(F ? 120 : 90)))+'px', c: last ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#3B5BDB)', sh: last ? '0 6px 14px rgba(112,72,232,.3)' : 'none', vc: last ? '#7048E8' : '#4A5D78',
+          pd: ps ? 'flex' : 'none', pn: ps ? ps.n : '', pt: ps ? ps.t : '', pi: ps ? 'flag' : 'flag', pb: '#3B5BDB' }; }),
+      mini: [{icon:'footprint',k:'걸음',v:fmt(stepsV)},{icon:'speed',k:'평균 속도',v: spd === '—' ? '—' : spd+'km/h'},{icon:'local_fire_department',k:'소모 열량',v: hcV && hcV.kcal ? fmt(hcV.kcal)+'kcal' : '—'}], steps: fmt(stepsV)+'걸음 · '+Math.min(100, Math.round(stepsV/GOAL*100))+'%', time: timeStr, hr: hrNow || '—', toNext: nkm.toFixed(1) };
+
+    // ───── 하루 완료 카드 ─────
+    const notes0 = NL[ISO] || '';
+    const dnC = { head: 'DAY '+VW+' 완료 · '+(dd0.getMonth()+1)+'월 '+dd0.getDate()+'일', path: D.path, sub: '53역참 중 '+X.stationsDone+'번째까지 · 전체 '+tt.pct,
+      stats:[{k:'총 거리',v:(hcV && hcV.km ? (+hcV.km).toFixed(1) : walked.toFixed(1))+'km'},{k:'총 시간',v: hcMin != null || wStartOk ? hmm(wStartOk ? elapsedMin : hcMin) : '—'},{k:'걸음',v:fmt(stepsV)},{k:'평균 심박',v:hrAvg || '—'},{k:'소모 열량',v: hcV && hcV.kcal ? fmt(hcV.kcal) : '—'},{k:'평균 속도',v: spd === '—' ? '—' : spd+'km/h'}],
+      wps: stops.map(s => s.ko.replace(/\(.*\)/, '')), wpHead: '방문한 경유지 '+dnN+' / '+nS, note: notes0 ? '“'+notes0+'”' : '오늘 남긴 글이 없어요. 기록 탭에서 남길 수 있어요.',
+      photos:[0,1,2].map(j => ({ bg: j === 0 ? imgs(VW)[0] : '#F1F3FA', icon: j === 0 ? '' : 'add_a_photo', fg: j === 0 ? 'transparent' : '#8C96B0' })) };
+
+    // ───── 지도에 쓸 값 ─────
+    try { const rc = (this.routeCache||{})[VW], iso = isoOf(dateOf(VW)), tkV = isT ? (((S.track||{})[ISO])||[]).concat((((S.hc||{}).locs||{})[ISO])||[]).sort((a,b) => a[2]-b[2]) : ((((S.hc||{}).locs||{})[iso])||[]);
+      const AMc = (this.amenCache || {})[VW] || null, AK = { cvs:'conv', wc:'wc', st:'sta', ph:'ph' };
+      const FC = [['cvs','편','편의점','#3B5BDB'],['wc','화','화장실','#1C7ED6'],['st','역','역','#7048E8'],['ph','약','약국','#2F9E44']], amS = S.amen || {cvs:true,wc:true,st:false,ph:false};
+      this._amenL = FC.filter(f => amS[f[0]]).flatMap(([k,lt,label,cc]) => ((AMc && AMc[AK[k]]) || []).map(a => ({ ll:a.ll, lt, c:cc })));
+      const lt2 = ((((S.hc||{}).locs||{})[isoOf(dateOf(dN))])||[]).concat(((S.track||{})[isoOf(dateOf(dN))])||[]).sort((a,b) => a[2]-b[2]);
+      window.__v8 = { route: rc && rc.pts ? rc.pts : dd.route, stops: stops.map((t,k) => ({ ll:t.ll, past: isDone(k) })), trk: tkV, me: isT && tkV.length ? [tkV[tkV.length-1][0], tkV[tkV.length-1][1]] : null, amen: this._amenL, logTrk: lt2.map(q => [q[0], q[1], q[2]]), logC: dpl.stops[0].ll }; } catch (e) {}
+    const FCx = [['cvs','편','편의점','#3B5BDB'],['wc','화','화장실','#1C7ED6'],['st','역','역','#7048E8'],['ph','약','약국','#2F9E44']], amS2 = S.amen || {cvs:true,wc:true,st:false,ph:false}, AMc2 = (this.amenCache || {})[VW] || null, AK2 = { cvs:'conv', wc:'wc', st:'sta', ph:'ph' };
+    const amen = { chips: FCx.map(([k,g,label,cc]) => { const on = !!amS2[k]; return { g, label, n: AMc2 ? ((AMc2[AK2[k]] || []).length)+'곳' : '—', dot: on ? cc : '#C5CCEE', bg: on ? '#fff' : 'rgba(255,255,255,.7)', fg: on ? '#18324F' : '#6B7A90', bd: on ? cc : 'rgba(255,255,255,.9)', pick: () => set({ amen:{...amS2,[k]:!on} }) }; }) };
+
+    const DK = !!S.dark, DKF = 'invert(1) hue-rotate(180deg)';
+    const SUBT = { day:'DAY '+dN+' 자세히', plan:'일정 관리', stamp:'스탬프 · 배지', diary:'사진 일기', jp:'일본어', info:'날씨 · 환율 · 연락처' };
+    const mp = {};
+    const toastT = S.toast || { a:'', b:'' };
+    const XT = { dpv, dpOpen: S.dp != null, lgc, dkRoot: DK ? DKF+' brightness(1.04) contrast(.96)' : 'none', dkImg: DK ? DKF : 'none', dkBlur: DK ? DKF+' blur(2.5px)' : 'blur(2.5px)', darkOn: DK, toggleDark: () => set({ dark:!DK }), amen, jn, dd2, pl2, stp2, diary2, jp2, wx2, wxd2, wxCard, fxLabel, fx2, sos, mo2, setRows, lg2, lgd, wm, dnC, toastT,
+      tabOn: S.ntab !== 'home' && !S.mapFull, tabLabel: {journey:'여정',log:'기록',more:'더보기'}[S.ntab] || '', tb: { journey: S.ntab === 'journey', log: S.ntab === 'log', more: S.ntab === 'more' },
+      subOn: !!S.sub, subTitle: SUBT[S.sub] || '', subNavV: S.sub === 'day' ? 'visible' : 'hidden', sb2: { day:S.sub === 'day', plan:S.sub === 'plan', stamp:S.sub === 'stamp', diary:S.sub === 'diary', jp:S.sub === 'jp', info:S.sub === 'info' }, back2: () => this.closeSub() };
+    const lodgeH = HT[VW] || HT[String(VW)], lodgeOk = !!(lodgeH && lodgeH.ko);
+    const lodge = { when: (isT ? 'TONIGHT · 오늘 밤 숙소' : 'STAY · '+VW+'일차 숙소'), name: lodgeOk ? lodgeH.ko : stName(nS-1)+' · 숙소 미정', sub: lodgeOk ? ((lodgeH.town || stops[nS-1].jp)+(lodgeH.addr ? ' · '+lodgeH.addr : '')) : stops[nS-1].jp+' · 도착 지점 근처', chip: lodgeOk ? '예약 확정' : '미정', cb: lodgeOk ? '#E4F8EC' : '#FFF3D8', cf: lodgeOk ? '#16804A' : '#8A5A0E',
+      dir: gmap(lodgeOk && lodgeH.ll && !/^35\.0,138\.5$/.test(lodgeH.ll) ? lodgeH.ll : encodeURIComponent((lodgeOk && (lodgeH.ja || lodgeH.en || lodgeH.ko)) || stops[nS-1].jp+'駅 ホテル')) };
+    const G1 = 'linear-gradient(135deg,#8B9CF0,#C9B8F5)';
+    return { ...XT, lodge,
+      fr: F ? { w:'100%', h:'100lvh', r:'0', cols:'minmax(0,1fr) minmax(0,1fr)', gridMin:'520px', mapFlex:'1', mapH:'auto', ctlW:'100%', sheetW:'560px', modeBig:'112px', modeW:'600px', menuCols:'repeat(3,minmax(0,1fr))', diaryCols:'repeat(3,minmax(0,1fr))', jpH:'280px', dayMin:'640px', lodgeMapH:'190px', dayPh:'300px', jpFs:'34px', jpRd:'19px', jpBig:'60px', jpCols:'repeat(3,minmax(0,1fr))', wmH:'230px', wmCol:'74px', spotW:'560px', spotH:'300px', heroH:'250px' }
+            : { w:'100%', h:'100lvh', r:'0', cols:'minmax(0,1fr)', gridMin:'0', mapFlex:'none', mapH:'300px', ctlW:'100%', sheetW:'100%', modeBig:'84px', modeW:'100%', menuCols:'repeat(2,minmax(0,1fr))', diaryCols:'repeat(2,minmax(0,1fr))', jpH:'300px', dayMin:'0', lodgeMapH:'170px', dayPh:'320px', jpFs:'26px', jpRd:'16px', jpBig:'40px', jpCols:'minmax(0,1fr)', wmH:'190px', wmCol:'66px', spotW:'100%', spotH:'290px', heroH:'270px' },
+      st: ST_, hr, pg, mp, tiles, wps, wpCount: dnN+' / '+nS+' 통과', ctl, sh, planOpts, tabs,
+      nx: { name: stName(ni)+' 宿', jp: nx.jp, short: stName(ni), km: nkm.toFixed(1), min: nmin, order: (ORD[ni-1] || ni)+' 번째', hide: dayDone || !isT && !isPastV && false },
+      wt: { hr: walking ? '실시간 수신' : syncT+' 기준' },
+      md: { gps: walking ? 'GPS 기록 중' : '일시 정지', bg: walking ? '#E4F8EC' : '#FFF3D8', fg: walking ? '#16804A' : '#8A5A0E', hrDot: walking ? '#2F9E44' : '#C5CCEE', toggle: walking ? '일시 정지' : '계속 걷기' },
+      dn: { stats: dnC.stats, wps: dnC.wps, photos: dnC.photos },
+      tt, dn2, sp, spotOpen: S.spot != null, closeSpot: () => set({ spot:null }), sheetOpen: !!S.sheet, mapFull: S.mapFull, mode: S.mode, toast: !!S.toast, done: S.done,
+      openWatch: () => set({ sheet:'watch' }), openPlan: () => set({ sheet:'plan' }), openNext: () => set({ spot:ni, spotImg:0 }), openMap: () => set({ mapFull:true }), closeMap: () => set({ mapFull:false }),
+      closeSheet: () => this.closeSheet(), keep: e => e.stopPropagation(),
+      start: () => set({ walk:'walking', wsrc:'phone', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
+      watchStart: () => set({ walk:'walking', wsrc:'watch', wStart: Date.now(), wPausedMs: 0, wPauseAt: null, wDay: ISO, stageDate: ISO, stage: Math.max(1, S.stage || 0) }),
+      stop: () => set({ done:true, mode:false, stage: nS }), closeDone: () => set({ done:false }),
+      openMode: () => set({ mode:true }), closeMode: () => set({ mode:false }), closeToast: () => set({ toast:null })
+    };
+  }
+  arriveToast() { try { const dd = dayData(this.view()), n = dd.stops.length, k = Math.min(n - 1, this.state.stage); const ko = dd.stops[k].ko.replace(/\(.*\)/, ''); this.setState({ toast: { a: ko + ' 宿에 도착했습니다', b: '오늘의 ' + (k + 1) + '번째 지점입니다' } }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 4500); } catch (e) {} }

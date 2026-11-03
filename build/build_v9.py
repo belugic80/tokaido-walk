@@ -34,7 +34,7 @@ a0 = dc.rindex('<div style="position:absolute;left:0;right:0;top:0;height:44px;'
 a1 = dc.index('</div>', i) + 6
 dc = dc[:a0] + dc[a1:]
 SAT, SAB = 'env(safe-area-inset-top)', 'env(safe-area-inset-bottom)'
-rep('padding:52px 0 200px', 'padding:calc(%s + 12px) 0 calc(%s + 200px)' % (SAT, SAB))
+rep('padding:52px 0 200px', 'padding:calc(%s + 12px) 0 calc(%s + 168px)' % (SAT, SAB))
 rep('padding:52px 0 110px', 'padding:calc(%s + 12px) 0 calc(%s + 110px)' % (SAT, SAB))
 rep('padding:52px 20px 26px', 'padding:calc(%s + 12px) 20px calc(%s + 26px)' % (SAT, SAB))
 rep('padding:52px 16px 14px', 'padding:calc(%s + 12px) 16px 14px' % SAT)

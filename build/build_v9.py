@@ -233,6 +233,14 @@ ks = v8src.index('def old_script(marker):')
 ke = v8src.index("KEEP.append(FS)") + len("KEEP.append(FS)")
 exec(v8src[ks:ke], ns)
 KEEP, FS = ns['KEEP'], ns['FS']
+# 기록 탭: 계획 대비 누적 거리 → 그 날 걸은 GPS 길(지도)
+_i = dc.index('{{ lg2.planPts }}'); _sa = dc.rindex('<svg viewBox="0 0 300 140"', 0, _i)
+_e = dc.index('{{ lg2.cumNote }}</b></span>', _i) + len('{{ lg2.cumNote }}</b></span>')
+_la = dc.rindex('<span style="display:flex;align-items:baseline', 0, _sa)
+_hd = dc[_la:_sa].replace('계획 대비 누적 거리', '걸은 길 · GPS').replace('{{ lg2.cumTitle }}', '{{ lg2.gpsN }}')
+_map = '<div data-v8map="log" data-k="log" style="position:relative;height:240px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7;isolation:isolate;z-index:0"></div>'
+_lg = '<span style="display:flex;gap:14px;font-size:12px;color:#4A5D78;flex-wrap:wrap;align-items:center"><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#20A85A"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#E8453C"></i>현재·도착</span><b style="margin-left:auto;color:#18324F">{{ lg2.gpsNote }}</b></span>'
+dc = dc[:_la] + _hd + _map + _lg + dc[_e:]
 dc = dc.replace('</body>', MAP_JS + ''.join(KEEP) + '</body>', 1)
 
 os.makedirs(OUT, exist_ok=True)

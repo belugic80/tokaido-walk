@@ -158,6 +158,8 @@ _inner = _m.group(1)
 _ico = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
 _compact = ('<div style="display:flex;justify-content:flex-end"><button onClick="{{ start }}" aria-label="폰에서 걷기 시작" style="height:52px;padding:0 20px 0 14px;border:0;border-radius:26px;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;display:flex;align-items:center;gap:6px;box-shadow:0 10px 22px rgba(59,91,219,.36);cursor:pointer;font-family:inherit"><span style="'+_ico+'font-size:26px;color:#fff">directions_walk</span><b style="font-size:17px;font-weight:800">시작</b></button></div>')
 dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '</sc-if>')
+# 일정 변경 시트의 4개 항목에 클릭 동작 연결(원래 마크업에 onClick이 빠져 있었음)
+rep('<sc-for list="{{ planOpts }}" as="p" hint-placeholder-count="4"><button style="display:grid;', '<sc-for list="{{ planOpts }}" as="p" hint-placeholder-count="4"><button onClick="{{ p.run }}" style="display:grid;')
 # 홈 날짜 카드: 일정 변경 버튼을 아이콘만(제목 가림 방지)
 rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px 0 8px;border-radius:22px;border:1.5px solid #C9D3FF;')
 rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span>목적지</button>')

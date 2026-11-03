@@ -155,17 +155,8 @@ _m = re.search(r'<sc-if value="\{\{ ctl\.ready \}\}" hint-placeholder-val="\{\{ 
 assert _m
 _inner = _m.group(1)
 _ico = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
-_compact = ('<sc-if value="{{ ctl.compact }}" hint-placeholder-val="{{ true }}">'
-  '<div style="display:flex;align-items:center;gap:8px">'
-  '<button onClick="{{ ctl.tog }}" style="flex:1;min-width:0;height:46px;display:flex;align-items:center;gap:10px;padding:0 12px 0 8px;border-radius:23px;border:1px solid rgba(255,255,255,.95);background:#fff;box-shadow:0 8px 20px rgba(40,50,140,.14);cursor:pointer;font-family:inherit;color:#18324F;text-align:left">'
-  '<span style="flex:none;position:relative;width:34px;height:34px;border-radius:12px;background:#EDF0FF;display:grid;place-items:center"><span style="'+_ico+'font-size:20px;color:#3B5BDB">watch</span><i style="position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#2F9E44;border:2px solid #fff;animation:wpulse 1.6s ease-in-out infinite"></i></span>'
-  '<span style="flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">와치 시작 대기</span>'
-  '<span style="'+_ico+'font-size:22px;color:#8C96B0">expand_less</span></button>'
-  '<button onClick="{{ start }}" style="flex:none;height:46px;padding:0 18px 0 12px;border:0;border-radius:23px;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px;box-shadow:0 10px 22px rgba(59,91,219,.36);cursor:pointer;font-family:inherit"><span style="'+_ico+'font-size:24px;color:#fff">directions_walk</span>폰에서 시작</button>'
-  '</div></sc-if>')
-_full = _inner.replace('<div style="display:flex;align-items:center;gap:12px;padding:12px 14px', '<div onClick="{{ ctl.tog }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px', 1)
-_full = _full.replace('<button onClick="{{ watchStart }}"', '<button onClick="{{ ctl.demo }}"', 1)
-dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '<sc-if value="{{ ctl.open }}" hint-placeholder-val="{{ false }}">' + _full + '</sc-if></sc-if>')
+_compact = ('<button onClick="{{ start }}" aria-label="폰에서 걷기 시작" style="width:100%;height:56px;padding:0 22px;border:0;border-radius:28px;background:linear-gradient(135deg,#3B5BDB,#6C7FE8);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 24px rgba(59,91,219,.38);cursor:pointer;font-family:inherit"><span style="'+_ico+'font-size:28px;color:#fff">directions_walk</span><span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2"><b style="font-size:18px;font-weight:800">폰에서 걷기 시작</b><span style="font-size:13px;font-weight:600;opacity:.9">워치에서 시작해도 자동으로 기록돼요</span></span></button>')
+dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '</sc-if>')
 # 홈 날짜 카드: 일정 변경 버튼을 아이콘만(제목 가림 방지)
 rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px 0 8px;border-radius:22px;border:1.5px solid #C9D3FF;')
 rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span>목적지</button>')
@@ -417,14 +408,6 @@ dc = re.sub(r'(<button onClick="\{\{ [gp]\.pick \}\}"[^>]*>)<span style="font-fa
 _m2 = re.search(r'<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;font-size:13px;font-weight:700"><span[^>]*>photo_camera</span>장소 사진</span></div>', dc)
 if _m2: dc = dc.replace(_m2.group(0), '', 1)
 print('camera icons before/after', _n, len(re.findall(r'>photo_camera</span>', dc)))
-# 워치 안내 문구를 실제 상태로
-for _a, _b in [
-  ('와치 시작 대기</span>', '{{ ctl.cLabel }}</span>'),
-  ('<b style="font-size:15px">와치에서 걷기를 시작하세요</b>', '<b style="font-size:15px">{{ ctl.hint }}</b>'),
-  ('Galaxy Watch9 운동 앱 › 걷기를 누르면 이 앱이 자동으로 기록을 시작합니다', '{{ ctl.hint2 }}'),
-]:
-    assert dc.count(_a) == 1, _a
-    dc = dc.replace(_a, _b)
 # 하루 기록: 걸은 길(GPS) 지도를 시간대별 걸음 바로 아래로 이동
 _la = dc.index('<sc-if value="{{ tb.log }}"'); _lb = dc.index('<sc-if value="{{ tb.more }}"')
 _blk = dc[_la:_lb]

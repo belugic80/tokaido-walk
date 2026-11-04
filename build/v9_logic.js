@@ -161,6 +161,7 @@
 
     // ───── 전체 종주 ─────
     const posKm = X.posKmF, tkm = posKm, tt = { km: tkm.toFixed(1), w: (tkm/487.7*100)+'%', pct: Math.round(tkm/487.7*100)+'%', st: X.stationsDone, left: started ? (31 - TD + (dayDone ? 0 : 1))+'일' : '31일' };
+    Object.assign(tt, { on: !!S.tot, img: imgs(VW)[0], leftKm: Math.max(0, 487.7 - tkm).toFixed(1), sum: '도카이도 53역참 가운데 '+X.stationsDone+'곳을 지났어요. '+'남은 '+Math.max(0, 487.7 - tkm).toFixed(1)+'km를 걸으면 교토 산조대교에 닿습니다.', open: () => set({ tot:true }), close: () => set({ tot:false }), goJ: () => set({ tot:false, ntab:'journey', mapFull:false, sub:null }) });
     const WKS = [[1,7],[8,14],[15,21],[22,28],[29,31]], wkKm = WKS.map(([a,b]) => ALL.slice(a-1,b).reduce((q,d) => q+d.km, 0)), wmx = Math.max(1, ...wkKm);
     const curWk = Math.max(0, WKS.findIndex(([a,b]) => TD >= a && TD <= b)), jwSel = S.jw != null ? S.jw : curWk;
     const walkedDays = started ? ALL.filter(d => d.n < TD && !d.rest).length + (dayDone ? 1 : 0) : 0;

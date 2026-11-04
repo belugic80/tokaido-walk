@@ -872,6 +872,22 @@ dc = dc.replace('data-screen-label="도카이도 홈 v2" style="', 'data-screen-
 _k = old.index('EXCHANGE · 환율'); _oa = old.rindex('<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px', 0, _k); _fx = old[_oa:_dend(old, _oa)]
 _fx = _fx.replace('<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">', '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;min-width:0">', 1)
 _fx = _fx.replace('justify-content:space-between;align-items:baseline"><div>', 'justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div>', 1).replace('width:92px;height:36px', 'width:100px;height:44px').replace('height:36px;padding:0 12px;border-radius:10px', 'height:44px;padding:0 12px;border-radius:10px')
+for _a2, _b2 in [("font:700 26px 'DM Sans',sans-serif;color:#20202A", "font:600 24px 'DM Sans','Pretendard Variable',sans-serif;color:#1A1D20"),
+    ("font:700 26px 'DM Sans',sans-serif;color:#4E27C5", "font:600 24px 'DM Sans','Pretendard Variable',sans-serif;color:#5B32D6"),
+    ("font-size:var(--f12,12px);font-weight:700;color:#555568\">{{ fx.fromLabel }}", "font-size:14px;font-weight:500;color:#64748B\">{{ fx.fromLabel }}"),
+    ("font-size:var(--f12,12px);font-weight:700;color:#555568\">{{ fx.toLabel }}", "font-size:14px;font-weight:500;color:#64748B\">{{ fx.toLabel }}"),
+    ("font-size:var(--f15,15px);font-weight:700;color:#555568\">{{ fx.fromUnit }}", "font-size:15px;font-weight:500;color:#64748B\">{{ fx.fromUnit }}"),
+    ("font-size:var(--f15,15px);font-weight:700;color:#555568\">{{ fx.toUnit }}", "font-size:15px;font-weight:500;color:#64748B\">{{ fx.toUnit }}"),
+    ("font:700 var(--f13,13px) 'DM Sans',sans-serif;color:#555568;white-space:nowrap\">¥{{ t.a }}", "font:500 14px 'DM Sans','Pretendard Variable',sans-serif;color:#64748B;white-space:nowrap\">¥{{ t.a }}"),
+    ("font:700 var(--f16,16px) 'DM Sans',sans-serif;color:#20202A;margin-top:2px;white-space:nowrap\">₩{{ t.b }}", "font:600 17px 'DM Sans','Pretendard Variable',sans-serif;color:#1A1D20;margin-top:3px;white-space:nowrap\">₩{{ t.b }}"),
+    ("font:700 var(--f14,14px) 'DM Sans',sans-serif;color:#20202A;outline:none", "font:600 16px 'DM Sans','Pretendard Variable',sans-serif;color:#1A1D20;outline:none"),
+    ("font-size:var(--f12,12px);font-weight:700;padding:4px 10px;border-radius:999px;background:{{ fx.rateSrcBg }}", "font-size:14px;font-weight:600;padding:5px 11px;border-radius:999px;background:{{ fx.rateSrcBg }}"),
+    ("gap:6px;font-size:var(--f12,12px);color:#555568;white-space:nowrap\">100엔 =", "gap:6px;font-size:14px;color:#64748B;white-space:nowrap\">100엔 ="),
+    ("font-size:var(--f16,16px);font-weight:700;margin-top:3px\">엔 ⇄ 원 바로 계산", "font-size:17px;font-weight:700;color:#1A1D20;margin-top:3px\">엔 ⇄ 원 바로 계산"),
+    ("border:1.5px solid #D5D3E0;background:#FFFFFF;padding:0 16px", "border:1px solid #E2E8F0;background:#FFFFFF;padding:0 16px"),
+    ("border:1.5px solid #E5DBFF;padding:0 16px", "border:1px solid #E5DBFF;padding:0 16px")]:
+    assert _fx.count(_a2) == 1, _a2
+    _fx = _fx.replace(_a2, _b2)
 _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">환율 계산</b>')
 _a = dc.rindex('<div style="background:#fff;', 0, _i)
 dc = dc[:_a] + _fx + dc[_dend(dc, _a):]

@@ -328,7 +328,7 @@
     const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 9 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 5 ? ['주의','#FFF4E0','#B45F06'] : ['가벼움','#E4F8EC','#16804A'];
     const EL = S.expLog || {}, expT = EL[LISO] || [], toW = e => e.c === 'jpy' ? e.v*rate : e.v, totW = expT.reduce((q,e) => q+toW(e), 0);
     const cumW = Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.reduce((r,e) => r + toW(e), 0), 0), cumDays = Math.max(1, Object.keys(EL).filter(k => (!started || k >= '2026-12-04') && EL[k].length).length);
-    const sleepDays = Array.from({length:7}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(6-k)); const iso = isoOf(d), h = HCD[iso]; return { l: WDN[d.getDay()], v: h && h.sleep ? h.sleep/60 : 0 }; });
+    const sleepDays = Array.from({length:14}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(13-k)); const iso = isoOf(d), h = HCD[iso]; return { l: String(d.getDate()), v: h && h.sleep ? h.sleep/60 : 0 }; });
     const slV = sleepDays.filter(x => x.v > 0), slAvg = slV.length ? slV.reduce((q,x) => q+x.v, 0)/slV.length : 0;
     const WLg = S.wLog || {}, wMap = {}; Object.keys(HCD).forEach(k => { if (HCD[k].weight && k <= LISO) wMap[k] = +HCD[k].weight; }); Object.keys(WLg).forEach(k => { if (k <= LISO) wMap[k] = +WLg[k]; }); if (isLT && S.wToday && !WLg[LISO]) wMap[LISO] = +S.wToday;
     const wDays = Object.keys(wMap).sort().slice(-12), WT = wDays.map(k => wMap[k]);

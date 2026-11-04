@@ -875,13 +875,21 @@ _fx = _fx.replace('justify-content:space-between;align-items:baseline"><div>', '
 _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">환율 계산</b>')
 _a = dc.rindex('<div style="background:#fff;', 0, _i)
 dc = dc[:_a] + _fx + dc[_dend(dc, _a):]
-# ── 역참 스탬프: 구버전 UI(달성률 링·도장 53칸·필터·기념 배지)
-_oa = old.index('<sc-if value="{{ tabStamp }}"'); _oa = old.index('<div', _oa); _ob = _dend(old, _oa)
-_st = old[old.index('>', _oa) + 1:_ob - 6]
-_st = _st.replace('grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px', 'grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px', 1).replace('position:relative;aspect-ratio:3/4;', 'position:relative;aspect-ratio:1/1.08;', 1).replace('grid-template-columns:minmax(0,2.3fr) repeat(3,minmax(0,.8fr))', 'grid-template-columns:repeat(auto-fit,minmax(150px,1fr))', 1)
-_a = dc.index('<sc-if value="{{ sb2.stamp }}"'); _a = dc.index('>', _a) + 1
-_b = dc.index('</sc-if>\n<sc-if value="{{ sb2.', _a)
-dc = dc[:_a] + '\n<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">' + _st + '</div>\n' + dc[_b:]
+# ── 역참 스탬프: 화면 구성은 그대로, 도장 칸만 구버전 양식(번호·도장 원·이름·✓/교통 표시)
+_a = dc.index('<sc-for list="{{ stp2.list }}" as="t" hint-placeholder-count="20">')
+_a0 = dc.rindex('<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px">', 0, _a)
+_b = dc.index('</sc-for></div>', _a) + len('</sc-for></div>')
+dc = dc[:_a0] + ('<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px"><sc-for list="{{ stp2.list }}" as="t" hint-placeholder-count="20">'
+ '<button onClick="{{ t.pick }}" style="position:relative;aspect-ratio:1/1.1;border-radius:18px;border:1px solid {{ t.cbd }};background:{{ t.cbg }};box-shadow:{{ t.sh }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;font-family:inherit">'
+ '<span style="position:absolute;left:9px;top:7px;font-size:13px;font-weight:800;color:{{ t.txt }}">{{ t.no }}</span>'
+ '<span style="width:58px;height:58px;flex:none;border-radius:50%;border:3px {{ t.bs }} {{ t.ring }};color:{{ t.ring }};display:flex;align-items:center;justify-content:center;text-align:center;font:700 {{ t.fs }}px/1.05 \'Noto Serif JP\',serif;transform:rotate({{ t.rot }}deg);background:rgba(255,255,255,.6)">{{ t.jp }}</span>'
+ '<span style="font-size:14px;font-weight:700;color:{{ t.txt }};white-space:nowrap">{{ t.ko }}</span>'
+ '<sc-if value="{{ t.isW }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:7px;top:7px;width:20px;height:20px;border-radius:50%;background:#B7791F;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center">✓</span></sc-if>'
+ '<sc-if value="{{ t.isT }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:6px;top:6px;height:20px;padding:0 7px;border-radius:99px;background:#0891B2;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center">교통</span></sc-if>'
+ '</button></sc-for></div>') + dc[_b:]
+_lg0 = dc.index('<i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>걸어서</span>')
+_lgA = dc.rindex('<span style="display:flex;gap:12px;justify-content:center', 0, _lg0); _lgB = dc.index('남은 곳</span></span>', _lg0) + len('남은 곳</span></span>')
+dc = dc[:_lgA] + '<span style="display:flex;gap:14px;justify-content:center;font-size:14px;color:#475569;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:6px"><i style="width:12px;height:12px;border-radius:50%;border:2.5px solid #B7791F;background:#FFF6E5"></i>걸어서</span><span style="display:flex;align-items:center;gap:6px"><i style="width:12px;height:12px;border-radius:50%;border:2.5px solid #0891B2;background:#E6FAFF"></i>교통</span><span style="display:flex;align-items:center;gap:6px"><i style="width:12px;height:12px;border-radius:50%;border:2px dashed #C9CCD8"></i>남은 곳</span></span>' + dc[_lgB:]
 # ── 사진 일기: 구버전 카드 구성(큰 사진 1 + 작은 사진 2, DAY·날짜·거리·상태, 경로, 한 줄)
 _a = dc.index('<sc-for list="{{ diary2 }}" as="d" hint-placeholder-count="6">')
 _b = dc.index('</button>\n</sc-for>', _a) + len('</button>\n</sc-for>')

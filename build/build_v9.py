@@ -875,6 +875,13 @@ _fx = _fx.replace('justify-content:space-between;align-items:baseline"><div>', '
 _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">환율 계산</b>')
 _a = dc.rindex('<div style="background:#fff;', 0, _i)
 dc = dc[:_a] + _fx + dc[_dend(dc, _a):]
+# ── 역참 스탬프: 구버전 UI(달성률 링·도장 53칸·필터·기념 배지)
+_oa = old.index('<sc-if value="{{ tabStamp }}"'); _oa = old.index('<div', _oa); _ob = _dend(old, _oa)
+_st = old[old.index('>', _oa) + 1:_ob - 6]
+_st = _st.replace('grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px', 'grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px', 1).replace('position:relative;aspect-ratio:3/4;', 'position:relative;aspect-ratio:1/1.08;', 1).replace('grid-template-columns:minmax(0,2.3fr) repeat(3,minmax(0,.8fr))', 'grid-template-columns:repeat(auto-fit,minmax(150px,1fr))', 1)
+_a = dc.index('<sc-if value="{{ sb2.stamp }}"'); _a = dc.index('>', _a) + 1
+_b = dc.index('</sc-if>\n<sc-if value="{{ sb2.', _a)
+dc = dc[:_a] + '\n<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">' + _st + '</div>\n' + dc[_b:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

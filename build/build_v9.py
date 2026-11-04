@@ -1132,6 +1132,8 @@ _ee = dc.index('설정', _ek)
 _seg = dc[_ek:_ee]
 _seg = _seg.replace('linear-gradient(135deg,#C92A42,#F06A7F)', 'linear-gradient(135deg,#DC2626,#F26B6B)').replace('#B8364A', '#DC2626').replace('#C92A42', '#DC2626')
 dc = dc[:_ek] + _seg + dc[_ee:]
+# 오프라인용 서비스 워커 등록
+dc = dc.replace('</body>', "<script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}</script></body>", 1)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

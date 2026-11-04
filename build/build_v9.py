@@ -572,7 +572,7 @@ PERSIST_OLD = "'bodyLog', "
 OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
 OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, smin: j.smin || [], at: Date.now() };", src=OLD)
 OLD = rep("this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);", "this._hcT = setTimeout(() => this.loadHc(), 2 * 6e4);", src=OLD)
-OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'wLog', 'moodLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
+OLD = rep(PERSIST_OLD, "'bodyLog', 'sd', 'expLog', 'wLog', 'moodLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
 NEWJS = open(os.path.join(HERE, 'v9_logic.js'), encoding='utf-8').read()
 HEROS = sorted(os.listdir(os.path.join(ROOT, 'assets', 'hero')))
@@ -780,7 +780,7 @@ for _a, _b in [('すみません、京都へはこの道でいいですか？', 
     assert dc.count(_a) >= 1, _a
     dc = dc.replace(_a, _b)
 # 출발일(__SD) 반영: 하드코딩된 12/4 기준 날짜 계산을 전역 값으로 치환
-_sd = "<script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=localStorage.getItem('tokaido-start');if(/^\\d{4}-\\d{2}-\\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>\n"
+_sd = "<script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\\d{4}-\\d{2}-\\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>\n"
 dc = _re2.sub(r'new Date\(2026, 11, 3 ?\+ ?', 'new Date(__SD[0], __SD[1], __SD[2] - 1 + ', dc)
 dc = dc.replace('2026, 11, 4 + ', '__SD[0], __SD[1], __SD[2] + ')
 dc = dc.replace('new Date(2026, 11, 4)', 'new Date(__SD[0], __SD[1], __SD[2])')
@@ -1071,6 +1071,11 @@ _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">�
 _o = '<div style="position:relative;height:200px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7">'
 _j = dc.index(_o, _i); dc = dc[:_j] + '<div style="position:relative;flex:1;min-height:200px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7">' + dc[_j + len(_o):]
 dc = dc.replace('placeholder="사진 추가"', 'placeholder=""')
+# 홈 지도: Leaflet 패널(z-index 400)이 팝업 위로 올라와 배경을 누르면 지도로 이동하던 문제 → 지도 칸을 별도 쌓임 맥락으로
+_o = '<div data-v8map="home" data-k="home" style="position:absolute;inset:0;pointer-events:none"'
+assert dc.count(_o) == 1
+dc = dc.replace(_o, '<div data-v8map="home" data-k="home" style="position:absolute;inset:0;pointer-events:none;z-index:0;isolation:isolate"', 1)
+dc = dc.replace('<div data-v8map="log" data-k="log" style="position:absolute;inset:0"', '<div data-v8map="log" data-k="log" style="position:absolute;inset:0;z-index:0;isolation:isolate"')
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

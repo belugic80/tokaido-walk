@@ -1851,9 +1851,9 @@ class Component extends DCLogic {
     { const _pk = (i) => () => set({ mg:{...MGx, ends:{...(MGx.ends||{}), [PDi]: i}, rest:{...(MGx.rest||{}), [PDi]: i === P2.s}}, planSaved:false });
       const _o = PLAN[PDi][1] !== PLAN[PDi][0] ? PLAN[PDi][1] : Math.min(55, P2.s + 2);
       pl2.lsBtnT = pl2.lsDone ? '저장됨 ✓' : '저장'; pl2.lsBtnBg = pl2.lsDone ? '#E4F8EC' : 'linear-gradient(135deg,#5428E8,#9A63F5)'; pl2.lsBtnFg = pl2.lsDone ? '#16804A' : '#fff';
-      { const d0 = started ? TD : 1, rng = ALL.slice(d0-1, d0+2).filter(d => !d.rest), isOk = d => { const h = HT[d.n] || HT[String(d.n)], v = LSv(d.n); return !!((h && h.ko) || (v && v.name)); }, miss = rng.filter(d => !isOk(d));
+      { const d0 = PDi, rng = ALL.slice(d0-1, d0+3).filter(d => !d.rest), isOk = d => { const h = HT[d.n] || HT[String(d.n)], v = LSv(d.n); return !!((h && h.ko) || (v && v.name)); }, miss = rng.filter(d => !isOk(d));
         pl2.lw = { ok: miss.length === 0, bg: miss.length ? '#FFF3D8' : '#E4F8EC', fg: miss.length ? '#8A5A0E' : '#16804A', icon: miss.length ? 'warning' : 'check_circle',
-          title: miss.length ? '3일 안에 예약 안 한 숙소 '+miss.length+'곳' : '3일 안 숙소 모두 예약됨',
+          title: miss.length ? '이 날부터 3일 뒤까지 예약 안 한 숙소 '+miss.length+'곳' : '이 날부터 3일 뒤까지 숙소 모두 예약됨',
           rows: rng.map(d => { const ok = isOk(d); return { n:d.n, name: KO[d.e], date:d.date, st: ok ? '예약됨' : '미예약', sb: ok ? '#E4F8EC' : '#FDE9EC', sf: ok ? '#16804A' : '#B8364A', go: () => set({ pd:d.n, planSaved:false }) }; }) }; }
       pl2.restOn = pEnd === P2.s; pl2.walkOn = pEnd !== P2.s;
       pl2.rBg = pl2.restOn ? '#1C7ED6' : 'transparent'; pl2.rFg = pl2.restOn ? '#fff' : '#6B7A90';

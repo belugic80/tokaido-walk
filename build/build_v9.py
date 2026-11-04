@@ -829,7 +829,7 @@ _mr = [
  ("L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 5, dashArray: '2 9', lineCap: 'round' } : { color: '#7048E8', weight: 5 }).addTo(el._lay); });\n      (D.stops",
   "L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 5, dashArray: '2 9', lineCap: 'round' } : { color: '#16A34A', weight: 6 }).addTo(el._lay); });\n      (D.stops"),
  ("html: pin(st ? 'A' : en ? 'B' : String(i), st ? '#2F9E44' : en ? '#7048E8' : s.nx ? '#3B5BDB' : s.past ? '#8B9CF0' : '#fff', st || en || s.nx || s.past ? '#fff' : '#4A5D78', st || en || s.nx || s.past ? '#fff' : '#C5CCEE', st || en || s.nx ? 32 : 24)",
-  "html: pin(st ? 'A' : en ? 'B' : s.past ? '✓' : String(i), st ? '#172338' : en ? '#7C3AED' : s.past ? '#16A34A' : s.nx ? '#0088FF' : '#fff', st || en || s.nx || s.past ? '#fff' : '#0088FF', st || en || s.nx || s.past ? '#fff' : '#0088FF', st || en || s.nx ? 34 : 28)"),
+  "html: pin(st ? 'A' : en ? 'B' : s.past ? '✓' : String(i), st ? '#16A34A' : en ? '#7C3AED' : s.past ? '#16A34A' : s.nx ? '#0088FF' : '#fff', st || en || s.nx || s.past ? '#fff' : '#0088FF', st || en || s.nx || s.past ? '#fff' : '#0088FF', st || en || s.nx ? 34 : 28)"),
  ("background:' + (p.passed ? '#20A85A' : '#fff') + ';border:2px solid ' + (p.passed ? '#fff' : '#7B46F0') + ';display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.25)\"><b style=\"rotate:-45deg;font:800 12px Pretendard,sans-serif;color:' + (p.passed ? '#fff' : '#7B46F0') + '\">' + p.n + '</b>",
   "background:' + (p.passed ? '#16A34A' : '#EA580C') + ';border:2px solid #fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.25)\"><b style=\"rotate:-45deg;font:800 12px Pretendard,sans-serif;color:#fff\">' + (p.passed ? '✓' : p.n) + '</b>"),
 ]
@@ -863,7 +863,9 @@ def _dend(s, i):
         if d == 0: return i + m.end()
 _k = old.index('HOURLY STEPS'); _oa = old.rindex('<div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%)', 0, _k); _hs = old[_oa:_dend(old, _oa)]
 _hs = _hs.replace('<div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">', '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;min-width:0">', 1)
-_hs = _hs.replace('{{ hov.hourNote }}', '').replace('position:relative;height:230px;width:1008px', 'position:relative;height:240px;width:max(100%,820px)')
+_hs = _hs.replace('{{ hov.hourNote }}', '')
+_h0 = _hs.index('<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="min-width:0"><div style="font:700 var(--f12,12px)'); _h1 = _dend(_hs, _h0)
+_hs = _hs[:_h0] + '<span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">시간대별 걸음</b><span style="font-size:14px;color:#6B7A90">{{ lg2.hourNote }}</span></span>' + _hs[_h1:].replace('position:relative;height:230px;width:1008px', 'position:relative;height:240px;width:max(100%,820px)')
 _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">시간대별 걸음</b>')
 _a = dc.rindex('<div style="background:#fff;', 0, _i)
 dc = dc[:_a] + _hs + dc[_dend(dc, _a):]
@@ -883,11 +885,13 @@ for _a2, _b2 in [("font:700 26px 'DM Sans',sans-serif;color:#20202A", "font:600 
     ("font:700 var(--f14,14px) 'DM Sans',sans-serif;color:#20202A;outline:none", "font:600 16px 'DM Sans','Pretendard Variable',sans-serif;color:#1A1D20;outline:none"),
     ("font-size:var(--f12,12px);font-weight:700;padding:4px 10px;border-radius:999px;background:{{ fx.rateSrcBg }}", "font-size:14px;font-weight:600;padding:5px 11px;border-radius:999px;background:{{ fx.rateSrcBg }}"),
     ("gap:6px;font-size:var(--f12,12px);color:#555568;white-space:nowrap\">100엔 =", "gap:6px;font-size:14px;color:#64748B;white-space:nowrap\">100엔 ="),
-    ("font-size:var(--f16,16px);font-weight:700;margin-top:3px\">엔 ⇄ 원 바로 계산", "font-size:17px;font-weight:700;color:#1A1D20;margin-top:3px\">엔 ⇄ 원 바로 계산"),
+
     ("border:1.5px solid #D5D3E0;background:#FFFFFF;padding:0 16px", "border:1px solid #E2E8F0;background:#FFFFFF;padding:0 16px"),
     ("border:1.5px solid #E5DBFF;padding:0 16px", "border:1px solid #E5DBFF;padding:0 16px")]:
     assert _fx.count(_a2) == 1, _a2
     _fx = _fx.replace(_a2, _b2)
+_e0 = _fx.index('<div><div style="font:700 var(--f12,12px)'); _e1 = _dend(_fx, _e0)
+_fx = _fx[:_e0] + '<b style="font-size:18px;font-weight:800;letter-spacing:-.03em;color:#18324F">환율 계산</b>' + _fx[_e1:]
 _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">환율 계산</b>')
 _a = dc.rindex('<div style="background:#fff;', 0, _i)
 dc = dc[:_a] + _fx + dc[_dend(dc, _a):]
@@ -946,7 +950,28 @@ dc = dc[:_a] + '<span></span>' + dc[_i + len("TODAY'S JOURNEY · DAY{{ hr.day }}
 # ── 지도: 같은 지점의 명물이 겹치지 않게 옆으로 펼치기
 _o = "(D.places || []).forEach(function (p) { L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div style=\"transform:translate(-50%,-50%);width:24px;"
 assert dc.count(_o) == 1, dc.count(_o)
-dc = dc.replace(_o, "var _pg = {}; (D.places || []).forEach(function (p) { var _ky = p.ll[0].toFixed(2) + ',' + p.ll[1].toFixed(2), _pn = _pg[_ky] = (_pg[_ky] || 0) + 1, _ox = 20 + (_pn - 1) * 28; L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div style=\"transform:translate(calc(-50% + ' + _ox + 'px),-50%);width:24px;")
+dc = dc.replace(_o, "var _pg = {}; (D.places || []).forEach(function (p) { var _ky = p.ll[0].toFixed(4) + ',' + p.ll[1].toFixed(4), _pn = _pg[_ky] = (_pg[_ky] || 0) + 1, _ox = (_pn - 1) * 24; L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div style=\"transform:translate(calc(-50% + ' + _ox + 'px),-50%);width:24px;")
+# ── 명물 실제 위치: 주소로 좌표 찾기(국토지리원 → OSM), 기기에 저장해 두고 다시 그림
+_GEO = r"""<script>(function () {
+  var KEY = 'tk-geo2', C = {}; try { C = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  window.__geo = {}; Object.keys(C).forEach(function (k) { if (C[k]) window.__geo[k] = C[k]; });
+  var Q = [], busy = false, seen = {};
+  function hav(a, b) { var R = 6371, r = Math.PI / 180, dl = (b[0] - a[0]) * r, dn = (b[1] - a[1]) * r, x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dn / 2) * Math.sin(dn / 2); return 2 * R * Math.asin(Math.sqrt(x)); }
+  function clean(a) { return String(a).replace(/\s*(周辺|付近|一帯|エリア).*$/, '').split(/[・\/]/)[0].replace(/\s+/g, '').trim(); }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(C)); } catch (e) {} }
+  function done(addr, ll) { C[addr] = ll || 0; if (ll) window.__geo[addr] = ll; save(); try { window.__tkApp && window.__tkApp.forceUpdate(); } catch (e) {} }
+  function gsi(q) { return fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + encodeURIComponent(q)).then(function (r) { return r.json(); }).then(function (j) { return j && j[0] && j[0].geometry ? [j[0].geometry.coordinates[1], j[0].geometry.coordinates[0]] : null; }); }
+  function osm(q) { return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=' + encodeURIComponent(q)).then(function (r) { return r.json(); }).then(function (j) { return j && j[0] ? [+j[0].lat, +j[0].lon] : null; }); }
+  function next() {
+    if (busy || !Q.length) return; busy = true; var it = Q.shift(), q = clean(it[0]), near = it[1];
+    var ok = function (ll) { return ll && (!near || hav(ll, near) < 25) ? ll : null; };
+    gsi(q).then(ok).catch(function () { return null; }).then(function (ll) { return ll || osm(q).then(ok).catch(function () { return null; }); })
+      .then(function (ll) { done(it[0], ll); }).catch(function () {}).then(function () { busy = false; setTimeout(next, 1100); });
+  }
+  window.__geoNeed = function (list) { (list || []).forEach(function (x) { if (!x || !x[0] || seen[x[0]] || C.hasOwnProperty(x[0])) return; seen[x[0]] = 1; Q.push(x); }); next(); };
+})();</script>"""
+_mi = dc.index('<script>(function () {\n  var TILE')
+dc = dc[:_mi] + _GEO + dc[_mi:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

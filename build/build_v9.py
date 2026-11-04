@@ -526,6 +526,26 @@ rep('<p style="margin:0;font-size:15px;line-height:1.6;color:#3A4D68;text-wrap:p
 rep("""<button style="flex:none;white-space:nowrap;height:48px;padding:0 6px;border:0;background:transparent;display:flex;align-items:center;gap:4px;font:800 15px 'Pretendard Variable',Pretendard,sans-serif;color:#3B5BDB;cursor:pointer">""", """<button onClick="{{ sp.toggleFull }}" style="flex:none;white-space:nowrap;height:48px;padding:0 6px;border:0;background:transparent;display:flex;align-items:center;gap:4px;font:800 15px 'Pretendard Variable',Pretendard,sans-serif;color:#3B5BDB;cursor:pointer">""")
 rep('</span>상세 정보 보기<span', '</span>{{ sp.fullT }}<span')
 
+
+# 기록 탭: 오늘의 기분·사진 카드 (몸 상태 카드 위)
+_mi = dc.index('<button onClick="{{ lgc.cond.toggle }}"')
+_mc = dc.rindex('<div style="background:#fff;', 0, _mi)
+_card = ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">\n'
+ '<button onClick="{{ lgc.mood.toggle }}" style="width:100%;border:0;background:transparent;padding:0;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;font-family:inherit;color:#18324F"><b style="flex:none;font-size:18px;font-weight:800;letter-spacing:-.03em">오늘의 기분 · 사진</b><span style="flex:1;min-width:0;text-align:right;font-size:14px;font-weight:800;color:{{ lgc.mood.c }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ lgc.mood.sum }}</span><span style="flex:none;width:32px;height:32px;border-radius:50%;background:#F3F5FF;display:grid;place-items:center;transform:{{ lgc.mood.rot }};transition:transform .2s"><span style="@@IC@@font-size:22px;color:#3B5BDB">expand_more</span></span></button>\n'
+ '<sc-if value="{{ lgc.mood.open }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:12px">'
+ '<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px"><sc-for list="{{ lg2.mood.chips }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.pick }}" style="height:72px;border-radius:18px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;padding:0"><span style="font-size:28px;line-height:1">{{ c.e }}</span>{{ c.l }}</button></sc-for></div>'
+ '<input value="{{ lg2.mood.note }}" onChange="{{ lg2.mood.onNote }}" placeholder="오늘 한 줄 (예: 후지산이 보였다)" style="width:100%;box-sizing:border-box;height:50px;border-radius:14px;border:1px solid #DCE0F7;background:#F6F7FF;padding:0 14px;font:600 16px \'Pretendard Variable\',Pretendard,sans-serif;color:#18324F;outline:none">'
+ '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ lg2.mood.photos }}" as="p" hint-placeholder-count="2"><div style="position:relative;aspect-ratio:1/1;border-radius:18px;background:{{ p.bg }};overflow:hidden"><button onClick="{{ p.del }}" aria-label="사진 삭제" style="position:absolute;top:6px;right:6px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(20,10,70,.6);color:#fff;font:800 16px sans-serif;cursor:pointer;padding:0">✕</button></div></sc-for>'
+ '<sc-if value="{{ lg2.mood.canAdd }}" hint-placeholder-val="{{ true }}"><button onClick="{{ lg2.mood.add }}" style="min-width:0;overflow:hidden;aspect-ratio:1/1;border-radius:18px;border:2px dashed #C9C4EE;background:#F6F4FF;color:#5B32D6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;padding:0"><span style="@@IC@@font-size:30px;color:#5B32D6">add_a_photo</span>사진 추가</button></sc-if></div>'
+ '<input id="ph-in" type="file" accept="image/*" multiple onChange="{{ lg2.mood.onPhoto }}" style="display:none">'
+ '</div></sc-if></div>\n').replace('@@IC@@', _ic)
+dc = dc[:_mc] + _card + dc[_mc:]
+
+
+# 사진 일기: 날짜별 여러 장 콜라주(1~4장) + 기분 칩 + 사진 수
+rep('<span style="position:relative;display:grid;place-items:center;width:100%;aspect-ratio:4/3;filter:{{ dkImg }};background:{{ d.grad }}">', '<span style="position:relative;display:grid;place-items:center;width:100%;aspect-ratio:4/3;filter:{{ dkImg }};background:{{ d.grad }};overflow:hidden"><span style="position:absolute;inset:0;display:grid;gap:2px;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr"><sc-for list="{{ d.pics }}" as="p" hint-placeholder-count="1"><span style="grid-area:{{ p.ga }};background:{{ p.bg }};min-width:0;min-height:0"></span></sc-for></span>')
+rep('<span style="position:absolute;left:10px;top:10px;font-size:12px;font-weight:800;padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.92);color:#3B5BDB">DAY {{ d.n }}</span>', '<span style="position:absolute;left:10px;top:10px;font-size:14px;font-weight:800;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.92);color:#5B32D6">DAY {{ d.n }}</span><sc-if value="{{ d.hasMood }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:10px;top:8px;font-size:22px;line-height:1;padding:5px 8px;border-radius:99px;background:rgba(255,255,255,.92)">{{ d.mood }}</span></sc-if>')
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]
@@ -536,7 +556,7 @@ PERSIST_OLD = "'bodyLog', "
 OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
 OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, smin: j.smin || [], at: Date.now() };", src=OLD)
 OLD = rep("this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);", "this._hcT = setTimeout(() => this.loadHc(), 2 * 6e4);", src=OLD)
-OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'wLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
+OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'wLog', 'moodLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
 NEWJS = open(os.path.join(HERE, 'v9_logic.js'), encoding='utf-8').read()
 HEROS = sorted(os.listdir(os.path.join(ROOT, 'assets', 'hero')))

@@ -657,7 +657,7 @@ _rep("    places: d === 12 ? PLACES12 : []\n",
       let ll = rel[rel.length - 1].ll;
       for (let k = 1; k < rel.length; k++) { if (km <= rel[k].rel || k === rel.length - 1) { const a0 = rel[k - 1], b0 = rel[k], f = b0.rel === a0.rel ? 0 : Math.min(1, Math.max(0, (km - a0.rel) / (b0.rel - a0.rel))); ll = [a0.ll[0] + (b0.ll[0] - a0.ll[0]) * f, a0.ll[1] + (b0.ll[1] - a0.ll[1]) * f]; break; } }
       if (rel.length === 1) ll = rel[0].ll;
-      return { name: sp.ko, km, ll, desc: sp.cat + ' · ' + sp.desc, q: sp.jp, long: '[' + sp.cat + '] ' + sp.desc + '. 위치는 대략적이니 구글 지도로 정확한 길을 확인하고, 영업일은 방문 전에 확인하세요.' };
+      return { name: sp.ko, km, ll, desc: sp.cat + ' · ' + sp.desc, q: sp.jp, long: '[' + sp.cat + '] ' + sp.desc + '.' };
     }))
 """)
 _rep("const PLACES12 = [", "const SPOTS = " + json.dumps(_spots, ensure_ascii=False, separators=(',', ':')) + ";\nconst PLACES12 = [")

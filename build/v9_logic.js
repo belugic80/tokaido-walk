@@ -198,7 +198,7 @@
       lodge: (() => { const v = LSv(dN), h = HT[dN] || HT[String(dN)]; return v && v.name ? v.name : h && h.ko ? h.ko : KO[DY.e]+' · 숙소 미정'; })(), lodgeSub: lsSub(dN), hasLodgeSub: !!lsSub(dN), ls: (() => { const v = LSv(dN), h = HT[dN] || HT[String(dN)]; return (v && v.name) || (h && h.ko) ? '예약 확정' : '미정'; })(),
       lb: (() => { const h = HT[dN] || HT[String(dN)]; return h && h.ko ? '#E4F8EC' : '#FFF3D8'; })(), lf: (() => { const h = HT[dN] || HT[String(dN)]; return h && h.ko ? '#16804A' : '#8A5A0E'; })(),
       photos: [0,1,2,3,4].map(j => ({ slot: 'day-'+dN+'-photo-'+(j+1), cls: '', bg: dpast || disT ? '#F1F3FA' : '#F1F3FA', icon: dpast || disT ? '' : 'add_a_photo', fg: '#8C96B0', gc: j === 0 ? '1 / -1' : 'auto' })),
-      note: noteDy ? '“'+noteDy+'”' : (dpast || disT ? '남긴 글이 없어요. 아래에 한 줄을 남겨 보세요.' : '아직 기록이 없습니다. 걷고 난 뒤 사진과 한 줄을 남겨 보세요.'), noteV: noteDy, canNote: dpast || disT, onNote: e => set({ noteLog:{...NL,[isoDy]:e.target.value}, noteSaved:false }),
+      note: noteDy ? '“'+noteDy+'”' : (dpast || disT ? '' : ''), noteV: noteDy, canNote: dpast || disT, onNote: e => set({ noteLog:{...NL,[isoDy]:e.target.value}, noteSaved:false }),
       tkEmpty: !(dpast || disT) || DY.rest, trkO: dpast || disT ? '1' : '0', planO: '1', tkN: DY.rest ? '휴식일' : dpast || disT ? (((S.hc && S.hc.locs) || {})[isoDy] || []).length+'점' : '기록 없음', tkB: dpast ? '#E4F8EC' : disT ? '#EDF0FF' : 'rgba(24,50,79,.06)', tkF: dpast ? '#16804A' : disT ? '#3B5BDB' : '#6B7A90',
       tkKm: (dpast || disT) && hcDy ? (+hcDy.km || 0).toFixed(1)+'km 기록' : '계획 '+DY.km+'km', tkSrc: '폰 GPS · OwnTracks',
       prev: () => dN > 1 && set({ dayN:dN-1 }), next: () => dN < 31 && set({ dayN:dN+1 }) };

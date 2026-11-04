@@ -504,7 +504,7 @@
         '  <img part="image" alt="" draggable="false" style="display:none">' +
         '  <div class="empty" part="empty">' + icon +
         '    <div class="cap"></div>' +
-        '    <div class="sub">or <u>browse files</u></div></div>' +
+        '    </div>' +
         '  <div class="attr-error" part="attribution-error">' + warnIcon +
         '    <div class="cap">This photo needs attribution</div></div>' +
         '  <div class="loading" part="loading"></div>' +

@@ -1066,6 +1066,11 @@ dc = dc[:_g1] + '<div style="height:76px"></div>' + dc[_g1:]
 _o = 'style="flex:none;position:relative;width:64px;height:76px;border-radius:18px;border:2px solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden"><span style="position:absolute;left:0;right:0;bottom:0;padding:14px 0 4px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(20,10,70,.85));'
 assert dc.count(_o) == 1
 dc = dc.replace(_o, 'style="flex:none;align-self:center;position:relative;width:{{ q.w }};height:{{ q.h }};border-radius:18px;border:{{ q.bw }} solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden;margin:4px 2px;transition:all .15s"><span style="position:absolute;left:0;right:0;bottom:0;padding:5px 0 4px;background:{{ q.lb }};', 1)
+# 날짜 자세히: '이 날 걸은 길' 지도가 남는 높이를 채워 오른쪽 '오늘 나의 하루'와 아래끝 맞춤 · 사진 칸 안내 글자 삭제
+_i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">이 날 걸은 길</b>')
+_o = '<div style="position:relative;height:200px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7">'
+_j = dc.index(_o, _i); dc = dc[:_j] + '<div style="position:relative;flex:1;min-height:200px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7">' + dc[_j + len(_o):]
+dc = dc.replace('placeholder="사진 추가"', 'placeholder=""')
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

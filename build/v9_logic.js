@@ -174,6 +174,10 @@
         bg: now ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : started && d.n < TD ? '#EDF0FF' : '#fff', fg: now ? '#fff' : started && d.n < TD ? '#3B5BDB' : '#18324F', bd: now || started && d.n < TD ? '0' : '1.5px solid #DCE0F7', open: () => set({ jd:d.n }) }; }) };
 
     const jdN = Math.min(31, Math.max(1, S.jd != null ? S.jd : (started ? TD : 1))), JD = ALL[jdN-1], jdPast = started && jdN < TD, jdNow = started && jdN === TD, jdHc = hcOf(jdN) || (jdNow ? X.hcT : null), jdCum = ALL.slice(0, jdN).reduce((q,d) => q+d.km, 0), jdSt = st2(JD), jdSc = stC(jdSt), jdWalk = Math.max(0, JD.km - JD.tr);
+    const jTot = ALL.reduce((q,d) => q+d.km, 0) || 1, jCum = n => ALL.slice(0, n).reduce((q,d) => q+d.km, 0), jPct = n => +(jCum(n)/jTot*100).toFixed(2);
+    const jr = { fill: jPct(jdN)+'%', cur: jPct(jdN), curT: 'DAY '+jdN+' · '+KO[JD.e].replace(/\(.*\)/, ''), curKm: Math.round(jCum(jdN))+'km',
+      dots: ALL.map(d => ({ x: jPct(d.n)+'%', bg: d.n <= jdN ? '#fff' : 'rgba(255,255,255,.01)', bd: d.n <= jdN ? '#fff' : 'rgba(255,255,255,.75)', big: d.n === 7 || d.n === 14 || d.n === 21 || d.n === 28 ? 14 : 8 })),
+      labels: [7,14,21,28].map(n => ({ x: jPct(n)+'%', t: KO[ALL[n-1].e].replace(/\(.*\)/, ''), on: n <= jdN })), a: KO[ALL[0].s], b: KO[ALL[30].e].replace(/\(.*\)/, '') };
     const jc = { n:jdN, date:JD.date, st:jdSt, sb:jdSc[0], sf:jdSc[1], title: KO[JD.s]+'에서 '+KO[JD.e]+'까지', jpPath: JD.stops.map(s => s.jp).join(' → '),
       prevO: jdN > 1 ? 1 : .35, nextO: jdN < 31 ? 1 : .35, prev: () => set({ jd: Math.max(1, jdN-1) }), next: () => set({ jd: Math.min(31, jdN+1) }), today: () => set({ jd: null }), detail: () => set({ sub:'day', dayN:jdN }),
       plan:[{k:'거리',v: JD.rest ? '휴식' : JD.km+' km'},{k:'예상 시간',v: JD.rest ? '—' : '약 '+hmm(jdWalk * MIN_PER_KM).replace(/^(\d+):(\d+)$/, (m,h,mi) => h+'시간'+(+mi ? ' '+(+mi)+'분' : ''))},{k:'누적',v: Math.round(jdCum)+' km'}],
@@ -381,7 +385,7 @@
     const SUBT = { glance:'한눈에', day:'DAY '+dN+' 자세히', plan:'일정 관리', stamp:'스탬프 · 배지', diary:'사진 일기', jp:'일본어', info:'날씨 · 환율 · 연락처' };
     const mp = {};
     const toastT = S.toast || { a:'', b:'' };
-    const XT = { jc, dpv, dpOpen: S.dp != null, lgc, dkRoot: DK ? DKF+' brightness(1.04) contrast(.96)' : 'none', dkImg: DK ? DKF : 'none', dkBlur: DK ? DKF+' blur(2.5px)' : 'blur(2.5px)', darkOn: DK, toggleDark: () => set({ dark:!DK }), amen, gmSrc, jn, dd2, pl2, stp2, diary2, jp2, wx2, wxd2, wxCard, fxLabel, fx2, sos, mo2, setRows, lg2, lgd, wm, dnC, toastT,
+    const XT = { jr, jc, dpv, dpOpen: S.dp != null, lgc, dkRoot: DK ? DKF+' brightness(1.04) contrast(.96)' : 'none', dkImg: DK ? DKF : 'none', dkBlur: DK ? DKF+' blur(2.5px)' : 'blur(2.5px)', darkOn: DK, toggleDark: () => set({ dark:!DK }), amen, gmSrc, jn, dd2, pl2, stp2, diary2, jp2, wx2, wxd2, wxCard, fxLabel, fx2, sos, mo2, setRows, lg2, lgd, wm, dnC, toastT,
       padB: S.ntab === 'home' ? '110px' : '84px', tabOn: S.ntab !== 'home' && !S.mapFull, tabLabel: {journey:'여정',log:'기록',more:'더보기'}[S.ntab] || '', tb: { journey: S.ntab === 'journey', log: S.ntab === 'log', more: S.ntab === 'more' },
       subOn: !!S.sub, subTitle: SUBT[S.sub] || '', subNavV: S.sub === 'day' ? 'visible' : 'hidden', sb2: { glance:S.sub === 'glance', day:S.sub === 'day', plan:S.sub === 'plan', stamp:S.sub === 'stamp', diary:S.sub === 'diary', jp:S.sub === 'jp', info:S.sub === 'info' }, back2: () => this.closeSub() };
     const lodgeH = HT[VW] || HT[String(VW)], lodgeOk = !!(lodgeH && lodgeH.ko);

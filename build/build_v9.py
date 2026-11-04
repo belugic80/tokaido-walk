@@ -49,7 +49,7 @@ rep('right:16px;bottom:22px;', 'right:16px;bottom:calc(%s + 22px);' % SAB, cnt=2
 
 # 아이콘 글꼴: 새로 쓰는 아이콘 추가 (이름 순서대로)
 m = re.search(r'icon_names=([a-z_,0-9]+)', dc)
-names = set(m.group(1).split(',')) | {'grid_view', 'edit_calendar', 'open_in_new', 'timer', 'flag', 'local_fire_department', 'thermostat', 'partly_cloudy_day', 'foggy', 'thunderstorm', 'umbrella', 'wb_twilight', 'delete', 'edit', 'close', 'expand_less', 'refresh', 'restart_alt', 'swap_vert', 'translate', 'watch', 'train', 'today', 'info', 'warning', 'add', 'remove', 'search', 'water_drop', 'air', 'undo', 'arrow_forward', 'visibility', 'keyboard_arrow_up', 'keyboard_arrow_down'}
+names = set(m.group(1).split(',')) | {'directions_walk', 'grid_view', 'edit_calendar', 'open_in_new', 'timer', 'flag', 'local_fire_department', 'thermostat', 'partly_cloudy_day', 'foggy', 'thunderstorm', 'umbrella', 'wb_twilight', 'delete', 'edit', 'close', 'expand_less', 'refresh', 'restart_alt', 'swap_vert', 'translate', 'watch', 'train', 'today', 'info', 'warning', 'add', 'remove', 'search', 'water_drop', 'air', 'undo', 'arrow_forward', 'visibility', 'keyboard_arrow_up', 'keyboard_arrow_down'}
 dc = dc.replace(m.group(0), 'icon_names=' + ','.join(sorted(names)))
 
 # ───────────────────────── 2. 문서 머리 (v8 빌드의 것을 그대로) ─────────────────────────
@@ -380,6 +380,22 @@ _ge = _end(dc, _gs)
 dc = dc[:_ge] + '\n' + _btn.replace('padding:0 16px 12px', 'padding:12px 16px 24px') + dc[_ge:]
 
 rep('<button onClick="{{ back2 }}" aria-label="뒤로 가기"', '<sc-if value="{{ sb2.glance }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:16px;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:3;height:60px;max-width:calc(100% - 156px);box-sizing:border-box;display:flex;align-items:center;gap:4px;padding:6px;border-radius:30px;background:rgba(255,255,255,.8);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border:1px solid rgba(255,255,255,.95);box-shadow:0 12px 28px rgba(84,40,232,.22);overflow-x:auto;scrollbar-width:none"><sc-for list="{{ jn.gj }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.go }}" style="flex:none;white-space:nowrap;height:48px;min-width:52px;padding:0 14px;border:0;border-radius:24px;background:{{ c.bg }};color:{{ c.fg }};box-shadow:{{ c.sh }};font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;transition:background .2s">{{ c.label }}</button></sc-for></div></sc-if>\n' + '<button onClick="{{ back2 }}" aria-label="뒤로 가기"')
+# 전체 여정: 상단 전체 폭에 전체 이동 거리 + 통계 띠 (좌 전체 일정 / 우 날짜 플랜이 첫 화면에 보이도록)
+_s0 = dc.index('<div style="border-radius:28px;padding:20px;background:linear-gradient(120deg,#5B6FD4,#8B9CF0,#C9B8F5)', dc.index('{{ jc.prev }}') - 14000)
+_s1 = _end(dc, _s0)
+_summary = dc[_s0:_s1]
+_trk = '<span style="height:8px;border-radius:99px;background:rgba(255,255,255,.3);overflow:hidden;margin-top:4px"><span style="display:block;height:100%;border-radius:99px;background:#fff;width:{{ tt.w }}"></span></span>'
+assert _trk in _summary, 'trk'
+_summary = _summary.replace(_trk, '<div style="position:relative;margin:6px 6px 0;height:118px"><span style="position:absolute;left:0;right:0;top:50px;height:6px;border-radius:99px;background:rgba(255,255,255,.3)"></span><span style="position:absolute;left:0;top:50px;height:6px;border-radius:99px;background:#fff;width:{{ jr.fill }};transition:width .5s ease"></span><sc-for list="{{ jr.dots }}" as="q" hint-placeholder-count="31"><span style="position:absolute;left:{{ q.x }};top:53px;width:{{ q.big }}px;height:{{ q.big }}px;transform:translate(-50%,-50%);border-radius:50%;background:{{ q.bg }};border:2px solid {{ q.bd }};box-sizing:border-box"></span></sc-for><span style="position:absolute;left:{{ jr.fill }};top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;transition:left .5s ease"><span style="white-space:nowrap;font-size:13px;font-weight:800;padding:3px 10px;border-radius:99px;background:#fff;color:#5B32D6;box-shadow:0 4px 12px rgba(40,30,120,.25)">{{ jr.curT }} · {{ jr.curKm }}</span><span style="width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(40,30,120,.3);margin-top:-2px"><span style="@@IC@@font-size:22px;color:#5B32D6">directions_walk</span></span></span><sc-for list="{{ jr.labels }}" as="q" hint-placeholder-count="4"><span style="position:absolute;left:{{ q.x }};top:72px;transform:translateX(-50%);font-size:13px;font-weight:700;white-space:nowrap;opacity:.95">{{ q.t }}</span></sc-for><span style="position:absolute;left:0;top:96px;font-size:13px;font-weight:800;white-space:nowrap">출발 {{ jr.a }}</span><span style="position:absolute;right:0;top:96px;font-size:13px;font-weight:800;white-space:nowrap">도착 {{ jr.b }}</span></div>'.replace('@@IC@@', _ic))
+dc = dc[:_s0] + dc[_s1:]
+_t0 = dc.index('<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><sc-for list="{{ jn.stats }}"')
+_t1 = _end(dc, _t0)
+_stats = dc[_t0:_t1].replace('repeat(2,minmax(0,1fr))', 'repeat(auto-fit,minmax(140px,1fr))', 1)
+dc = dc[:_t0] + dc[_t1:]
+_summary = _summary.replace('font-size:40px;font-weight:800', 'font-size:48px;font-weight:800', 1)
+_g0 = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">', dc.index('{{ jc.prev }}') - 14000)
+dc = dc[:_g0] + '<div style="padding:0 16px 12px;display:flex;flex-direction:column;gap:10px">' + _summary + _stats + '</div>\n' + dc[_g0:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

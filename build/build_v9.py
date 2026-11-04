@@ -514,6 +514,12 @@ dc = dc[:_bs0] + ('<div style="position:relative;overflow:hidden;border-radius:2
  '<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 4px"><sc-for list="{{ jr.strip }}" as="q" hint-placeholder-count="12"><button id="{{ q.sid }}" onClick="{{ q.go }}" style="flex:none;position:relative;width:64px;height:76px;border-radius:18px;border:2px solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden"><span style="position:absolute;left:0;right:0;bottom:0;padding:14px 0 4px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(20,10,70,.85));font:800 15px \'Pretendard Variable\',Pretendard,sans-serif;color:#fff">{{ q.n }}</span></button></sc-for></div>'
  '</div></div>') + dc[_bs1:]
 
+
+# 이동 방식: 열차/버스/택시 선택 제거 (어디에도 기록되지 않음)
+_ms = dc.index('<sc-if value="{{ pl2.hasTr }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid #EEF0F7"><b style="font-size:14px;color:#4A5D78">교통 수단</b>')
+_me = dc.index('</sc-if>', _ms) + len('</sc-if>')
+dc = dc[:_ms] + dc[_me:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

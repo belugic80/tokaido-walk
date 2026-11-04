@@ -473,6 +473,12 @@ dc = dc[:_qe] + ('\n<div style="display:grid;grid-template-columns:repeat(3,minm
 
 
 
+
+# 일정 관리: 되돌리기/변경 저장 버튼 — 화면 하단 중앙 고정
+rep('<div style="flex:1;display:flex;gap:8px"><button onClick="{{ pl2.reset }}"', '<div style="height:76px"></div><div style="position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:4;display:flex;justify-content:center;pointer-events:none"><div style="pointer-events:auto;display:flex;gap:8px;width:min(440px,calc(100% - 300px));min-width:280px;padding:8px;border-radius:35px;background:rgba(255,255,255,.92);border:1px solid #E1D8FB;box-shadow:0 12px 28px rgba(40,50,140,.18);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)"><button onClick="{{ pl2.reset }}"')
+_k = dc.index('{{ pl2.saveLabel }}</button></div>') + len('{{ pl2.saveLabel }}</button></div>')
+dc = dc[:_k] + '</div>' + dc[_k:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

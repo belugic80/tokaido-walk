@@ -307,7 +307,7 @@
     const loIso = isoOf(new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() + Math.min(0, S.lo || 0))), loD = new Date(loIso+'T00:00:00');
     const hcKeys = Object.keys(HCD).sort(), loMin = Math.min(0, Math.round((new Date((hcKeys[0] || ISO)+'T00:00:00') - new Date(ISO+'T00:00:00')) / 864e5));
     const lo = Math.max(loMin, Math.min(0, S.lo || 0)), LISO = isoOf(new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() + lo)), LD = new Date(LISO+'T00:00:00');
-    const lTrip = Math.round((LD - new Date(2026, 11, 4)) / 864e5) + 1, lIn = lTrip >= 1 && lTrip <= 31;
+    const lTrip = Math.round((LD - new Date(2026, 11, 4)) / 864e5) + 1, lIn = lTrip >= 1 && lTrip <= 31; try { window.__dayRoute = lIn ? dayData(lTrip).stops.map(s => s.ll) : null; } catch (e) { window.__dayRoute = null; }
     const hcL = HCD[LISO] || null, isLT = lo === 0;
     const _lgBar = wk === 'none' || !(S.ntab === 'home' && !S.mapFull) ? 0 : wk === 'ready' ? (wState === 'ok' ? 0 : 52) : 66;
     const lgd = { fixBot: 'calc(env(safe-area-inset-bottom) + '+(96 + _lgBar + (_lgBar ? 8 : 0))+'px)', spacer: (64 + _lgBar)+'px', n: lIn ? lTrip : 0, nl: lIn ? lTrip+'일차' : lTrip < 1 ? '출발 전' : '여행 후', date:(LD.getMonth()+1)+'.'+LD.getDate()+' ('+WDN[LD.getDay()]+')', path: lIn ? ALL[lTrip-1].path : '시나가와 출발 전 준비 기간', rel: lo === 0 ? '오늘' : lo === -1 ? '어제' : lo === -2 ? '그제' : (-lo)+'일 전',

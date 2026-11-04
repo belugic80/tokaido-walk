@@ -1107,6 +1107,14 @@ _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)
 dc = dc[:_w1] + '<div style="flex:1;display:flex;flex-direction:column;gap:12px">' + dc[_w1+len('<div style="display:flex;flex-direction:column;gap:12px">'):]
 _w2 = dc.index('<div style="position:relative;height:150px;margin:6px 0 4px">', _w1)
 dc = dc[:_w2] + '<div style="position:relative;flex:1;min-height:150px;margin:6px 0 4px">' + dc[_w2+len('<div style="position:relative;height:150px;margin:6px 0 4px">'):]
+# 기록 탭: GPS 기록이 없는 날은 그 날의 계획 경로를 흐린 점선으로 표시
+_k0 = "var D = window.__v8, k = el.getAttribute('data-k') + '|' + "
+assert dc.count(_k0) == 1
+dc = dc.replace(_k0, _k0 + "(window.__dayRoute ? window.__dayRoute.length + ',' + window.__dayRoute[0] : '') + '|' + ")
+_k1 = "} else { try { el._map.setView((D.logC || D.me || (D.stops && D.stops[0] && D.stops[0].ll) || [35.62, 139.74]), 13); } catch (e) {} }"
+assert dc.count(_k1) == 1
+dc = dc.replace(_k1, "} else if (window.__dayRoute && window.__dayRoute.length > 1) { try { L.polyline(window.__dayRoute, { color: '#673DE6', weight: 4, opacity: .4, dashArray: '6 8' }).addTo(el._lay); el._map.fitBounds(L.latLngBounds(window.__dayRoute), { padding: [24, 24], maxZoom: 15 }); } catch (e) {} } else { try { el._map.setView((D.logC || D.me || (D.stops && D.stops[0] && D.stops[0].ll) || [35.62, 139.74]), 13); } catch (e) {} }")
+dc = dc.replace("OwnTracks 위치 기록이 없는 날이에요", "GPS 기록이 없는 날이에요 · 흐린 점선은 계획 경로")
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

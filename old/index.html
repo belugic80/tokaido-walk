@@ -1821,11 +1821,11 @@ class Component extends DCLogic {
     if (typeof L === 'undefined') return;
     var k = el.getAttribute('data-trk') || '';
     if (!el._map) { try { el._map = L.map(el, { zoomControl: true, attributionControl: false }).setView([35.68, 139.76], 13); L.tileLayer(GSI, { maxZoom: 19 }).addTo(el._map); setTimeout(function () { try { el._map.invalidateSize(); } catch (e) {} }, 300); el._lay = L.layerGroup().addTo(el._map); } catch (e) { return; } }
-    if (el._k === k) return; el._k = k; el._lay.clearLayers();
+    var _dr = window.__dayRoute, _sg = (k || (_dr && _dr.length)) ? k + '|' + (_dr && _dr.length ? _dr.length + ',' + _dr[0] : '') : ''; if (el._k === _sg) return; el._k = _sg; el._lay.clearLayers();
     var pts = k ? k.split(';').map(function (s) { var a = s.split(','); return [+a[0], +a[1], +a[2]]; }) : [];
     if (!pts.length) {
       if (!el._msg) { el._msg = document.createElement('div'); el._msg.style.cssText = 'position:absolute;left:12px;right:12px;bottom:12px;z-index:1000;background:rgba(255,255,255,.95);border-radius:12px;padding:10px 12px;font:600 14px Noto Sans KR,sans-serif;color:#20202A;text-align:center'; el.appendChild(el._msg); }
-      el._msg.textContent = '이 날은 기록된 위치가 없어요'; el._msg.style.display = 'block';
+      el._msg.textContent = '이 날은 기록된 위치가 없어요'; el._msg.style.display = 'block'; if (_dr && _dr.length > 1) { try { L.polyline(_dr, { color: '#673DE6', weight: 4, opacity: .35, dashArray: '6 8' }).addTo(el._lay); el._map.fitBounds(L.latLngBounds(_dr), { padding: [30, 30], maxZoom: 15 }); el._msg.textContent = '이 날은 기록된 위치가 없어요 · 흐린 점선은 계획 경로'; } catch (e) {} el._k = _sg; return; }
       if (!el._cur && navigator.geolocation) { el._cur = 1; navigator.geolocation.getCurrentPosition(function (p) { try { if (el._k) return; var q = [p.coords.latitude, p.coords.longitude]; el._map.setView(q, 16); el._curMk = L.circleMarker(q, { radius: 8, color: '#fff', weight: 3, fillColor: '#2F7CF6', fillOpacity: 1 }).addTo(el._map); } catch (e) {} }, function () {}, { timeout: 15000, maximumAge: 120000 }); }
       return;
     }

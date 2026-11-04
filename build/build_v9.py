@@ -785,6 +785,7 @@ dc = _re2.sub(r'new Date\(2026, 11, 3 ?\+ ?', 'new Date(__SD[0], __SD[1], __SD[2
 dc = dc.replace('2026, 11, 4 + ', '__SD[0], __SD[1], __SD[2] + ')
 dc = dc.replace('new Date(2026, 11, 4)', 'new Date(__SD[0], __SD[1], __SD[2])')
 dc = dc.replace("'2026-12-04'", '__SDI')
+dc = dc.replace('dtx = new Date(2026, 11, dn)', 'dtx = new Date(__SD[0], __SD[1], __SD[2] - 4 + dn)')
 dc = dc.replace("'12/4 ", "(__SD[1]+1)+'/'+__SD[2]+' ")
 dc = dc.replace('<head>', '<head>\n' + _sd, 1)
 # 경유지 팝업: 제목·박스를 사진 아래로(명물 팝업과 같은 톤)

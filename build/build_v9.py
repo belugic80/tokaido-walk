@@ -127,7 +127,7 @@ tx('100엔 = 905원 · 예시', '{{ fxLabel }}')
 svgs = [x for x in re.finditer(r'<svg viewBox="0 0 360 (?:300|200)"[^>]*>.*?</svg>', dc, re.S)]
 assert len(svgs) == 3, len(svgs)
 kinds = ['<div data-v8map="home" data-k="home" style="position:absolute;inset:0;pointer-events:none"></div>',
-         '<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+         '<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;left:0;top:-76px;width:100%;height:calc(100% + 76px);border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
          '<div data-v8map="log" data-k="log" style="position:absolute;inset:0"></div>']
 for x, k in reversed(list(zip(svgs, kinds))):
     dc = dc[:x.start()] + k + dc[x.end():]
@@ -325,6 +325,26 @@ dc = dc[:_pb] + '<button onClick="{{ p.run }}" style="' + dc[_pb + len('<button 
 
 # 지도 탭: 약국 칩 오른쪽 "구글지도 보기" (외부 구글 지도 열기)
 rep('{{ c.n }}</span></button></sc-for></div>', '{{ c.n }}</span></button></sc-for><button onClick="{{ amen.openGm }}" style="flex:none;white-space:nowrap;height:42px;padding:0 16px;border-radius:99px;border:0;background:linear-gradient(135deg,#5428E8,#9A63F5);color:#fff;display:flex;align-items:center;gap:6px;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(84,40,232,.3)"><span class="material-symbols-rounded" style="font-size:20px">open_in_new</span>구글지도 보기</button></div>')
+
+# 몸 상태: 3항목(최대 15), 입력칸 항상 표시 + 선택 즉시 저장 (저장 버튼 제거)
+rep('<div style="display:flex;justify-content:flex-end"><button onClick="{{ lg2.toggleCond }}"', '<div style="display:none"><button onClick="{{ lg2.toggleCond }}"')
+rep('>/ 25<', '>/ 15<')
+rep('hint-placeholder-count="5"><div style="display:grid;grid-template-columns:56px', 'hint-placeholder-count="3"><div style="display:grid;grid-template-columns:76px')
+rep('<b style="font-size:14px">{{ r.label }}</b><sc-for list="{{ r.v }}"', '<b style="font-size:14px;white-space:nowrap">{{ r.label }}</b><sc-for list="{{ r.v }}"')
+rep('grid-template-columns:64px repeat(3,minmax(0,1fr))', 'grid-template-columns:76px repeat(3,minmax(0,1fr))')
+
+rep('<span style="display:flex;justify-content:space-between;font-size:12px;color:#6B7A90">\n</div>\n</sc-if>', '</div>\n</sc-if>')
+# 지도 탭(구글 지도): 구글이 그리는 출발·도착 마커는 색을 바꿀 수 없어 범례 제거
+import re as _re2
+_m = _re2.search(r'<span style="position:absolute;left:74px;right:12px;overflow-x:auto[^\n]*\n', dc)
+assert _m, 'legend'
+dc = dc[:_m.start()] + dc[_m.end():]
+# 몸 상태 카드가 닫히지 않아 아래 카드(지출·수면·체중)가 그 안에 들어가 같이 접히던 문제
+rep('\n\n</div>\n</sc-if>\n<div style="height:{{ lgd.spacer }}">', '\n\n<div style="height:{{ lgd.spacer }}">')
+rep('</sc-if>\n</div>\n<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">\n<button onClick="{{ lgc.exp.toggle }}"', '</sc-if>\n</div>\n</sc-if>\n</div>\n<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">\n<button onClick="{{ lgc.exp.toggle }}"')
+# 오늘 지출: 항목 메모 입력(무엇을 먹었는지·어디서 자는지 등)
+rep('<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ lg2.cats }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="flex:none;white-space:nowrap;height:40px;padding:0 14px;border-radius:99px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font:700 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">{{ c.label }}</button></sc-for></div>',
+ '<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ lg2.cats }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="flex:none;white-space:nowrap;height:40px;padding:0 14px;border-radius:99px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font:700 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">{{ c.label }}</button></sc-for></div>\n<input value="{{ lg2.nnote }}" onChange="{{ lg2.onNote }}" placeholder="내용 (예: 라멘, 가케가와 호텔)" style="width:100%;box-sizing:border-box;height:46px;border-radius:14px;border:1px solid #DCE0F7;background:#F6F7FF;padding:0 14px;font:600 15px \'Pretendard Variable\',Pretendard,sans-serif;color:#18324F">')
 
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)

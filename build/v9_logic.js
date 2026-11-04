@@ -285,12 +285,12 @@
     const plannedC = (() => { let q = 0; return ALL.map(d => (q += d.km)); })(), actC = (() => { let q = 0; return ALL.map(d => { if (!started || d.n > TD) return null; const h = hcOf(d.n) || (d.n === TD ? X.hcT : null); q += h ? (+h.km || 0) : 0; return q; }); })();
     const cpx = (arr) => arr.map((v,k) => v == null ? null : ((k+1)/31*300).toFixed(1)+','+(140 - v/488*130).toFixed(1)).filter(Boolean).join(' ');
     const actNow = started ? actC[Math.min(30, TD-1)] : null, planNow = started ? plannedC[Math.min(30, TD-1)] : 0;
-    const CKs = ['발바닥','무릎','종아리','어깨','피로'], BL = S.bodyLog || {}, bToday = BL[LISO] || {}, condV = Object.fromEntries(CKs.map(k => [k, bToday[k] != null ? bToday[k] : 0]));
+    const CKs = ['발·무릎','허리·어깨','피로'], BL = S.bodyLog || {}, bToday = BL[LISO] || {}, condV = Object.fromEntries(CKs.map(k => [k, bToday[k] != null ? bToday[k] : 0]));
     const prevIso = n => { const d = new Date(LD); d.setDate(d.getDate()-n); return isoOf(d); };
     const hist = n => { const b = BL[prevIso(n)] || null; return Object.fromEntries(CKs.map(k => [k, b && b[k] != null ? b[k] : null])); };
     const H1 = hist(1), H2 = hist(2), lvl = n => n == null ? ['#F1F3FA','#B3BAD0'] : n >= 4 ? ['#FDE9EC','#B8364A'] : n >= 2 ? ['#F3F0FF','#7048E8'] : n >= 1 ? ['#EDF0FF','#3B5BDB'] : ['#F1F3FA','#8C96B0'];
     const sumOf = o => CKs.reduce((q,k) => q + (o[k] || 0), 0), cs = sumOf(condV), s1 = sumOf(H1), s0 = sumOf(H2), cd = cs - s1;
-    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 15 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 8 ? ['주의','#F3F0FF','#7048E8'] : ['가벼움','#E4F8EC','#16804A'];
+    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 9 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 5 ? ['주의','#F3F0FF','#7048E8'] : ['가벼움','#E4F8EC','#16804A'];
     const EL = S.expLog || {}, expT = EL[LISO] || [], toW = e => e.c === 'jpy' ? e.v*rate : e.v, totW = expT.reduce((q,e) => q+toW(e), 0);
     const cumW = Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.reduce((r,e) => r + toW(e), 0), 0), cumDays = Math.max(1, Object.keys(EL).filter(k => (!started || k >= '2026-12-04') && EL[k].length).length);
     const sleepDays = Array.from({length:7}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(6-k)); const iso = isoOf(d), h = HCD[iso]; return { l: WDN[d.getDay()], v: h && h.sleep ? h.sleep/60 : 0 }; });
@@ -308,24 +308,25 @@
       gpsN: (() => { const n = ((((S.hc||{}).locs||{})[LISO])||[]).length + ((((S.track||{})[LISO])||[]).length); return n ? n+'점' : '기록 없음'; })(),
       gpsNote: (() => { const q = ((((S.hc||{}).locs||{})[LISO])||[]).concat(((S.track||{})[LISO])||[]).sort((a,b) => a[2]-b[2]); if (q.length < 2) return 'OwnTracks 위치 기록이 없는 날이에요'; let km = 0; for (let i = 1; i < q.length; i++) { const dl = hav([q[i-1][0], q[i-1][1]], [q[i][0], q[i][1]]); if (dl < 2) km += dl; } return '위치 '+q.length+'점 · 이동 약 '+km.toFixed(1)+'km'; })(),
       cumTitle: started ? '실제 vs 계획' : '출발 후 표시', cumNote: started ? (actNow < planNow ? '계획보다 '+(planNow-actNow).toFixed(1)+'km 덜 걸음' : '계획보다 '+(actNow-planNow).toFixed(1)+'km 더 걸음') : '12/4 출발 후 계획과 비교해요',
-      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:false }) }; }) })),
+      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:true }) }; }) })),
       condSum: cs, sumLabel: labC[0], sumBg: labC[1], sumFg: labC[2], sumNote: condV[worst] ? worst+'이(가) 가장 불편 ('+condV[worst]+')' + (BL[prevIso(1)] || BL[prevIso(2)] ? ' · 그제 '+s0+' → 어제 '+s1+' → 오늘 '+cs : '') : '아픈 곳 없음',
       trend: !BL[prevIso(1)] ? '어제 기록 없음' : cd < 0 ? '어제보다 ↓'+(-cd) : cd > 0 ? '어제보다 ↑'+cd : '어제와 같음', trFg: !BL[prevIso(1)] ? '#6B7A90' : cd < 0 ? '#16804A' : cd > 0 ? '#B8364A' : '#6B7A90',
       histHead: [{t:'그제',c:'#8C96B0'},{t:'어제',c:'#6B7A90'},{t:'오늘',c:'#3B5BDB'}],
       hist: CKs.map(k => ({ label:k, v:[H2[k],H1[k],condV[k]].map((n,i) => { const cc = lvl(n); return { n: n == null ? '–' : n, bg:cc[0], fg:cc[1], ol: i === 2 ? '2px solid #C5CCEE' : 'none' }; }) })),
       histSum: [{t: BL[prevIso(2)] ? s0 : '–',c:'#8C96B0'},{t: BL[prevIso(1)] ? s1 : '–',c:'#6B7A90'},{t:cs,c:'#3B5BDB'}],
-      editing: !!S.condEdit, condBtn: S.condEdit ? '저장' : S.condSaved ? '저장됨 ✓ · 수정' : '오늘 기록', condBg: S.condEdit ? 'linear-gradient(135deg,#3B5BDB,#6C8CF5)' : S.condSaved ? '#E4F8EC' : '#EDF0FF', condFg: S.condEdit ? '#fff' : S.condSaved ? '#16804A' : '#3B5BDB',
+      editing: true, condBtn: S.condEdit ? '저장' : S.condSaved ? '저장됨 ✓ · 수정' : '오늘 기록', condBg: S.condEdit ? 'linear-gradient(135deg,#3B5BDB,#6C8CF5)' : S.condSaved ? '#E4F8EC' : '#EDF0FF', condFg: S.condEdit ? '#fff' : S.condSaved ? '#16804A' : '#3B5BDB',
       toggleCond: () => S.condEdit ? set({ condEdit:false, condSaved:true, bodyLog:{...BL,[LISO]:{...condV}} }) : set({ condEdit:true }),
       cur: [['jpy','엔'],['krw','원']].map(([k,label]) => { const on = S.cur === k; return { label, bg: on ? '#fff' : 'transparent', fg: on ? '#3B5BDB' : '#6B7A90', sh: on ? '0 2px 6px rgba(40,50,140,.15)' : 'none', pick: () => set({ cur:k }) }; }),
       amt: S.amt, onAmt: e => { const d = dig(e.target.value); set({ amt: d ? Number(d).toLocaleString('ko-KR') : '' }); },
       cats: ['식비','숙박','교통','기타'].map(cx => ({ label:cx, ...chipOf(S.ncat === cx), pick: () => set({ ncat:cx }) })),
-      add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'' }); },
+      add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:(S.nnote||'').trim() || S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'', nnote:'' }); },
+      nnote: S.nnote || '', onNote: e => set({ nnote: e.target.value }),
       items: expT.map((e,k) => ({ cat:e.cat, note:e.note, v: e.c === 'jpy' ? '¥'+fmt(e.v) : '₩'+fmt(e.v), del: () => set({ expLog:{...EL,[LISO]:expT.filter((x,j) => j !== k)} }) })), total:'₩'+fmt(totW), cum:'₩'+fmt(cumW), cumNoteE: (started ? TD+'일차까지 누적' : '누적')+' · 하루 평균 ₩'+fmt(cumW/cumDays),
       sleep: sleepDays.map(x => ({ h: Math.max(3, Math.round(x.v/10*116))+'px', l: x.l, c: x.v >= 8 ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#5B6FD4)' })), sleepLine: Math.round(20 + 8/10*116)+'px',
       wtPts: pts(WT.length >= 2 ? WT : [], 300, 110, wMin, wMax), wtBase: wBase ? ((wMax-wBase)/(wMax-wMin)*110).toFixed(1) : '55', wtNow: wNowV ? (+wNowV).toFixed(1) : '—',
       wtIn: S.wInput ?? '', onWt: O.onWInput, saveWt: O.saveW };
-    const lcs = S.lc || {}, lgc = {};
-    [['cond', lg2.condSum+' / 25 · '+lg2.sumLabel, lg2.sumFg], ['exp', lg2.total+(isLT ? ' · 오늘' : ''), '#3B5BDB'], ['sleep', slAvg ? '평균 '+slAvg.toFixed(1)+'h' : '기록 없음', '#3B5BDB'], ['wt', wNowV ? lg2.wtNow+'kg' + (wBase && WT.length > 1 ? ' · 처음 대비 '+((wNowV-wBase) > 0 ? '+' : '−')+Math.abs(wNowV-wBase).toFixed(1) : '') : '기록 없음', '#16804A']].forEach(([k,sum,cc]) => { const open = lcs[k] ?? F; lgc[k] = { open, sum, c:cc, rot: open ? 'rotate(180deg)' : 'none', toggle: () => set({ lc:{...lcs,[k]:!open} }) }; });
+    const lcs = S.lc || {}, lgc = {}, lgc0 = Object.fromEntries(['cond','exp','sleep','wt'].map(q => [q, lcs[q] ?? F]));
+    [['cond', lg2.condSum+' / 15 · '+lg2.sumLabel, lg2.sumFg], ['exp', lg2.total+(isLT ? ' · 오늘' : ''), '#3B5BDB'], ['sleep', slAvg ? '평균 '+slAvg.toFixed(1)+'h' : '기록 없음', '#3B5BDB'], ['wt', wNowV ? lg2.wtNow+'kg' + (wBase && WT.length > 1 ? ' · 처음 대비 '+((wNowV-wBase) > 0 ? '+' : '−')+Math.abs(wNowV-wBase).toFixed(1) : '') : '기록 없음', '#16804A']].forEach(([k,sum,cc]) => { const open = lcs[k] ?? F; lgc[k] = { open, sum, c:cc, rot: open ? 'rotate(180deg)' : 'none', toggle: () => set({ lc:{ cond:lgc0.cond, exp:lgc0.exp, sleep:lgc0.sleep, wt:lgc0.wt, [k]:!open } }) }; });
 
     // ───── 걷기 모드 ─────
     const wmH = HL.vs.length ? HL : hoursOf(hcV), wmMax = Math.max(1, ...wmH.vs);

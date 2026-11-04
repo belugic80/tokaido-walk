@@ -151,9 +151,8 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 
 <sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">
 <div data-screen-label="지도 전체 화면" style="position:absolute;inset:0;z-index:4;background:#EEF2F8">
-<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;left:0;top:-76px;width:100%;height:calc(100% + 76px);border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 <button onClick="{{ closeMap }}" style="position:absolute;left:16px;top:calc(env(safe-area-inset-top) + 12px);width:48px;height:48px;border-radius:50%;border:0;background:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(40,50,140,.18)"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:24px;color:#18324F">arrow_back</span></button>
-<span style="position:absolute;left:74px;right:12px;overflow-x:auto;scrollbar-width:none;top:calc(env(safe-area-inset-top) + 20px);display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:99px;background:rgba(255,255,255,.95);font-size:14px;font-weight:700;color:#4A5D78;white-space:nowrap;box-shadow:0 2px 8px rgba(40,50,140,.1)"><span style="display:flex;align-items:center;gap:5px"><i style="width:16px;height:4px;border-radius:2px;background:#3B5BDB"></i>걸은 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:16px;height:0;border-top:4px dotted #3B5BDB"></i>남은 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span></span>
 <button onClick="{{ p.run }}" style="position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom) + 200px);width:52px;height:52px;border-radius:50%;border:0;background:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 16px rgba(40,50,140,.2)"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:26px;color:#1C7ED6">my_location</span></button>
 </div>
 </sc-if>
@@ -273,23 +272,24 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <button onClick="{{ lgc.cond.toggle }}" style="width:100%;border:0;background:transparent;padding:0;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;font-family:inherit;color:#18324F"><b style="flex:none;font-size:18px;font-weight:800;letter-spacing:-.03em">몸 상태</b><span style="flex:1;min-width:0;text-align:right;font-size:14px;font-weight:800;color:{{ lgc.cond.c }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ lgc.cond.sum }}</span><span style="flex:none;width:32px;height:32px;border-radius:50%;background:#F3F5FF;display:grid;place-items:center;transform:{{ lgc.cond.rot }};transition:transform .2s"><span style="font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;font-size:22px;color:#3B5BDB">expand_more</span></span></button>
 <sc-if value="{{ lgc.cond.open }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;flex-direction:column;gap:12px">
-<div style="display:flex;justify-content:flex-end"><button onClick="{{ lg2.toggleCond }}" style="flex:none;white-space:nowrap;height:44px;padding:0 14px;border:0;border-radius:99px;background:{{ lg2.condBg }};color:{{ lg2.condFg }};font:800 13px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer">{{ lg2.condBtn }}</button></div>
+<div style="display:none"><button onClick="{{ lg2.toggleCond }}" style="flex:none;white-space:nowrap;height:44px;padding:0 14px;border:0;border-radius:99px;background:{{ lg2.condBg }};color:{{ lg2.condFg }};font:800 13px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer">{{ lg2.condBtn }}</button></div>
 
 <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;background:{{ lg2.sumBg }}">
-<span style="flex:none;display:flex;flex-direction:column;align-items:center;line-height:1"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em;color:{{ lg2.sumFg }}">{{ lg2.condSum }}</b><span style="font-size:13px;font-weight:700;color:#6B7A90;margin-top:3px">/ 25</span></span>
+<span style="flex:none;display:flex;flex-direction:column;align-items:center;line-height:1"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em;color:{{ lg2.sumFg }}">{{ lg2.condSum }}</b><span style="font-size:13px;font-weight:700;color:#6B7A90;margin-top:3px">/ 15</span></span>
 <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><b style="font-size:16px;color:{{ lg2.sumFg }}">{{ lg2.sumLabel }}</b><span style="font-size:13px;color:#4A5D78;line-height:1.45">{{ lg2.sumNote }}</span></span>
 <span style="flex:none;white-space:nowrap;font-size:14px;font-weight:800;padding:5px 10px;border-radius:99px;background:#fff;color:{{ lg2.trFg }}">{{ lg2.trend }}</span>
 </div>
-<div style="display:grid;grid-template-columns:64px repeat(3,minmax(0,1fr));gap:6px 8px;align-items:center">
+<div style="display:grid;grid-template-columns:76px repeat(3,minmax(0,1fr));gap:6px 8px;align-items:center">
 <span></span><sc-for list="{{ lg2.histHead }}" as="h" hint-placeholder-count="3"><span style="text-align:center;font-size:14px;font-weight:800;color:{{ h.c }};white-space:nowrap">{{ h.t }}</span></sc-for>
-<sc-for list="{{ lg2.hist }}" as="r" hint-placeholder-count="5"><b style="font-size:14px">{{ r.label }}</b><sc-for list="{{ r.v }}" as="v" hint-placeholder-count="3"><span style="height:34px;border-radius:11px;background:{{ v.bg }};color:{{ v.fg }};display:grid;place-items:center;font-size:14px;font-weight:800;outline:{{ v.ol }}">{{ v.n }}</span></sc-for></sc-for>
+<sc-for list="{{ lg2.hist }}" as="r" hint-placeholder-count="5"><b style="font-size:14px;white-space:nowrap">{{ r.label }}</b><sc-for list="{{ r.v }}" as="v" hint-placeholder-count="3"><span style="height:34px;border-radius:11px;background:{{ v.bg }};color:{{ v.fg }};display:grid;place-items:center;font-size:14px;font-weight:800;outline:{{ v.ol }}">{{ v.n }}</span></sc-for></sc-for>
 <span style="font-size:14px;font-weight:700;color:#6B7A90">합계</span><sc-for list="{{ lg2.histSum }}" as="h" hint-placeholder-count="3"><b style="text-align:center;font-size:14px;color:{{ h.c }}">{{ h.t }}</b></sc-for>
 </div>
 <sc-if value="{{ lg2.editing }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid #EEF0F7">
 <b style="font-size:14px;color:#4A5D78">오늘 상태 입력 · 0 괜찮음 ~ 5 아주 아픔</b>
-<sc-for list="{{ lg2.cond }}" as="r" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px;align-items:center"><b style="font-size:14px">{{ r.label }}</b><div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px"><sc-for list="{{ r.opts }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.pick }}" style="height:38px;border-radius:12px;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};font:800 14px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer;padding:0">{{ o.v }}</button></sc-for></div></div></sc-for>
-<span style="display:flex;justify-content:space-between;font-size:14px;color:#6B7A90">
+<sc-for list="{{ lg2.cond }}" as="r" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:center"><b style="font-size:14px">{{ r.label }}</b><div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px"><sc-for list="{{ r.opts }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.pick }}" style="height:38px;border-radius:12px;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};font:800 14px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer;padding:0">{{ o.v }}</button></sc-for></div></div></sc-for>
+</div>
+</sc-if>
 </div>
 </sc-if>
 </div>
@@ -304,6 +304,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <button onClick="{{ lg2.add }}" style="flex:none;white-space:nowrap;height:46px;padding:0 16px;border:0;border-radius:14px;background:linear-gradient(135deg,#3B5BDB,#6C8CF5);color:#fff;font:800 14px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer">추가</button>
 </div>
 <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ lg2.cats }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="flex:none;white-space:nowrap;height:40px;padding:0 14px;border-radius:99px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font:700 14px 'Pretendard Variable',Pretendard,sans-serif;cursor:pointer">{{ c.label }}</button></sc-for></div>
+<input value="{{ lg2.nnote }}" onChange="{{ lg2.onNote }}" placeholder="내용 (예: 라멘, 가케가와 호텔)" style="width:100%;box-sizing:border-box;height:46px;border-radius:14px;border:1px solid #DCE0F7;background:#F6F7FF;padding:0 14px;font:600 15px 'Pretendard Variable',Pretendard,sans-serif;color:#18324F">
 <div style="display:flex;flex-direction:column"><sc-for list="{{ lg2.items }}" as="e" hint-placeholder-count="3"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid #EEF0F7;font-size:14px"><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:none;white-space:nowrap;font-size:14px;font-weight:800;padding:3px 8px;border-radius:99px;background:#EDF0FF;color:#2C3FA8">{{ e.cat }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.note }}</span></span><b style="flex:none;white-space:nowrap">{{ e.v }}</b></div></sc-for></div>
 <span style="display:flex;justify-content:space-between;font-size:13px;color:#4A5D78;padding-top:8px;border-top:1px solid #EEF0F7"><span>{{ lg2.cumNoteE }}</span><b style="color:#18324F">{{ lg2.cum }}</b></span>
 
@@ -332,8 +333,6 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </sc-if>
 </div>
 
-</div>
-</sc-if>
 <div style="height:{{ lgd.spacer }}"></div></div>
 </div>
 </sc-if>
@@ -1899,12 +1898,12 @@ class Component extends DCLogic {
     const plannedC = (() => { let q = 0; return ALL.map(d => (q += d.km)); })(), actC = (() => { let q = 0; return ALL.map(d => { if (!started || d.n > TD) return null; const h = hcOf(d.n) || (d.n === TD ? X.hcT : null); q += h ? (+h.km || 0) : 0; return q; }); })();
     const cpx = (arr) => arr.map((v,k) => v == null ? null : ((k+1)/31*300).toFixed(1)+','+(140 - v/488*130).toFixed(1)).filter(Boolean).join(' ');
     const actNow = started ? actC[Math.min(30, TD-1)] : null, planNow = started ? plannedC[Math.min(30, TD-1)] : 0;
-    const CKs = ['발바닥','무릎','종아리','어깨','피로'], BL = S.bodyLog || {}, bToday = BL[LISO] || {}, condV = Object.fromEntries(CKs.map(k => [k, bToday[k] != null ? bToday[k] : 0]));
+    const CKs = ['발·무릎','허리·어깨','피로'], BL = S.bodyLog || {}, bToday = BL[LISO] || {}, condV = Object.fromEntries(CKs.map(k => [k, bToday[k] != null ? bToday[k] : 0]));
     const prevIso = n => { const d = new Date(LD); d.setDate(d.getDate()-n); return isoOf(d); };
     const hist = n => { const b = BL[prevIso(n)] || null; return Object.fromEntries(CKs.map(k => [k, b && b[k] != null ? b[k] : null])); };
     const H1 = hist(1), H2 = hist(2), lvl = n => n == null ? ['#F1F3FA','#B3BAD0'] : n >= 4 ? ['#FDE9EC','#B8364A'] : n >= 2 ? ['#F3F0FF','#7048E8'] : n >= 1 ? ['#EDF0FF','#3B5BDB'] : ['#F1F3FA','#8C96B0'];
     const sumOf = o => CKs.reduce((q,k) => q + (o[k] || 0), 0), cs = sumOf(condV), s1 = sumOf(H1), s0 = sumOf(H2), cd = cs - s1;
-    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 15 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 8 ? ['주의','#F3F0FF','#7048E8'] : ['가벼움','#E4F8EC','#16804A'];
+    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 9 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 5 ? ['주의','#F3F0FF','#7048E8'] : ['가벼움','#E4F8EC','#16804A'];
     const EL = S.expLog || {}, expT = EL[LISO] || [], toW = e => e.c === 'jpy' ? e.v*rate : e.v, totW = expT.reduce((q,e) => q+toW(e), 0);
     const cumW = Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.reduce((r,e) => r + toW(e), 0), 0), cumDays = Math.max(1, Object.keys(EL).filter(k => (!started || k >= '2026-12-04') && EL[k].length).length);
     const sleepDays = Array.from({length:7}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(6-k)); const iso = isoOf(d), h = HCD[iso]; return { l: WDN[d.getDay()], v: h && h.sleep ? h.sleep/60 : 0 }; });
@@ -1922,24 +1921,25 @@ class Component extends DCLogic {
       gpsN: (() => { const n = ((((S.hc||{}).locs||{})[LISO])||[]).length + ((((S.track||{})[LISO])||[]).length); return n ? n+'점' : '기록 없음'; })(),
       gpsNote: (() => { const q = ((((S.hc||{}).locs||{})[LISO])||[]).concat(((S.track||{})[LISO])||[]).sort((a,b) => a[2]-b[2]); if (q.length < 2) return 'OwnTracks 위치 기록이 없는 날이에요'; let km = 0; for (let i = 1; i < q.length; i++) { const dl = hav([q[i-1][0], q[i-1][1]], [q[i][0], q[i][1]]); if (dl < 2) km += dl; } return '위치 '+q.length+'점 · 이동 약 '+km.toFixed(1)+'km'; })(),
       cumTitle: started ? '실제 vs 계획' : '출발 후 표시', cumNote: started ? (actNow < planNow ? '계획보다 '+(planNow-actNow).toFixed(1)+'km 덜 걸음' : '계획보다 '+(actNow-planNow).toFixed(1)+'km 더 걸음') : '12/4 출발 후 계획과 비교해요',
-      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:false }) }; }) })),
+      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:true }) }; }) })),
       condSum: cs, sumLabel: labC[0], sumBg: labC[1], sumFg: labC[2], sumNote: condV[worst] ? worst+'이(가) 가장 불편 ('+condV[worst]+')' + (BL[prevIso(1)] || BL[prevIso(2)] ? ' · 그제 '+s0+' → 어제 '+s1+' → 오늘 '+cs : '') : '아픈 곳 없음',
       trend: !BL[prevIso(1)] ? '어제 기록 없음' : cd < 0 ? '어제보다 ↓'+(-cd) : cd > 0 ? '어제보다 ↑'+cd : '어제와 같음', trFg: !BL[prevIso(1)] ? '#6B7A90' : cd < 0 ? '#16804A' : cd > 0 ? '#B8364A' : '#6B7A90',
       histHead: [{t:'그제',c:'#8C96B0'},{t:'어제',c:'#6B7A90'},{t:'오늘',c:'#3B5BDB'}],
       hist: CKs.map(k => ({ label:k, v:[H2[k],H1[k],condV[k]].map((n,i) => { const cc = lvl(n); return { n: n == null ? '–' : n, bg:cc[0], fg:cc[1], ol: i === 2 ? '2px solid #C5CCEE' : 'none' }; }) })),
       histSum: [{t: BL[prevIso(2)] ? s0 : '–',c:'#8C96B0'},{t: BL[prevIso(1)] ? s1 : '–',c:'#6B7A90'},{t:cs,c:'#3B5BDB'}],
-      editing: !!S.condEdit, condBtn: S.condEdit ? '저장' : S.condSaved ? '저장됨 ✓ · 수정' : '오늘 기록', condBg: S.condEdit ? 'linear-gradient(135deg,#3B5BDB,#6C8CF5)' : S.condSaved ? '#E4F8EC' : '#EDF0FF', condFg: S.condEdit ? '#fff' : S.condSaved ? '#16804A' : '#3B5BDB',
+      editing: true, condBtn: S.condEdit ? '저장' : S.condSaved ? '저장됨 ✓ · 수정' : '오늘 기록', condBg: S.condEdit ? 'linear-gradient(135deg,#3B5BDB,#6C8CF5)' : S.condSaved ? '#E4F8EC' : '#EDF0FF', condFg: S.condEdit ? '#fff' : S.condSaved ? '#16804A' : '#3B5BDB',
       toggleCond: () => S.condEdit ? set({ condEdit:false, condSaved:true, bodyLog:{...BL,[LISO]:{...condV}} }) : set({ condEdit:true }),
       cur: [['jpy','엔'],['krw','원']].map(([k,label]) => { const on = S.cur === k; return { label, bg: on ? '#fff' : 'transparent', fg: on ? '#3B5BDB' : '#6B7A90', sh: on ? '0 2px 6px rgba(40,50,140,.15)' : 'none', pick: () => set({ cur:k }) }; }),
       amt: S.amt, onAmt: e => { const d = dig(e.target.value); set({ amt: d ? Number(d).toLocaleString('ko-KR') : '' }); },
       cats: ['식비','숙박','교통','기타'].map(cx => ({ label:cx, ...chipOf(S.ncat === cx), pick: () => set({ ncat:cx }) })),
-      add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'' }); },
+      add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:(S.nnote||'').trim() || S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'', nnote:'' }); },
+      nnote: S.nnote || '', onNote: e => set({ nnote: e.target.value }),
       items: expT.map((e,k) => ({ cat:e.cat, note:e.note, v: e.c === 'jpy' ? '¥'+fmt(e.v) : '₩'+fmt(e.v), del: () => set({ expLog:{...EL,[LISO]:expT.filter((x,j) => j !== k)} }) })), total:'₩'+fmt(totW), cum:'₩'+fmt(cumW), cumNoteE: (started ? TD+'일차까지 누적' : '누적')+' · 하루 평균 ₩'+fmt(cumW/cumDays),
       sleep: sleepDays.map(x => ({ h: Math.max(3, Math.round(x.v/10*116))+'px', l: x.l, c: x.v >= 8 ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#5B6FD4)' })), sleepLine: Math.round(20 + 8/10*116)+'px',
       wtPts: pts(WT.length >= 2 ? WT : [], 300, 110, wMin, wMax), wtBase: wBase ? ((wMax-wBase)/(wMax-wMin)*110).toFixed(1) : '55', wtNow: wNowV ? (+wNowV).toFixed(1) : '—',
       wtIn: S.wInput ?? '', onWt: O.onWInput, saveWt: O.saveW };
-    const lcs = S.lc || {}, lgc = {};
-    [['cond', lg2.condSum+' / 25 · '+lg2.sumLabel, lg2.sumFg], ['exp', lg2.total+(isLT ? ' · 오늘' : ''), '#3B5BDB'], ['sleep', slAvg ? '평균 '+slAvg.toFixed(1)+'h' : '기록 없음', '#3B5BDB'], ['wt', wNowV ? lg2.wtNow+'kg' + (wBase && WT.length > 1 ? ' · 처음 대비 '+((wNowV-wBase) > 0 ? '+' : '−')+Math.abs(wNowV-wBase).toFixed(1) : '') : '기록 없음', '#16804A']].forEach(([k,sum,cc]) => { const open = lcs[k] ?? F; lgc[k] = { open, sum, c:cc, rot: open ? 'rotate(180deg)' : 'none', toggle: () => set({ lc:{...lcs,[k]:!open} }) }; });
+    const lcs = S.lc || {}, lgc = {}, lgc0 = Object.fromEntries(['cond','exp','sleep','wt'].map(q => [q, lcs[q] ?? F]));
+    [['cond', lg2.condSum+' / 15 · '+lg2.sumLabel, lg2.sumFg], ['exp', lg2.total+(isLT ? ' · 오늘' : ''), '#3B5BDB'], ['sleep', slAvg ? '평균 '+slAvg.toFixed(1)+'h' : '기록 없음', '#3B5BDB'], ['wt', wNowV ? lg2.wtNow+'kg' + (wBase && WT.length > 1 ? ' · 처음 대비 '+((wNowV-wBase) > 0 ? '+' : '−')+Math.abs(wNowV-wBase).toFixed(1) : '') : '기록 없음', '#16804A']].forEach(([k,sum,cc]) => { const open = lcs[k] ?? F; lgc[k] = { open, sum, c:cc, rot: open ? 'rotate(180deg)' : 'none', toggle: () => set({ lc:{ cond:lgc0.cond, exp:lgc0.exp, sleep:lgc0.sleep, wt:lgc0.wt, [k]:!open } }) }; });
 
     // ───── 걷기 모드 ─────
     const wmH = HL.vs.length ? HL : hoursOf(hcV), wmMax = Math.max(1, ...wmH.vs);

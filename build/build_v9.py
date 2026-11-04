@@ -160,6 +160,13 @@ _compact = ('<div style="display:flex;justify-content:flex-end"><button onClick=
 dc = dc.replace(_m.group(0), '<sc-if value="{{ ctl.ready }}" hint-placeholder-val="{{ false }}">' + _compact + '</sc-if>')
 # 일정 변경 시트의 4개 항목에 클릭 동작 연결(원래 마크업에 onClick이 빠져 있었음)
 rep('<sc-for list="{{ planOpts }}" as="p" hint-placeholder-count="4"><button style="display:grid;', '<sc-for list="{{ planOpts }}" as="p" hint-placeholder-count="4"><button onClick="{{ p.run }}" style="display:grid;')
+# 더보기: 설정 행을 비상 연락처 행과 같은 모양·높이로
+rep('<button onClick="{{ r.pick }}" style="display:flex;align-items:center;gap:12px;padding:8px 0;border:0;border-top:{{ r.top }};background:transparent;cursor:pointer;text-align:left;font-family:inherit;color:#18324F;width:100%"><span style="flex:none;width:38px;height:38px;border-radius:12px;background:#EDF0FF;',
+    '<button onClick="{{ r.pick }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:#F6F7FF;border:1px solid #E2E5FA;cursor:pointer;text-align:left;font-family:inherit;color:#18324F;width:100%;box-sizing:border-box"><span style="flex:none;width:40px;height:40px;border-radius:13px;background:#EDF0FF;')
+rep('<span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">설정</b></span>',
+    '<span style="display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">설정</b></span>')
+rep('<span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">비상 연락처</b>',
+    '<span style="display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">비상 연락처</b>', cnt=2)
 # 홈 날짜 카드: 일정 변경 버튼을 아이콘만(제목 가림 방지)
 rep('aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px;border-radius:22px;', 'aria-label="일정 변경" style="flex:none;white-space:nowrap;height:44px;padding:0 12px 0 8px;border-radius:22px;border:1.5px solid #C9D3FF;')
 rep('edit_calendar</span>일정 변경</button>', 'edit_calendar</span>목적지</button>')

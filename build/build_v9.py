@@ -379,7 +379,7 @@ dc = dc[:_ca] + _B + dc[_ea:_cb] + _A + dc[_eb:]
 _ge = _end(dc, _gs)
 dc = dc[:_ge] + '\n' + _btn.replace('padding:0 16px 12px', 'padding:12px 16px 24px') + dc[_ge:]
 
-rep('<button onClick="{{ back2 }}" aria-label="뒤로 가기"', '<sc-if value="{{ sb2.glance }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:3;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;pointer-events:none"><div style="pointer-events:auto;height:60px;max-width:calc(100% - 0px);box-sizing:border-box;display:flex;align-items:center;gap:2px;padding:6px;border-radius:30px;background:linear-gradient(120deg,#5B6FD4,#8B9CF0);box-shadow:0 12px 26px rgba(59,91,219,.38)"><sc-for list="{{ jn.gj }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.go }}" style="flex:1;min-width:0;white-space:nowrap;height:48px;padding:0 4px;border:0;border-radius:24px;background:{{ c.bg }};color:{{ c.fg }};box-shadow:{{ c.sh }};font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;transition:background .2s">{{ c.label }}</button></sc-for></div></div></sc-if>\n' + '<button onClick="{{ back2 }}" aria-label="뒤로 가기"')
+rep('<button onClick="{{ back2 }}" aria-label="뒤로 가기"', '<sc-if value="{{ sb2.glance }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:3;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;pointer-events:none"><div style="pointer-events:auto;height:60px;max-width:calc(100% - 0px);box-sizing:border-box;display:flex;align-items:center;gap:2px;padding:6px;gap:6px;border-radius:30px;background:rgba(255,255,255,.92);border:1px solid #E1D8FB;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 26px rgba(40,50,140,.16)"><sc-for list="{{ jn.gj }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.go }}" style="flex:1;min-width:0;white-space:nowrap;height:48px;padding:0 4px;border:0;border-radius:24px;background:{{ c.bg }};color:{{ c.fg }};box-shadow:{{ c.sh }};font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;transition:background .2s">{{ c.label }}</button></sc-for></div></div></sc-if>\n' + '<button onClick="{{ back2 }}" aria-label="뒤로 가기"')
 # 전체 여정: 상단 전체 폭에 전체 이동 거리 + 통계 띠 (좌 전체 일정 / 우 날짜 플랜이 첫 화면에 보이도록)
 _s0 = dc.index('<div style="border-radius:28px;padding:20px;background:linear-gradient(120deg,#5B6FD4,#8B9CF0,#C9B8F5)', dc.index('{{ jc.prev }}') - 14000)
 _s1 = _end(dc, _s0)
@@ -448,6 +448,20 @@ rep('<div style="background:linear-gradient(160deg,#fff,#F6F1FF);border:1px soli
 rep('<div style="background:#fff;border:1px solid #E8E7EF;border-radius:20px;padding:14px 14px 6px;display:flex;flex-direction:column">', '<div style="flex:1;background:#fff;border:1px solid #E8E7EF;border-radius:20px;padding:14px 14px 6px;display:flex;flex-direction:column;justify-content:center">')
 rep('<div style="padding:0 16px"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b>', '<div style="padding:14px 16px 0"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b>')
 rep('<b style="font-size:16px">{{ w.label }}</b><b style="font-size:15px;white-space:nowrap">{{ w.km }}</b>', '<b style="font-size:16px">{{ w.label }}</b><b style="font-size:15px;white-space:nowrap">{{ w.km }}</b><span style="font-size:13px;color:#4A5D78;line-height:1.35;text-align:center;word-break:keep-all">{{ w.path }}</span>')
+
+
+# 일정 관리: 출발일 입력 (기본 12/4) — 모든 날짜 계산이 이 값을 따름
+rep('<div style="background:{{ pl2.lw.bg }};', '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:17px">출발일</b><span style="font-size:13px;color:#6B7A90">바꾸면 모든 날짜가 같이 움직여요</span></span><input type="date" value="{{ pl2.sd }}" onChange="{{ pl2.sdSet }}" style="height:48px;border-radius:14px;border:1px solid #DCE0F7;background:#F6F7FF;padding:0 12px;font:700 16px \'Pretendard Variable\',Pretendard,sans-serif;color:#18324F"></span></div>\n<div style="background:{{ pl2.lw.bg }};')
+
+
+# 주차 버튼 디자인: 보라 그라데이션 라벨 + 보라 거리, 예정 칩 제거
+_ws = dc.index('<button onClick="{{ w.go }}"'); _we = dc.index('</button>', _ws) + 9
+dc = dc[:_ws] + ('<button onClick="{{ w.go }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;padding:14px 6px;border-radius:20px;border:1px solid #E1D8FB;background:linear-gradient(160deg,#fff,#F3EEFF);box-shadow:0 6px 16px rgba(84,40,232,.08);cursor:pointer;font-family:\'Pretendard Variable\',Pretendard,sans-serif;color:#18324F">'
+ '<b style="font-size:15px;color:#fff;padding:4px 14px;border-radius:99px;background:linear-gradient(135deg,#5428E8,#9A63F5)">{{ w.label }}</b>'
+ '<b style="font-size:19px;font-weight:800;color:#5B32D6;white-space:nowrap;letter-spacing:-.02em">{{ w.km }}</b>'
+ '<span style="font-size:13px;color:#4A5D78;line-height:1.35;text-align:center;word-break:keep-all">{{ w.path }}</span>'
+ '<span style="width:100%;height:8px;border-radius:99px;background:#E7E0FA;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5428E8,#9A63F5);width:{{ w.w }}"></span></span>'
+ '<sc-if value="{{ w.show }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;background:{{ w.sb }};color:{{ w.sf }};white-space:nowrap">{{ w.st }}</span></sc-if></button>') + dc[_we:]
 
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
@@ -652,6 +666,15 @@ assert dc.count(_OLDR) == 1
 dc = dc.replace(_OLDR, "for (i = 1; i < runs.length - 1; i++) { if (runs[i].m === 'w' && runs[i].km < 0.3 && runs[i - 1].m === 'v' && runs[i + 1].m === 'v') runs[i].m = 'v'; } " + _OLDR)
 
 os.makedirs(OUT, exist_ok=True)
+
+# 출발일(__SD) 반영: 하드코딩된 12/4 기준 날짜 계산을 전역 값으로 치환
+_sd = "<script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=localStorage.getItem('tokaido-start');if(/^\\d{4}-\\d{2}-\\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>\n"
+dc = _re2.sub(r'new Date\(2026, 11, 3 ?\+ ?', 'new Date(__SD[0], __SD[1], __SD[2] - 1 + ', dc)
+dc = dc.replace('2026, 11, 4 + ', '__SD[0], __SD[1], __SD[2] + ')
+dc = dc.replace('new Date(2026, 11, 4)', 'new Date(__SD[0], __SD[1], __SD[2])')
+dc = dc.replace("'2026-12-04'", '__SDI')
+dc = dc.replace("'12/4 ", "(__SD[1]+1)+'/'+__SD[2]+' ")
+dc = dc.replace('<head>', '<head>\n' + _sd, 1)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

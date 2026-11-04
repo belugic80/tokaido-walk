@@ -1118,6 +1118,20 @@ dc = dc.replace("OwnTracks 위치 기록이 없는 날이에요", "GPS 기록이
 # 최소 글자 크기 14px (시력 배려): <script> 밖의 마크업에서 10~13px → 14px
 _parts = _re2.split(r'(<script[\s\S]*?</script>)', dc)
 dc = ''.join(p_ if k_ % 2 else _re2.sub(r'font-size:(?:1[0-3]|[0-9])(?:\.\d+)?px', 'font-size:14px', p_) for k_, p_ in enumerate(_parts))
+# 터치 영역 최소 44px
+for _a, _b in [('width:36px;height:44px', 'width:44px;height:44px'), ('width:40px;height:40px;border-radius:50', 'width:44px;height:44px;border-radius:50'),
+               ('height:38px;border-radius:12px;border:1px solid', 'height:44px;border-radius:12px;border:1px solid'),
+               ('height:40px;padding:0 14px;border-radius:99px', 'height:44px;padding:0 14px;border-radius:99px'),
+               ('height:40px;width:46px', 'height:44px;width:48px'),
+               ('white-space:nowrap;height:40px;padding:', 'white-space:nowrap;height:44px;padding:')]:
+    print('tap', _a[:30], dc.count(_a))
+    dc = dc.replace(_a, _b)
+# 비상 연락처 카드: 가이드의 긴급 색 #DC2626 사용
+_ek = dc.index('비상 연락처')
+_ee = dc.index('설정', _ek)
+_seg = dc[_ek:_ee]
+_seg = _seg.replace('linear-gradient(135deg,#C92A42,#F06A7F)', 'linear-gradient(135deg,#DC2626,#F26B6B)').replace('#B8364A', '#DC2626').replace('#C92A42', '#DC2626')
+dc = dc[:_ek] + _seg + dc[_ee:]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

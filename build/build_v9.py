@@ -840,6 +840,41 @@ _lo = '<span style="display:flex;align-items:center;gap:5px"><i style="width:16p
 _ln = '<span style="display:flex;align-items:center;gap:5px"><i style="width:18px;height:5px;border-radius:3px;background:#16A34A"></i>지나온 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:18px;height:5px;border-radius:3px;background:#0088FF"></i>앞으로 갈 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:11px;height:11px;border-radius:3px;rotate:45deg;background:#EA580C"></i>명물</span>'
 assert dc.count(_lo) == 1
 dc = dc.replace(_lo, _ln)
+# ── 기록: 수면·체중 그래프를 구버전 표현으로(대표값+칩, 기준선 위/아래 막대, 기준선·면 채움 꺾은선)
+_a = dc.index('<div style="position:relative;height:140px;display:flex;align-items:flex-end;gap:8px"><span style="position:absolute;left:0;right:0;bottom:{{ lg2.sleepLine }}')
+_b = dc.index('</sc-for></div>', _a) + len('</sc-for></div>')
+_chip = 'flex:none;height:28px;padding:0 10px;border-radius:99px;display:flex;align-items:center;font-size:14px;font-weight:800;white-space:nowrap'
+dc = dc[:_a] + ('<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-family:\'DM Sans\',\'Pretendard Variable\',sans-serif;font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1;color:#1A1D20">{{ lg2.sl.avg }}<span style="font-size:15px;font-weight:700;color:#475569;margin-left:2px">h 평균</span></b>'
+  '<span style="' + _chip + ';background:#F1ECFF;color:#5B32D6">{{ lg2.sl.hi }}</span><span style="' + _chip + ';background:#FFF3D8;color:#B45309">{{ lg2.sl.lo }}</span></div>'
+  '<div style="position:relative;height:120px;display:flex;gap:10px;padding:0 4px"><span style="position:absolute;left:0;right:0;top:60px;border-top:2px dashed #9A63F5;opacity:.8"></span><span style="position:absolute;right:0;top:60px;transform:translateY(-100%);font-size:14px;font-weight:800;color:#7544ED;padding-bottom:3px">기준 7h</span>'
+  '<sc-for list="{{ lg2.sl.bars }}" as="b" hint-placeholder-count="7"><span style="position:relative;flex:1;min-width:0;max-width:26px;margin:0 auto;height:100%"><i style="position:absolute;left:0;right:0;top:{{ b.top }};height:{{ b.h }};border-radius:{{ b.r }};background:{{ b.c }}"></i></span></sc-for></div>'
+  '<div style="display:flex;gap:10px;padding:0 4px"><sc-for list="{{ lg2.sl.bars }}" as="b" hint-placeholder-count="7"><span style="flex:1;min-width:0;text-align:center;font-size:14px;font-weight:700;color:#64748B">{{ b.l }}</span></sc-for></div>') + dc[_b:]
+_a = dc.index('<div style="position:relative"><svg viewBox="0 0 300 110" preserveAspectRatio="none" style="width:100%;height:120px;display:block"><line x1="0" y1="{{ lg2.wtBase }}"')
+_b = dc.index('</sc-for></div>', _a) + len('</sc-for></div>')
+dc = dc[:_a] + ('<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-family:\'DM Sans\',\'Pretendard Variable\',sans-serif;font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1;color:#1A1D20">{{ lg2.w2.now }}<span style="font-size:15px;font-weight:700;color:#475569;margin-left:2px">kg 현재</span></b><span style="' + _chip + ';background:{{ lg2.w2.dBg }};color:{{ lg2.w2.dFg }}">{{ lg2.w2.diff }}</span></div>'
+  '<div style="position:relative;margin-top:6px"><svg viewBox="0 0 300 110" preserveAspectRatio="none" style="width:100%;height:130px;display:block;overflow:visible"><polygon points="{{ lg2.w2.area }}" fill="rgba(154,99,245,.16)"></polygon><line x1="0" y1="{{ lg2.wtBase }}" x2="300" y2="{{ lg2.wtBase }}" stroke="#9A63F5" stroke-width="2" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"></line><polyline points="{{ lg2.wtPts }}" fill="none" stroke="#7544ED" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline></svg>'
+  '<span style="position:absolute;right:0;top:calc({{ lg2.wtBase }} / 110 * 130px);transform:translateY(-110%);font-size:14px;font-weight:800;color:#7544ED">처음 {{ lg2.w2.base }}kg</span>'
+  '<sc-for list="{{ lg2.wtDots }}" as="d" hint-placeholder-count="3"><span style="position:absolute;left:{{ d.x }}%;top:{{ d.y }}%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#fff;border:3.5px solid #7544ED;box-sizing:border-box"></span></sc-for></div>') + dc[_b:]
+# ── 기록: 시간대별 걸음 → 구버전(시간별 계획 막대 안 실제 걸음 + 역참 통과 시각 깃발)
+def _dend(s, i):
+    d = 0
+    for m in re.finditer(r'<div\b|</div>', s[i:]):
+        d += 1 if m.group(0) == '<div' else -1
+        if d == 0: return i + m.end()
+_k = old.index('HOURLY STEPS'); _oa = old.rindex('<div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%)', 0, _k); _hs = old[_oa:_dend(old, _oa)]
+_hs = _hs.replace('<div style="background:linear-gradient(145deg,#FFFFFF 0%,#F2F7FC 100%);border:1px solid #E8E7EF;border-radius:22px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">', '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;min-width:0">', 1)
+_hs = _hs.replace('{{ hov.hourNote }}', '').replace('position:relative;height:230px;width:1008px', 'position:relative;height:240px;width:max(100%,820px)')
+_i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">시간대별 걸음</b>')
+_a = dc.rindex('<div style="background:#fff;', 0, _i)
+dc = dc[:_a] + _hs + dc[_dend(dc, _a):]
+dc = dc.replace('data-screen-label="도카이도 홈 v2" style="', 'data-screen-label="도카이도 홈 v2" style="--f11:13px;--f12:14px;--f13:14px;--f16:17px;', 1)
+# ── 환율: 구버전 계산기(자동 환율 표시 + 100엔 직접 입력 + ↻ 자동 환율)
+_k = old.index('EXCHANGE · 환율'); _oa = old.rindex('<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px', 0, _k); _fx = old[_oa:_dend(old, _oa)]
+_fx = _fx.replace('<div style="background:#FFFFFF;border:1px solid #E8E7EF;border-radius:24px;box-shadow:0 4px 18px rgba(15,42,74,.025);padding:16px 18px;flex:none">', '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;min-width:0">', 1)
+_fx = _fx.replace('justify-content:space-between;align-items:baseline"><div>', 'justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div>', 1).replace('width:92px;height:36px', 'width:100px;height:44px').replace('height:36px;padding:0 12px;border-radius:10px', 'height:44px;padding:0 12px;border-radius:10px')
+_i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">환율 계산</b>')
+_a = dc.rindex('<div style="background:#fff;', 0, _i)
+dc = dc[:_a] + _fx + dc[_dend(dc, _a):]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

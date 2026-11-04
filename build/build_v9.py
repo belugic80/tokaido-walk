@@ -463,6 +463,11 @@ dc = dc[:_ws] + ('<button onClick="{{ w.go }}" style="display:flex;flex-directio
  '<span style="width:100%;height:8px;border-radius:99px;background:#E7E0FA;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5428E8,#9A63F5);width:{{ w.w }}"></span></span>'
  '<sc-if value="{{ w.show }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;background:{{ w.sb }};color:{{ w.sf }};white-space:nowrap">{{ w.st }}</span></sc-if></button>') + dc[_we:]
 
+
+# 환율: 500엔~1만엔 원화 환산표
+_q = dc.index('{{ fx2.quick }}'); _qe = dc.index('</sc-for></div>', _q) + len('</sc-for></div>')
+dc = dc[:_qe] + ('\n<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ fx2.tbl }}" as="r" hint-placeholder-count="6"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border-radius:16px;background:linear-gradient(160deg,#fff,#F3EEFF);border:1px solid #E1D8FB"><b style="font-size:15px;color:#4A5D78">{{ r.y }}</b><b style="font-size:17px;color:#5B32D6;white-space:nowrap">{{ r.w }}</b></span></sc-for></div>') + dc[_qe:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

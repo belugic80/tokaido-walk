@@ -520,6 +520,12 @@ _ms = dc.index('<sc-if value="{{ pl2.hasTr }}" hint-placeholder-val="{{ false }}
 _me = dc.index('</sc-if>', _ms) + len('</sc-if>')
 dc = dc[:_ms] + dc[_me:]
 
+
+# 홈 경유지 팝업: 설명 2줄 고정(높이 일정), 상세 정보 보기 = 전체 설명 펼치기
+rep('<p style="margin:0;font-size:15px;line-height:1.6;color:#3A4D68;text-wrap:pretty">{{ sp.desc }}</p>', '<p style="margin:0;font-size:15px;line-height:1.6;color:#3A4D68;text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:{{ sp.lc }};overflow:hidden;min-height:{{ sp.mh }}">{{ sp.desc }}</p>')
+rep("""<button style="flex:none;white-space:nowrap;height:48px;padding:0 6px;border:0;background:transparent;display:flex;align-items:center;gap:4px;font:800 15px 'Pretendard Variable',Pretendard,sans-serif;color:#3B5BDB;cursor:pointer">""", """<button onClick="{{ sp.toggleFull }}" style="flex:none;white-space:nowrap;height:48px;padding:0 6px;border:0;background:transparent;display:flex;align-items:center;gap:4px;font:800 15px 'Pretendard Variable',Pretendard,sans-serif;color:#3B5BDB;cursor:pointer">""")
+rep('</span>상세 정보 보기<span', '</span>{{ sp.fullT }}<span')
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

@@ -20,7 +20,8 @@
     const ALL = Array.from({length:31}, (x,k) => dayOf(k+1));
     const st2 = d => !started ? (d.rest ? '휴식' : '예정') : d.n < TD ? (d.rest ? '휴식' : '완료') : d.n === TD ? '오늘' : d.rest ? '휴식' : '예정';
     const stC = t => t==='완료' ? ['#E4F8EC','#16804A'] : t==='오늘' ? ['#EDF0FF','#3B5BDB'] : t==='휴식' ? ['#E7F5FF','#1C7ED6'] : ['rgba(24,50,79,.06)','#6B7A90'];
-    const chipOf = on => ({ bg: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : '#fff', fg: on ? '#fff' : '#4A5D78', bd: on ? 'transparent' : '#DCE0F7' });
+    const CATC = { '식비':['#E8890C','#F7B84A','#FFF1DC','#B45F06'], '숙박':['#3B6FE0','#6C9BF5','#E8F0FF','#2A5BC4'], '교통':['#15803D','#34C46B','#E3F6EA','#15803D'], '기타':['#7048E8','#9775FA','#F1ECFF','#5B33C9'] };
+    const chipOf = (on, cx) => (on && CATC[cx]) ? ({ bg: 'linear-gradient(120deg,'+CATC[cx][0]+','+CATC[cx][1]+')', fg: '#fff', bd: 'transparent' }) : (on ? ({ bg: 'linear-gradient(120deg,#5B6FD4,#8B9CF0)', fg: '#fff', bd: 'transparent' }) : ({ bg: '#fff', fg: '#4A5D78', bd: '#DCE0F7' })); const _old_chipOf = on => ({ bg: on ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : '#fff', fg: on ? '#fff' : '#4A5D78', bd: on ? 'transparent' : '#DCE0F7' });
     const qmap = q => 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
     const photoOf = n => '/assets/dayhero/'+n+'.jpg';
     const HEROS = __HEROS__;
@@ -324,7 +325,7 @@
     const hist = n => { const b = BL[prevIso(n)] || null; return Object.fromEntries(CKs.map(k => [k, b && b[k] != null ? b[k] : null])); };
     const H1 = hist(1), H2 = hist(2), lvl = n => n == null ? ['#F1F3FA','#B3BAD0'] : n >= 4 ? ['#FDE9EC','#B8364A'] : n >= 2 ? ['#F3F0FF','#7048E8'] : n >= 1 ? ['#EDF0FF','#3B5BDB'] : ['#F1F3FA','#8C96B0'];
     const sumOf = o => CKs.reduce((q,k) => q + (o[k] || 0), 0), cs = sumOf(condV), s1 = sumOf(H1), s0 = sumOf(H2), cd = cs - s1;
-    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 9 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 5 ? ['주의','#F3F0FF','#7048E8'] : ['가벼움','#E4F8EC','#16804A'];
+    const worst = CKs.slice().sort((x,y) => condV[y]-condV[x])[0], labC = cs >= 9 ? ['쉬어야 함','#FDE9EC','#B8364A'] : cs >= 5 ? ['주의','#FFF4E0','#B45F06'] : ['가벼움','#E4F8EC','#16804A'];
     const EL = S.expLog || {}, expT = EL[LISO] || [], toW = e => e.c === 'jpy' ? e.v*rate : e.v, totW = expT.reduce((q,e) => q+toW(e), 0);
     const cumW = Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.reduce((r,e) => r + toW(e), 0), 0), cumDays = Math.max(1, Object.keys(EL).filter(k => (!started || k >= '2026-12-04') && EL[k].length).length);
     const sleepDays = Array.from({length:7}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(6-k)); const iso = isoOf(d), h = HCD[iso]; return { l: WDN[d.getDay()], v: h && h.sleep ? h.sleep/60 : 0 }; });
@@ -343,7 +344,7 @@
       gpsN: (() => { const n = ((((S.hc||{}).locs||{})[LISO])||[]).length + ((((S.track||{})[LISO])||[]).length); return n ? n+'점' : '기록 없음'; })(),
       gpsNote: (() => { const q = ((((S.hc||{}).locs||{})[LISO])||[]).concat(((S.track||{})[LISO])||[]).sort((a,b) => a[2]-b[2]); if (q.length < 2) return 'OwnTracks 위치 기록이 없는 날이에요'; let km = 0; for (let i = 1; i < q.length; i++) { const dl = hav([q[i-1][0], q[i-1][1]], [q[i][0], q[i][1]]); if (dl < 2) km += dl; } return '위치 '+q.length+'점 · 이동 약 '+km.toFixed(1)+'km'; })(),
       cumTitle: started ? '실제 vs 계획' : '출발 후 표시', cumNote: started ? (actNow < planNow ? '계획보다 '+(planNow-actNow).toFixed(1)+'km 덜 걸음' : '계획보다 '+(actNow-planNow).toFixed(1)+'km 더 걸음') : '12/4 출발 후 계획과 비교해요',
-      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#7048E8,#9775FA)' : 'linear-gradient(135deg,#3B5BDB,#6C8CF5)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:true }) }; }) })),
+      cond: CKs.map(k => ({ label:k, opts:[0,1,2,3,4,5].map(n => { const on = condV[k] === n; return { v:n, bg: on ? (n >= 4 ? 'linear-gradient(135deg,#C92A42,#F06A7F)' : n >= 2 ? 'linear-gradient(135deg,#E8890C,#F7B84A)' : 'linear-gradient(135deg,#15803D,#34C46B)') : '#fff', fg: on ? '#fff' : '#6B7A90', bd: on ? 'transparent' : '#DCE0F7', pick: () => set({ bodyLog:{...BL,[LISO]:{...condV,[k]:n}}, condSaved:true }) }; }) })),
       condSum: cs, sumLabel: labC[0], sumBg: labC[1], sumFg: labC[2], sumNote: condV[worst] ? worst+'이(가) 가장 불편 ('+condV[worst]+')' + (BL[prevIso(1)] || BL[prevIso(2)] ? ' · 그제 '+s0+' → 어제 '+s1+' → 오늘 '+cs : '') : '아픈 곳 없음',
       trend: !BL[prevIso(1)] ? '어제 기록 없음' : cd < 0 ? '어제보다 ↓'+(-cd) : cd > 0 ? '어제보다 ↑'+cd : '어제와 같음', trFg: !BL[prevIso(1)] ? '#6B7A90' : cd < 0 ? '#16804A' : cd > 0 ? '#B8364A' : '#6B7A90',
       histHead: [{t:'그제',c:'#8C96B0'},{t:'어제',c:'#6B7A90'},{t:'오늘',c:'#3B5BDB'}],
@@ -353,10 +354,10 @@
       toggleCond: () => S.condEdit ? set({ condEdit:false, condSaved:true, bodyLog:{...BL,[LISO]:{...condV}} }) : set({ condEdit:true }),
       cur: [['jpy','엔'],['krw','원']].map(([k,label]) => { const on = S.cur === k; return { label, bg: on ? '#fff' : 'transparent', fg: on ? '#3B5BDB' : '#6B7A90', sh: on ? '0 2px 6px rgba(40,50,140,.15)' : 'none', pick: () => set({ cur:k }) }; }),
       amt: S.amt, onAmt: e => { const d = dig(e.target.value); set({ amt: d ? Number(d).toLocaleString('ko-KR') : '' }); },
-      cats: ['식비','숙박','교통','기타'].map(cx => ({ label:cx, ...chipOf(S.ncat === cx), pick: () => set({ ncat:cx }) })),
+      cats: ['식비','숙박','교통','기타'].map(cx => ({ label:cx, ...chipOf(S.ncat === cx, cx), pick: () => set({ ncat:cx }) })),
       add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:(S.nnote||'').trim() || S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'', nnote:'' }); },
       nnote: S.nnote || '', onNote: e => set({ nnote: e.target.value }),
-      items: expT.map((e,k) => ({ cat:e.cat, note:e.note, v: e.c === 'jpy' ? '¥'+fmt(e.v) : '₩'+fmt(e.v), del: () => set({ expLog:{...EL,[LISO]:expT.filter((x,j) => j !== k)} }) })), total:'₩'+fmt(totW), cum:'₩'+fmt(cumW), avgE:'₩'+fmt(cumW/cumDays), catT:['식비','숙박','교통','기타'].map(c => ({ k:c, v:'₩'+fmt(Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.filter(e => e.cat === c).reduce((r,e) => r + toW(e), 0), 0)) })), cumNoteE: (started ? TD+'일차까지 누적' : '누적')+' · 하루 평균 ₩'+fmt(cumW/cumDays),
+      items: expT.map((e,k) => ({ tbg:(CATC[e.cat]||CATC['기타'])[2], tfg:(CATC[e.cat]||CATC['기타'])[3], cat:e.cat, note:e.note, v: e.c === 'jpy' ? '¥'+fmt(e.v) : '₩'+fmt(e.v), del: () => set({ expLog:{...EL,[LISO]:expT.filter((x,j) => j !== k)} }) })), total:'₩'+fmt(totW), cum:'₩'+fmt(cumW), avgE:'₩'+fmt(cumW/cumDays), catT:['식비','숙박','교통','기타'].map(c => ({ k:c, v:'₩'+fmt(Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.filter(e => e.cat === c).reduce((r,e) => r + toW(e), 0), 0)) })), cumNoteE: (started ? TD+'일차까지 누적' : '누적')+' · 하루 평균 ₩'+fmt(cumW/cumDays),
       sleep: sleepDays.map(x => ({ h: Math.max(3, Math.round(x.v/10*116))+'px', l: x.l, c: x.v >= 8 ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#5B6FD4)' })), sleepLine: Math.round(20 + 8/10*116)+'px',
       wtPts: pts(WT.length >= 2 ? WT : [], 300, 110, wMin, wMax), wtDots: WT.map((v,i) => ({ x: (WT.length > 1 ? 2+i/(WT.length-1)*96 : 50).toFixed(1), y: (100*(wMax-v)/(wMax-wMin)).toFixed(1) })), wtBase: wBase ? ((wMax-wBase)/(wMax-wMin)*110).toFixed(1) : '55', wtNow: wNowV ? (+wNowV).toFixed(1) : '—',
       wtIn: S.wInput ?? '', onWt: O.onWInput, saveWt: () => { const v = parseFloat(S.wInput); if (v > 30 && v < 200) set({ wToday: v, wLog: {...WLg, [LISO]: v}, wIn: false, wInput: '' }); } };

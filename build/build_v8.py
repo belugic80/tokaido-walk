@@ -8,7 +8,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 SRC = os.path.join(ROOT, 'design', 'v8', 'Tokaido Walk App.dc.html')
 OUT = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else 'new')
 dc = open(SRC, encoding='utf-8').read()
-old = open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+old = open(os.path.join(ROOT, 'old', 'index.html'), encoding='utf-8').read()
 
 
 def rep(a, b, cnt=1, src=None):

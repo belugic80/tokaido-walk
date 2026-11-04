@@ -1,3 +1,7 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/new", "destination": "/", "permanent": false },
+    { "source": "/new/", "destination": "/", "permanent": false }
+  ]
 }

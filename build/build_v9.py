@@ -5,9 +5,9 @@
 import os, sys, re, shutil, json
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 SRC = os.path.join(ROOT, 'design', 'v9', 'app.dc.html')
-OUT = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else 'new')
+OUT = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else '.')
 dc = open(SRC, encoding='utf-8').read()
-old = open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+old = open(os.path.join(ROOT, 'old', 'index.html'), encoding='utf-8').read()
 v8src = open(os.path.join(HERE, 'build_v8.py'), encoding='utf-8').read()
 
 
@@ -521,5 +521,5 @@ dc = dc.replace(_OLDR, "for (i = 1; i < runs.length - 1; i++) { if (runs[i].m ==
 os.makedirs(OUT, exist_ok=True)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
-shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))
+(os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))
 print('wrote', os.path.relpath(OUT, ROOT) + '/index.html', len(dc))

@@ -919,6 +919,18 @@ _gp = lambda icon, k, v: ('<span style="border-radius:32px;background:rgba(255,2
   '<span style="width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(40,20,120,.25);display:grid;place-items:center"><span style="' + _ICS + 'font-size:23px;color:#6A3BEF">' + icon + '</span></span>'
   '<span style="font-size:14px;font-weight:700;opacity:.92;white-space:nowrap">' + k + '</span><b style="font-size:clamp(16px,4.6vw,20px);font-weight:800;white-space:nowrap">' + v + '</b></span>')
 dc = dc[:_a] + '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">' + _gp('today', '오늘', '{{ lg2.total }}') + _gp('savings', '총 누적', '{{ lg2.cum }}') + _gp('calendar_month', '하루 평균', '{{ lg2.avgE }}') + '</div>' + dc[_b:]
+# ── 지도: 날짜를 바꾸면 다시 그리기(경로·경유지·명물·현재 위치가 바뀌면 키 변경)
+_o = "var D = window.__v8, k = el.getAttribute('data-k') + '|' + (D.trk || '').length"
+assert dc.count(_o) == 1
+dc = dc.replace(_o, "var D = window.__v8, k = el.getAttribute('data-k') + '|' + (D.route || []).length + '|' + JSON.stringify((D.stops || []).map(function (s) { return [s.ll, !!s.past, !!s.nx]; })) + '|' + (D.places || []).length + '|' + JSON.stringify((D.places || []).map(function (p) { return !!p.passed; })) + '|' + (D.me ? D.me.join(',') : '') + '|' + (D.trk || '').length")
+# ── 홈 상단 중복 정리: 헤더 DAY 칩은 "DAY n / 31"만, 히어로의 TODAY'S JOURNEY 칩 삭제(날짜·D-day는 히어로 날짜 줄에)
+dc = dc.replace('DAY&nbsp;{{ hr.day }}&nbsp;/&nbsp;31', 'DAY&nbsp;{{ hr.dn }}&nbsp;/&nbsp;31', 1)
+_i = dc.index("TODAY'S JOURNEY · DAY{{ hr.day }}</span>"); _a = dc.rindex('<span', 0, _i)
+dc = dc[:_a] + '<span></span>' + dc[_i + len("TODAY'S JOURNEY · DAY{{ hr.day }}</span>"):]
+# ── 지도: 같은 지점의 명물이 겹치지 않게 옆으로 펼치기
+_o = "(D.places || []).forEach(function (p) { L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div style=\"transform:translate(-50%,-50%);width:24px;"
+assert dc.count(_o) == 1, dc.count(_o)
+dc = dc.replace(_o, "var _pg = {}; (D.places || []).forEach(function (p) { var _ky = p.ll[0].toFixed(2) + ',' + p.ll[1].toFixed(2), _pn = _pg[_ky] = (_pg[_ky] || 0) + 1, _ox = 20 + (_pn - 1) * 28; L.marker(p.ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div style=\"transform:translate(calc(-50% + ' + _ox + 'px),-50%);width:24px;")
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

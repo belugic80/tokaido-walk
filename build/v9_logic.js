@@ -54,7 +54,7 @@
     const stepsV = hcV ? (hcV.steps || 0) : 0;
     const dayWx = (() => { const w = S.wlive, d = w && w.d, k = d ? d.time.indexOf(isoOf(dateOf(VW))) : -1; if (k < 0) return null; const c = d.weather_code[k]; return { icon: c <= 1 ? 'sunny' : c <= 3 ? 'partly_cloudy_day' : c >= 51 && c <= 82 ? 'rainy' : 'cloud', hi: Math.round(d.temperature_2m_max[k]), lo: Math.round(d.temperature_2m_min[k]), now: k === 0 && w.now != null ? Math.round(w.now) : null }; })();
     const dd0 = dateOf(VW), relV = !started ? 'D-'+(-df) : VW === TD ? '오늘' : VW === TD-1 ? '어제' : VW === TD+1 ? '내일' : VW < TD ? (TD-VW)+'일 전' : (VW-TD)+'일 뒤';
-    const hr = { chip: wk, day: VW + (!started ? ' · D-'+(-df) : ''), when: relV+' · '+(dd0.getMonth()+1)+'월 '+dd0.getDate()+'일 '+WDL[dd0.getDay()],
+    const hr = { chip: wk, day: VW + (!started ? ' · D-'+(-df) : ''), dn: VW, when: relV+' · '+(dd0.getMonth()+1)+'월 '+dd0.getDate()+'일 '+WDL[dd0.getDay()],
       title: D.rest ? KO[D.s]+' · 휴식' : stName(0)+' → '+stName(nS-1), jpl: (D.rest ? JP[D.s] : stops[0].jp+' → '+stops[nS-1].jp) + (D.rest ? '' : ' · 경유지 '+Math.max(0, nS-2)+'곳'), photo: photoOf(VW),
       wx: { icon: dayWx ? dayWx.icon : 'partly_cloudy_day', t: dayWx ? (dayWx.now != null ? dayWx.now : dayWx.hi)+'°' : '—', lo: dayWx ? dayWx.lo+'°' : '—' },
       metrics: [{ k:'오늘 거리', v: (D.rest ? '휴식' : total+'km'), s:'', sc:'rgba(255,255,255,.75)', bl:'0' },

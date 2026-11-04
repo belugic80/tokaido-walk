@@ -499,6 +499,21 @@ dc = dc[:_ss] + ('<div style="display:grid;grid-template-columns:repeat(3,minmax
 
 
 dc = dc.replace('cursor:pointer">되돌리기</button>', 'cursor:pointer">이 날 되돌리기</button>')
+
+# 전체 여정 상단: 날짜별 사진 배경 + 우측 상단 진행 요약 + 사진 스트립 (일본어·점 인포그래픽 제거)
+_bs0 = dc.index('<div style="border-radius:28px;padding:20px;background:linear-gradient(120deg,#5B6FD4,#8B9CF0,#C9B8F5)', dc.index('{{ jc.prev }}') - 14000)
+_bs1 = _end(dc, _bs0)
+dc = dc[:_bs0] + ('<div style="position:relative;overflow:hidden;border-radius:28px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 14px 30px rgba(84,40,232,.30);min-width:0">'
+ '<div style="position:absolute;inset:0;background:{{ jr.bg }}"></div>'
+ '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(84,40,232,.55),rgba(70,35,190,.5) 45%,rgba(28,14,90,.9))"></div>'
+ '<div style="position:relative;padding:20px;display:flex;flex-direction:column;gap:14px;text-shadow:0 1px 3px rgba(20,10,80,.4)">'
+ '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span style="font-size:16px;font-weight:800">{{ jr.a }} → {{ jr.b }}</span><span style="white-space:nowrap;font-size:14px;font-weight:800;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">{{ tt.pct }} 완주 · 남은 {{ tt.left }}</span></div>'
+ '<b style="font-size:52px;font-weight:800;letter-spacing:-.05em;line-height:1.05">{{ tt.km }}<span style="font-size:18px;font-weight:700"> / 488km</span></b>'
+ '<div style="display:flex;flex-direction:column;gap:8px"><div style="position:relative;height:12px;border-radius:99px;background:rgba(255,255,255,.3)"><span style="position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#fff;width:{{ jr.fill }};transition:width .5s ease"></span></div>'
+ '<span style="display:flex;justify-content:space-between;font-size:14px;font-weight:800"><span>출발 {{ jr.a }}</span><span>{{ jr.curT }} · {{ jr.curKm }}</span><span>도착 {{ jr.b }}</span></span></div>'
+ '<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 4px"><sc-for list="{{ jr.strip }}" as="q" hint-placeholder-count="12"><button id="{{ q.sid }}" onClick="{{ q.go }}" style="flex:none;position:relative;width:64px;height:76px;border-radius:18px;border:2px solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden"><span style="position:absolute;left:0;right:0;bottom:0;padding:14px 0 4px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(20,10,70,.85));font:800 15px \'Pretendard Variable\',Pretendard,sans-serif;color:#fff">{{ q.n }}</span></button></sc-for></div>'
+ '</div></div>') + dc[_bs1:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

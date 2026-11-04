@@ -49,7 +49,7 @@ rep('right:16px;bottom:22px;', 'right:16px;bottom:calc(%s + 22px);' % SAB, cnt=2
 
 # 아이콘 글꼴: 새로 쓰는 아이콘 추가 (이름 순서대로)
 m = re.search(r'icon_names=([a-z_,0-9]+)', dc)
-names = set(m.group(1).split(',')) | {'directions_walk', 'grid_view', 'edit_calendar', 'open_in_new', 'timer', 'flag', 'local_fire_department', 'thermostat', 'partly_cloudy_day', 'foggy', 'thunderstorm', 'umbrella', 'wb_twilight', 'delete', 'edit', 'close', 'expand_less', 'refresh', 'restart_alt', 'swap_vert', 'translate', 'watch', 'train', 'today', 'info', 'warning', 'add', 'remove', 'search', 'water_drop', 'air', 'undo', 'arrow_forward', 'visibility', 'keyboard_arrow_up', 'keyboard_arrow_down'}
+names = set(m.group(1).split(',')) | {'south', 'north', 'savings', 'calendar_month', 'today', 'favorite', 'straighten', 'schedule', 'my_location', 'footprint', 'route', 'directions_walk', 'grid_view', 'edit_calendar', 'open_in_new', 'timer', 'flag', 'local_fire_department', 'thermostat', 'partly_cloudy_day', 'foggy', 'thunderstorm', 'umbrella', 'wb_twilight', 'delete', 'edit', 'close', 'expand_less', 'refresh', 'restart_alt', 'swap_vert', 'translate', 'watch', 'train', 'today', 'info', 'warning', 'add', 'remove', 'search', 'water_drop', 'air', 'undo', 'arrow_forward', 'visibility', 'keyboard_arrow_up', 'keyboard_arrow_down'}
 dc = dc.replace(m.group(0), 'icon_names=' + ','.join(sorted(names)))
 
 # ───────────────────────── 2. 문서 머리 (v8 빌드의 것을 그대로) ─────────────────────────
@@ -896,6 +896,21 @@ dc = dc[:_a] + ('<sc-for list="{{ diary2 }}" as="d" hint-placeholder-count="6">'
 _pillre = re.compile(r'<span style="border-radius:16px;background:#F6F7FB;border:1px solid #E6E9F5;padding:12px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;min-width:0"><span style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:600;color:#6B7A90;white-space:nowrap"><span style="([^"]*?)font-size:16px;color:#5B6FD4">([^<]*)</span>([^<]*)</span>')
 dc, _np = _pillre.subn(lambda m: '<span style="border-radius:32px;background:linear-gradient(180deg,#F1ECFF 0%,#FFFFFF 75%);border:1px solid #E6DEFF;padding:12px 6px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0;box-shadow:0 8px 18px rgba(84,40,232,.08)"><span style="width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(84,40,232,.18);display:grid;place-items:center"><span style="' + m.group(1) + 'font-size:23px;color:#7544ED">' + m.group(2) + '</span></span><span style="font-size:14px;font-weight:700;color:#475569;white-space:nowrap">' + m.group(3) + '</span>', dc)
 assert _np >= 3, _np
+# ── 기록 탭 시험 적용: 알약 타일(심박 최저·평균·최고 / 지출 오늘·총 누적·하루 평균)
+_ICS = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
+def _pill(icon, k, v, ic='#E23D7A', bg='linear-gradient(180deg,#FFEAF2 0%,#FFFFFF 75%)', bd='#FFD3E3', sh='rgba(226,61,122,.16)'):
+    return ('<span style="border-radius:32px;background:' + bg + ';border:1px solid ' + bd + ';padding:12px 6px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0;box-shadow:0 8px 18px ' + sh.replace('.16', '.08') + '">'
+            '<span style="width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 4px 12px ' + sh + ';display:grid;place-items:center"><span style="' + _ICS + 'font-size:23px;color:' + ic + '">' + icon + '</span></span>'
+            '<span style="font-size:14px;font-weight:700;color:#475569;white-space:nowrap">' + k + '</span>' + v + '</span>')
+_o = '<sc-for list="{{ lg2.hrStat }}" as="h" hint-placeholder-count="3"><span style="border-radius:14px;background:#F5F3FF;padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;color:#4A5D78;font-weight:700">{{ h.k }}</span><b style="font-size:17px">{{ h.v }}<span style="font-size:14px;color:#6B7A90"> bpm</span></b></span></sc-for>'
+assert dc.count(_o) == 1
+dc = dc.replace(_o, '<sc-for list="{{ lg2.hrStat }}" as="h" hint-placeholder-count="3">' + _pill('{{ h.icon }}', '{{ h.k }}', '<b style="font-size:20px;font-weight:800;color:#1A1D20;white-space:nowrap">{{ h.v }}<span style="font-size:14px;font-weight:600;color:#64748B"> bpm</span></b>') + '</sc-for>')
+_a = dc.index('<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;opacity:.85">오늘</span>')
+_b = dc.index('{{ lg2.avgE }}</b></div></div>', _a) + len('{{ lg2.avgE }}</b></div></div>')
+_gp = lambda icon, k, v: ('<span style="border-radius:32px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:12px 6px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0">'
+  '<span style="width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(40,20,120,.25);display:grid;place-items:center"><span style="' + _ICS + 'font-size:23px;color:#6A3BEF">' + icon + '</span></span>'
+  '<span style="font-size:14px;font-weight:700;opacity:.92;white-space:nowrap">' + k + '</span><b style="font-size:clamp(16px,4.6vw,20px);font-weight:800;white-space:nowrap">' + v + '</b></span>')
+dc = dc[:_a] + '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">' + _gp('today', '오늘', '{{ lg2.total }}') + _gp('savings', '총 누적', '{{ lg2.cum }}') + _gp('calendar_month', '하루 평균', '{{ lg2.avgE }}') + '</div>' + dc[_b:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

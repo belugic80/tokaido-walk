@@ -1615,10 +1615,10 @@ class Component extends DCLogic {
   window.scrollTo(0, 0); window.addEventListener('scroll', function () { if (window.scrollX) window.scrollTo(0, window.scrollY); }, { passive: true });
   var inApp = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   var auto = function () { document.removeEventListener('pointerup', auto, true); if (!inApp && !document.fullscreenElement) goFs(); };
-  document.addEventListener('pointerup', auto, true);
+  /* 자동 전체 화면 끔 */
   /* 뒤로가기 제스처: 앱이 닫히거나 전체 화면이 풀려 상단이 내려오지 않게 기록을 하나 더 쌓아 막고, 풀렸으면 다음 터치에 다시 전체 화면 */
   try { history.pushState({ tk: 1 }, '', location.href); window.addEventListener('popstate', function () { try { history.pushState({ tk: 1 }, '', location.href); } catch (e) {} }); } catch (e) {}
-  document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement) { var re = function () { document.removeEventListener('pointerup', re, true); if (!document.fullscreenElement) goFs(); }; document.addEventListener('pointerup', re, true); } });
+  
   /* 일본어 탭: 문장 카드를 누르면 화면 가득 크게(보여주기 카드) + 전체 화면 */
   document.addEventListener('click', function (e) {
     var card = e.target.closest && e.target.closest('[data-showcard]');
@@ -1636,7 +1636,7 @@ class Component extends DCLogic {
     c.style.cssText = 'margin-top:12px;height:64px;padding:0 48px;border-radius:999px;border:0;background:#fff;color:#0F2A5C;font-size:26px;font-weight:800;font-family:inherit;cursor:pointer';
     var close = function () { ov.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (er) {} };
     c.onclick = close; ov.onclick = function (ev) { if (ev.target === ov) close(); };
-    ov.appendChild(c); document.body.appendChild(ov); goFs();
+    ov.appendChild(c); document.body.appendChild(ov);
   });
 })();</script>
 <script>(function () {

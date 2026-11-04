@@ -489,6 +489,14 @@ dc = dc[:_ts] + ('<div style="position:relative"><div id="pl-days" onScroll="{{ 
  '<button onClick="{{ pl2.daysMore }}" aria-label="다음 날짜 보기" style="position:absolute;right:12px;top:50%;margin-top:-22px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;box-shadow:0 4px 12px rgba(40,50,140,.22);display:grid;place-items:center;cursor:pointer"><span style="@@IC@@font-size:24px;color:#5B32D6">chevron_right</span></button></div>'
  '<div style="display:flex;justify-content:center;gap:8px;padding-top:2px"><i id="pd-dot-0" style="width:28px;height:10px;border-radius:99px;background:#3B5BDB"></i><i id="pd-dot-1" style="width:10px;height:10px;border-radius:99px;background:#C5CCEE"></i><i id="pd-dot-2" style="width:10px;height:10px;border-radius:99px;background:#C5CCEE"></i><i id="pd-dot-3" style="width:10px;height:10px;border-radius:99px;background:#C5CCEE"></i><i id="pd-dot-4" style="width:10px;height:10px;border-radius:99px;background:#C5CCEE"></i></div>').replace('@@IC@@', _ic) + dc[_te:]
 
+
+# 일정 관리 요약 타일: 정사각형에 가깝게 키우고 그라데이션/아이콘 배지
+_ss = dc.index('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ pl2.sum }}"')
+_se = dc.index('</sc-for></div>', _ss) + len('</sc-for></div>')
+dc = dc[:_ss] + ('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:6px"><sc-for list="{{ pl2.sum }}" as="x" hint-placeholder-count="3"><span style="aspect-ratio:1/1;min-height:150px;box-sizing:border-box;border-radius:26px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;background:{{ x.g }};border:1px solid #E1D8FB;box-shadow:0 10px 24px rgba(84,40,232,.12)">'
+ '<span style="width:44px;height:44px;border-radius:15px;background:{{ x.bg }};display:grid;place-items:center"><span style="@@IC@@font-size:26px;color:{{ x.ic }}">{{ x.icon }}</span></span>'
+ '<span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:700;color:{{ x.sf }};white-space:nowrap">{{ x.k }}</span><b style="font-size:28px;font-weight:800;letter-spacing:-.03em;color:{{ x.fg }};white-space:nowrap">{{ x.v }}</b><span style="font-size:13px;font-weight:700;color:{{ x.sf }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ x.sub }}</span></span></span></sc-for></div>').replace('@@IC@@', _ic) + dc[_se:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

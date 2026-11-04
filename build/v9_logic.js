@@ -423,7 +423,17 @@
     const lodge = { when: (isT ? 'TONIGHT · 오늘 밤 숙소' : 'STAY · '+VW+'일차 숙소'), name: (LSv(VW) && LSv(VW).name) || (lodgeOk ? lodgeH.ko : stName(nS-1)+' · 숙소 미정'), sub: lsSub(VW) || (lodgeOk ? ((lodgeH.town || stops[nS-1].jp)+(lodgeH.addr ? ' · '+lodgeH.addr : '')) : stops[nS-1].jp+' · 도착 지점 근처'), chip: (lodgeOk || (LSv(VW) && LSv(VW).name)) ? '예약 확정' : '미정', cb: (lodgeOk || (LSv(VW) && LSv(VW).name)) ? '#E4F8EC' : '#FFF3D8', cf: (lodgeOk || (LSv(VW) && LSv(VW).name)) ? '#16804A' : '#8A5A0E',
       dir: gmap(lodgeOk && lodgeH.ll && !/^35\.0,138\.5$/.test(lodgeH.ll) ? lodgeH.ll : encodeURIComponent((lodgeOk && (lodgeH.ja || lodgeH.en || lodgeH.ko)) || stops[nS-1].jp+'駅 ホテル')) };
     const G1 = 'linear-gradient(135deg,#8B9CF0,#C9B8F5)';
-    return { ...O, ...XT, lodge,
+    // ───── 오늘 탈 것 · 힘들 때 ─────
+    const trX = (() => { const T = TRN[VW]; const o = { show: false, route: '', stat: '', fare: '', mode: '', help: () => {} };
+      try { const h = HT[VW] || HT[String(VW)] || {}; const goal = ALL[VW-1] ? ALL[VW-1].e : null;
+        const ll = h.ll && !/^35\.0,138\.5$/.test(h.ll) ? h.ll : '';
+        const dest = ll || encodeURIComponent((h.ko || (goal != null ? KO[goal] + '駅' : '')) + '');
+        o.help = () => { if (dest) window.open('https://www.google.com/maps/dir/?api=1&travelmode=transit&destination=' + dest, '_blank', 'noopener'); };
+        if (T && T.b > T.a) { let km = 0; for (let i = T.a; i < T.b; i++) km += ST[i+1].km - ST[i].km; km = +km.toFixed(1);
+          const min = Math.max(10, Math.round(km * 2.2)), yen = Math.max(140, Math.round(km * 20.8 / 10) * 10), won = Math.round(yen * 8.445 / 100) * 100;
+          o.show = true; o.mode = ({ train: '열차', bus: '버스', taxi: '택시' })[T.k] || '교통'; o.route = KO[T.a] + ' → ' + KO[T.b]; o.stat = km + 'km · ' + min + '분 · 1회 탑승'; o.fare = yen.toLocaleString() + '엔 · 약 ' + won.toLocaleString() + '원'; } } catch (e) {}
+      return o; })();
+    return { ...O, ...XT, lodge, tr: trX,
       fr: F ? { w:'100%', h:'100lvh', r:'0', cols:'minmax(0,1fr) minmax(0,1fr)', gridMin:'520px', mapFlex:'1', mapH:'auto', ctlW:'100%', sheetW:'560px', modeBig:'112px', modeW:'600px', menuCols:'repeat(2,minmax(0,1fr))', diaryCols:'repeat(2,minmax(0,1fr))', jpH:'max(300px, calc(100lvh - 640px))', dayMin:'calc(100lvh - 140px)', lodgeMapH:'190px', dayPh:'300px', jpFs:'64px', jpRd:'30px', jpBig:'60px', jpCols:'repeat(3,minmax(0,1fr))', wmH:'230px', wmCol:'74px', spotW:'560px', spotH:'300px', heroH:'250px' }
             : { w:'100%', h:'100lvh', r:'0', cols:'minmax(0,1fr)', gridMin:'0', mapFlex:'none', mapH:'300px', ctlW:'100%', sheetW:'100%', modeBig:'84px', modeW:'100%', menuCols:'repeat(2,minmax(0,1fr))', diaryCols:'minmax(0,1fr)', jpH:'400px', dayMin:'0', lodgeMapH:'170px', dayPh:'320px', jpFs:'34px', jpRd:'26px', jpBig:'40px', jpCols:'minmax(0,1fr)', wmH:'190px', wmCol:'66px', spotW:'100%', spotH:'290px', heroH:'270px' },
       st: ST_, hr, pg, mp, tiles, wps, wpCount: dnN+' / '+nS+' 통과', ctl, sh, planOpts, tabs,

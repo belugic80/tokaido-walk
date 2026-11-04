@@ -995,8 +995,12 @@ _cols = _kids(dc, _g0); assert len(_cols) == 2
 _L = _kids(_cols[0], 0); _R = _kids(_cols[1], 0); assert len(_L) == 3 and len(_R) == 4, (len(_L), len(_R))
 _R0 = _R[0].replace('<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:10px">', 1)
 _R1 = _R[1].replace('<div style="background:rgba(255,255,255,.6);', '<div style="flex:1;background:rgba(255,255,255,.6);', 1)
+_TRC = ('<div style="background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.9);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px rgba(40,50,140,.08);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:10px">'
+  '<sc-if value="{{ tr.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;align-items:center;gap:8px"><span style="font-size:14px;font-weight:800;padding:3px 10px;border-radius:99px;background:#E8F0FF;color:#2A5BC4">{{ tr.mode }}</span><b style="font-size:17px;font-weight:800">오늘 탈 것</b></span>'
+  '<b style="font-size:17px">{{ tr.route }}</b><span style="font-size:15px;font-weight:700;color:#4A5D78">{{ tr.stat }}</span><span style="font-size:15px;font-weight:800;color:#2A5BC4">대략 {{ tr.fare }}</span></div></sc-if>'
+  '<button onClick="{{ tr.help }}" style="width:100%;min-height:48px;border-radius:16px;border:1px solid #C9D6F5;background:#fff;color:#2A5BC4;font:800 15px Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-size:20px">train</span>힘들 때 · 지금 위치에서 숙소까지 기차·버스</button></div>')
 _new = ('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">' + _L[0] + _R0 + _L[1]
-        + '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">' + _R1 + _R[2] + '</div>' + _L[2] + _R[3] + '</div>')
+        + '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">' + _R1 + _R[2] + _TRC + '</div>' + _L[2] + _R[3] + '</div>')
 dc = dc[:_g0] + _new + dc[_g1:]
 # ── 기록 탭 2열 높이 맞춤: 체중 카드를 왼쪽 열 끝으로, 양쪽 마지막 카드가 남는 높이를 채움
 _lg0 = dc.index('<sc-if value="{{ tb.log }}"')

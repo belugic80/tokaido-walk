@@ -546,6 +546,20 @@ dc = dc[:_mc] + _card + dc[_mc:]
 rep('<span style="position:relative;display:grid;place-items:center;width:100%;aspect-ratio:4/3;filter:{{ dkImg }};background:{{ d.grad }}">', '<span style="position:relative;display:grid;place-items:center;width:100%;aspect-ratio:4/3;filter:{{ dkImg }};background:{{ d.grad }};overflow:hidden"><span style="position:absolute;inset:0;display:grid;gap:2px;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr"><sc-for list="{{ d.pics }}" as="p" hint-placeholder-count="1"><span style="grid-area:{{ p.ga }};background:{{ p.bg }};min-width:0;min-height:0"></span></sc-for></span>')
 rep('<span style="position:absolute;left:10px;top:10px;font-size:12px;font-weight:800;padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.92);color:#3B5BDB">DAY {{ d.n }}</span>', '<span style="position:absolute;left:10px;top:10px;font-size:14px;font-weight:800;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.92);color:#5B32D6">DAY {{ d.n }}</span><sc-if value="{{ d.hasMood }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:10px;top:8px;font-size:22px;line-height:1;padding:5px 8px;border-radius:99px;background:rgba(255,255,255,.92)">{{ d.mood }}</span></sc-if>')
 
+
+# 경유지 팝업: 텍스트 중앙 정렬 (제목·설명·지표), 배지는 좌상단으로
+_b0 = dc.index('<span style="flex:none;white-space:nowrap;height:28px;padding:0 10px 0 7px;border-radius:99px;background:rgba(255,255,255,.95);')
+_b1 = dc.index('{{ sp.badge }}</span>', _b0) + len('{{ sp.badge }}</span>')
+_badge = dc[_b0:_b1]
+dc = dc[:_b0] + dc[_b1:]
+_badge = _badge.replace('<span style="flex:none;white-space:nowrap;height:28px;', '<span style="position:absolute;left:12px;top:12px;flex:none;white-space:nowrap;height:28px;', 1)
+_cnt = '<span style="position:absolute;right:12px;top:12px;flex:none;white-space:nowrap;font-size:12px;font-weight:800;padding:4px 9px;border-radius:99px;background:rgba(20,24,60,.45);color:#fff">{{ sp.imgN }} / 4</span>'
+assert dc.count(_cnt) == 1
+dc = dc.replace(_cnt, _cnt + _badge)
+rep('<div style="position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)">\n<span style="display:flex;flex-direction:column;gap:4px;min-width:0">', '<div style="position:relative;display:flex;align-items:flex-end;justify-content:center;text-align:center;gap:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)">\n<span style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">')
+rep('padding:9px 12px;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#4A5D78;white-space:nowrap">', 'padding:9px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0"><span style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;color:#4A5D78;white-space:nowrap">')
+rep('line-height:1.6;color:#3A4D68;text-wrap:pretty;display:-webkit-box;', 'line-height:1.6;color:#3A4D68;text-align:center;text-wrap:pretty;display:-webkit-box;')
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

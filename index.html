@@ -1954,8 +1954,8 @@ class Component extends DCLogic {
       sleep: sleepDays.map(x => ({ h: Math.max(3, Math.round(x.v/10*116))+'px', l: x.l, c: x.v >= 8 ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#5B6FD4)' })), sleepLine: Math.round(20 + 8/10*116)+'px',
       wtPts: pts(WT.length >= 2 ? WT : [], 300, 110, wMin, wMax), wtDots: WT.map((v,i) => ({ x: (WT.length > 1 ? 2+i/(WT.length-1)*96 : 50).toFixed(1), y: (100*(wMax-v)/(wMax-wMin)).toFixed(1) })), wtBase: wBase ? ((wMax-wBase)/(wMax-wMin)*110).toFixed(1) : '55', wtNow: wNowV ? (+wNowV).toFixed(1) : '—',
       wtIn: S.wInput ?? '', onWt: O.onWInput, saveWt: () => { const v = parseFloat(S.wInput); if (v > 30 && v < 200) set({ wToday: v, wLog: {...WLg, [LISO]: v}, wIn: false, wInput: '' }); } };
-    if (!window.__phInit) { window.__phInit = true; try { const rq = indexedDB.open('tokaido-photos', 1); rq.onupgradeneeded = () => rq.result.createObjectStore('p'); rq.onsuccess = () => { try { const cur = rq.result.transaction('p').objectStore('p').openCursor(); cur.onsuccess = () => { const c = cur.result; if (c) { PHm[c.key] = c.value; c.continue(); } else set({ phRev: Date.now() }); }; } catch (e) {} }; } catch (e) {} }
-    const phSave = (iso, arr) => { PHm[iso] = arr; try { const rq = indexedDB.open('tokaido-photos', 1); rq.onupgradeneeded = () => rq.result.createObjectStore('p'); rq.onsuccess = () => { try { rq.result.transaction('p', 'readwrite').objectStore('p').put(arr, iso); } catch (e) {} }; } catch (e) {} set({ phRev: Date.now() }); };
+    if (!window.__phInit) { window.__phInit = true; try { const rq = indexedDB.open('tokaido-photos', 1); rq.onupgradeneeded = () => rq.result.createObjectStore('p'); rq.onsuccess = () => { try { const cur = rq.result.transaction('p').objectStore('p').openCursor(); cur.onsuccess = () => { const c = cur.result; if (c) { PHm[c.key] = c.value; c.continue(); } else { set({ phRev: Date.now() }); try { window.__phSync && window.__phSync(PHm, (iso, arr) => { PHm[iso] = arr; try { const r2 = indexedDB.open('tokaido-photos', 1); r2.onsuccess = () => { try { r2.result.transaction('p', 'readwrite').objectStore('p').put(arr, iso); } catch (e) {} }; } catch (e) {} set({ phRev: Date.now() }); }); } catch (e) {} } }; } catch (e) {} }; } catch (e) {} }
+    const phSave = (iso, arr) => { PHm[iso] = arr; try { const rq = indexedDB.open('tokaido-photos', 1); rq.onupgradeneeded = () => rq.result.createObjectStore('p'); rq.onsuccess = () => { try { rq.result.transaction('p', 'readwrite').objectStore('p').put(arr, iso); } catch (e) {} }; } catch (e) {} try { window.__phPut && window.__phPut(iso, arr); } catch (e) {} set({ phRev: Date.now() }); };
     const onPhoto = e => { const fs = Array.from(e.target.files || []); e.target.value = ''; fs.reduce((p, f) => p.then(arr => new Promise(res => { const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => { const k = Math.min(1, 1280/Math.max(im.width, im.height)), cv = document.createElement('canvas'); cv.width = Math.round(im.width*k); cv.height = Math.round(im.height*k); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); res([...arr, cv.toDataURL('image/jpeg', .78)]); }; im.onerror = () => res(arr); im.src = r.result; }; r.onerror = () => res(arr); r.readAsDataURL(f); })), Promise.resolve(phOf(LISO).slice())).then(arr => phSave(LISO, arr.slice(0, 6))); };
     const MOODS = [['😄','최고'],['😊','좋음'],['😐','보통'],['😓','힘듦'],['😣','아픔']], ML = S.moodLog || {}, mCur = ML[LISO], phL = phOf(LISO);
     { const SLB = 7, slD = sleepDays, slMx = Math.max(.5, ...slD.filter(x => x.v > 0).map(x => Math.abs(x.v - SLB)));
@@ -2054,6 +2054,23 @@ class Component extends DCLogic {
   }
   window.__geoNeed = function (list) { (list || []).forEach(function (x) { if (!x || !x[0] || seen[x[0]] || C.hasOwnProperty(x[0])) return; seen[x[0]] = 1; Q.push(x); }); next(); };
 })();</script><script>(function () {
+  var U = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-photo';
+  function hd() { return window.__tkHdr || {}; }
+  function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || '{}'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return {}; } }
+  function put(iso, arr) { var P = ls('tk-ph-pend'); P[iso] = 1; ls('tk-ph-pend', P);
+    return fetch(U + '?iso=' + iso, { method: 'PUT', headers: hd(), body: JSON.stringify(arr || []) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () { var P2 = ls('tk-ph-pend'); delete P2[iso]; ls('tk-ph-pend', P2); var T2 = ls('tk-ph-ts'); T2[iso] = Date.now(); ls('tk-ph-ts', T2); }).catch(function () {}); }
+  window.__phPut = put;
+  window.__phSync = function (local, apply) {
+    if (!window.__tkHdr) return void setTimeout(function () { window.__phSync(local, apply); }, 1500);
+    var P = ls('tk-ph-pend'); Object.keys(P).forEach(function (iso) { if (local[iso]) put(iso, local[iso]); });
+    fetch(U, { headers: hd() }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (list) {
+      var T = ls('tk-ph-ts'), have = {};
+      (list || []).forEach(function (f) { have[f.iso] = 1; var loc = local[f.iso], lt = T[f.iso] || 0;
+        if ((!loc || !loc.length || f.t > lt + 60000) && !ls('tk-ph-pend')[f.iso]) fetch(U + '?iso=' + f.iso, { headers: hd() }).then(function (r) { return r.json(); }).then(function (arr) { if (Array.isArray(arr) && arr.length) { apply(f.iso, arr); var T3 = ls('tk-ph-ts'); T3[f.iso] = f.t; ls('tk-ph-ts', T3); } }).catch(function () {}); });
+      Object.keys(local).forEach(function (iso) { if (!have[iso] && local[iso] && local[iso].length) put(iso, local[iso]); });
+    }).catch(function () {});
+  };
+})();</script><script>(function () {
   var TILE = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   function pin(t, bg, fg, bd, s) { return '<div style="transform:translate(-50%,-100%);display:grid;place-items:center;width:' + s + 'px;height:' + s + 'px;border-radius:50% 50% 50% 0;rotate:-45deg;background:' + bg + ';border:2px solid ' + bd + ';box-shadow:0 4px 10px rgba(24,50,79,.3)"><b style="rotate:45deg;font:800 12px Pretendard,sans-serif;color:' + fg + '">' + t + '</b></div>'; }
   setInterval(function () {
@@ -2077,7 +2094,7 @@ class Component extends DCLogic {
     });
   }, 600);
 })();</script><script>(function () {
-  var URL_ = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-sync', H = { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' };
+  var URL_ = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-sync', H = { 'x-read-key': 'ht8HS96EQgNJICUJ5dNeAcS1I_7UQVRn' }; window.__tkHdr = H;
   var F = '.image-slots.state.json', DK = 'tk-v15-data', timer = null, busy = false, pulling = false;
   function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function idb() { return new Promise(function (res, rej) { var r = indexedDB.open('tk-slots', 1); r.onupgradeneeded = function () { r.result.createObjectStore('kv'); }; r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }

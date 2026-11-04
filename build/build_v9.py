@@ -1076,6 +1076,30 @@ _o = '<div data-v8map="home" data-k="home" style="position:absolute;inset:0;poin
 assert dc.count(_o) == 1
 dc = dc.replace(_o, '<div data-v8map="home" data-k="home" style="position:absolute;inset:0;pointer-events:none;z-index:0;isolation:isolate"', 1)
 dc = dc.replace('<div data-v8map="log" data-k="log" style="position:absolute;inset:0"', '<div data-v8map="log" data-k="log" style="position:absolute;inset:0;z-index:0;isolation:isolate"')
+# ── 사진 백업(Supabase Storage tk-photos): 저장 시 올리고, 처음 열 때 서버에만 있는 날을 내려받음. 인증 헤더는 동기화 스크립트의 것을 그대로 사용
+_sy = "var URL_ = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-sync', H = "
+_si = dc.index(_sy); _se = dc.index('};', _si) + 2
+dc = dc[:_se] + ' window.__tkHdr = H;' + dc[_se:]
+_PH = r"""<script>(function () {
+  var U = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-photo';
+  function hd() { return window.__tkHdr || {}; }
+  function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || '{}'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return {}; } }
+  function put(iso, arr) { var P = ls('tk-ph-pend'); P[iso] = 1; ls('tk-ph-pend', P);
+    return fetch(U + '?iso=' + iso, { method: 'PUT', headers: hd(), body: JSON.stringify(arr || []) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () { var P2 = ls('tk-ph-pend'); delete P2[iso]; ls('tk-ph-pend', P2); var T2 = ls('tk-ph-ts'); T2[iso] = Date.now(); ls('tk-ph-ts', T2); }).catch(function () {}); }
+  window.__phPut = put;
+  window.__phSync = function (local, apply) {
+    if (!window.__tkHdr) return void setTimeout(function () { window.__phSync(local, apply); }, 1500);
+    var P = ls('tk-ph-pend'); Object.keys(P).forEach(function (iso) { if (local[iso]) put(iso, local[iso]); });
+    fetch(U, { headers: hd() }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (list) {
+      var T = ls('tk-ph-ts'), have = {};
+      (list || []).forEach(function (f) { have[f.iso] = 1; var loc = local[f.iso], lt = T[f.iso] || 0;
+        if ((!loc || !loc.length || f.t > lt + 60000) && !ls('tk-ph-pend')[f.iso]) fetch(U + '?iso=' + f.iso, { headers: hd() }).then(function (r) { return r.json(); }).then(function (arr) { if (Array.isArray(arr) && arr.length) { apply(f.iso, arr); var T3 = ls('tk-ph-ts'); T3[f.iso] = f.t; ls('tk-ph-ts', T3); } }).catch(function () {}); });
+      Object.keys(local).forEach(function (iso) { if (!have[iso] && local[iso] && local[iso].length) put(iso, local[iso]); });
+    }).catch(function () {});
+  };
+})();</script>"""
+_mi = dc.index('<script>(function () {\n  var TILE')
+dc = dc[:_mi] + _PH + dc[_mi:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

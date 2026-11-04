@@ -468,6 +468,10 @@ dc = dc[:_ws] + ('<button onClick="{{ w.go }}" style="display:flex;flex-directio
 _q = dc.index('{{ fx2.quick }}'); _qe = dc.index('</sc-for></div>', _q) + len('</sc-for></div>')
 dc = dc[:_qe] + ('\n<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ fx2.tbl }}" as="r" hint-placeholder-count="6"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border-radius:16px;background:linear-gradient(160deg,#fff,#F3EEFF);border:1px solid #E1D8FB"><b style="font-size:15px;color:#4A5D78">{{ r.y }}</b><b style="font-size:17px;color:#5B32D6;white-space:nowrap">{{ r.w }}</b></span></sc-for></div>') + dc[_qe:]
 
+
+# 일본어: 교토만 묻는 문장이 아니므로 ○○로
+rep("'실례합니다, 교토는 이 길로 가면 되나요?','すみません、京都へはこの道でいいですか？','스미마센, 쿄-토에와 코노 미치데 이이데스카?'", "'실례합니다, ○○는 이 길로 가면 되나요?','すみません、○○へはこの道でいいですか？','스미마센, ○○에와 코노 미치데 이이데스카?'")
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

@@ -127,7 +127,7 @@ tx('100엔 = 905원 · 예시', '{{ fxLabel }}')
 svgs = [x for x in re.finditer(r'<svg viewBox="0 0 360 (?:300|200)"[^>]*>.*?</svg>', dc, re.S)]
 assert len(svgs) == 3, len(svgs)
 kinds = ['<div data-v8map="home" data-k="home" style="position:absolute;inset:0;pointer-events:none"></div>',
-         '<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;left:0;top:-76px;width:100%;height:calc(100% + 76px);border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+         '<iframe src="{{ gmSrc }}" title="구글 지도" style="position:absolute;left:0;top:-130px;width:100%;height:calc(100% + 130px);border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
          '<div data-v8map="log" data-k="log" style="position:absolute;inset:0"></div>']
 for x, k in reversed(list(zip(svgs, kinds))):
     dc = dc[:x.start()] + k + dc[x.end():]

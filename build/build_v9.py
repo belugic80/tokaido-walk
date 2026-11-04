@@ -479,6 +479,15 @@ rep('<div style="flex:1;display:flex;gap:8px"><button onClick="{{ pl2.reset }}"'
 _k = dc.index('{{ pl2.saveLabel }}</button></div>') + len('{{ pl2.saveLabel }}</button></div>')
 dc = dc[:_k] + '</div>' + dc[_k:]
 
+
+# 일정 관리 상단 날짜 탭: 점 대신 글자 라벨(날짜/휴식/변경/오늘), 휴식일은 하늘색 칩, 좌우 스크롤 힌트(우측 페이드+화살표)
+_ts = dc.index('<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px 4px">\n<sc-for list="{{ pl2.days }}"')
+_te = dc.index('</sc-for>\n</div>', _ts) + len('</sc-for>\n</div>')
+dc = dc[:_ts] + ('<div style="position:relative"><div id="pl-days" style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 56px 6px 16px;scroll-snap-type:x proximity">\n'
+ '<sc-for list="{{ pl2.days }}" as="d" hint-placeholder-count="8"><button onClick="{{ d.pick }}" style="flex:none;scroll-snap-align:start;width:64px;height:78px;border-radius:20px;border:1px solid {{ d.bd }};background:{{ d.bg }};color:{{ d.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font-family:inherit;box-shadow:{{ d.sh }}"><span style="font-size:12px;font-weight:800;opacity:.85">DAY</span><b style="font-size:22px;line-height:1.1">{{ d.n }}</b><span style="font-size:12px;font-weight:800;color:{{ d.sc }};white-space:nowrap">{{ d.sub }}</span></button></sc-for>\n</div>'
+ '<div style="position:absolute;right:0;top:0;bottom:6px;width:64px;pointer-events:none;background:linear-gradient(90deg,rgba(236,238,255,0),rgba(236,238,255,.95) 70%)"></div>'
+ '<button onClick="{{ pl2.daysMore }}" aria-label="다음 날짜 보기" style="position:absolute;right:12px;top:50%;margin-top:-22px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;box-shadow:0 4px 12px rgba(40,50,140,.22);display:grid;place-items:center;cursor:pointer"><span style="@@IC@@font-size:24px;color:#5B32D6">chevron_right</span></button></div>').replace('@@IC@@', _ic) + dc[_te:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

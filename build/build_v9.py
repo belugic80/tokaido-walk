@@ -451,7 +451,10 @@ rep('<b style="font-size:16px">{{ w.label }}</b><b style="font-size:15px;white-s
 
 
 # 일정 관리: 출발일 입력 (기본 12/4) — 모든 날짜 계산이 이 값을 따름
-rep('<div style="background:{{ pl2.lw.bg }};', '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:17px">출발일</b><span style="font-size:13px;color:#6B7A90">바꾸면 모든 날짜가 같이 움직여요</span></span><input type="date" value="{{ pl2.sd }}" onChange="{{ pl2.sdSet }}" style="height:48px;border-radius:14px;border:1px solid #DCE0F7;background:#F6F7FF;padding:0 12px;font:700 16px \'Pretendard Variable\',Pretendard,sans-serif;color:#18324F"></span></div>\n<div style="background:{{ pl2.lw.bg }};')
+_dc_card = '<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:17px">출발일</b><span style="font-size:13px;color:#6B7A90">바꾸면 모든 날짜가 같이 움직여요</span></span><input type="date" value="{{ pl2.sd }}" onChange="{{ pl2.sdSet }}" style="height:48px;border-radius:14px;border:1px solid #DCE0F7;background:#F6F7FF;padding:0 12px;font:700 16px \'Pretendard Variable\',Pretendard,sans-serif;color:#18324F"></span></div>'
+_ls = dc.index('<div style="background:{{ pl2.lw.bg }};')
+_le = _end(dc, _ls)
+dc = dc[:_le] + '\n' + _dc_card + dc[_le:]
 
 
 # 주차 버튼 디자인: 보라 그라데이션 라벨 + 보라 거리, 예정 칩 제거

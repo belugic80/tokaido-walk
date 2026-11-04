@@ -1007,7 +1007,7 @@ _L = _kids(_cols[0], 0); _R = _kids(_cols[1], 0); assert len(_L) == 5 and len(_R
 assert '체중 변화' in _R[4] and '수면 시간' in _R[3]
 _R3 = _R[3].replace('<div style="background:#fff;', '<div style="flex:1;background:#fff;', 1)
 _cs = '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">'
-dc = dc[:_g0] + '<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">' + _cs + ''.join(_L) + _R[4] + '</div>' + _cs + _R[0] + _R[1] + _R[2] + _R3 + _R[5] + '</div></div>' + dc[_g1:]
+dc = dc[:_g0] + '<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">' + _cs + ''.join(_L) + _R[4] + '</div>' + _cs + _R[0] + _R[1] + _R[2] + _R3 + '</div></div>' + _R[5] + dc[_g1:]
 # ── 수면·체중 그래프 다시: 선·막대는 SVG(늘어남), 글자·점은 HTML(크기 고정)
 _a = dc.index('<div style="position:relative;height:120px;display:flex;gap:10px;padding:0 4px"><span style="position:absolute;left:0;right:0;top:60px;border-top:2px dashed #9A63F5')
 _b = dc.index('</sc-for></div>', dc.index('</sc-for></div>', _a) + 5) + len('</sc-for></div>')
@@ -1101,6 +1101,19 @@ _PH = r"""<script>(function () {
 })();</script>"""
 _mi = dc.index('<script>(function () {\n  var TILE')
 dc = dc[:_mi] + _PH + dc[_mi:]
+# 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
+_wk = dc.index('{{ lgc.wt.open }}')
+_w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)
+dc = dc[:_w1] + '<div style="flex:1;display:flex;flex-direction:column;gap:12px">' + dc[_w1+len('<div style="display:flex;flex-direction:column;gap:12px">'):]
+_w2 = dc.index('<div style="position:relative;height:150px;margin:6px 0 4px">', _w1)
+dc = dc[:_w2] + '<div style="position:relative;flex:1;min-height:150px;margin:6px 0 4px">' + dc[_w2+len('<div style="position:relative;height:150px;margin:6px 0 4px">'):]
+# 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
+import time as _tm
+_bid = str(int(_tm.time()))
+_VER = """<meta name="tk-build" content="%s"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
+setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>""" % _bid
+dc = dc.replace('<head>', '<head>\n' + _VER, 1)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

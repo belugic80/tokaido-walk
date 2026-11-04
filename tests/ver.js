@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');const fs=require('fs');const NM='/tmp/s/node_modules/';
+const M={'react@18.3.1/umd/react.production.min.js':NM+'react/umd/react.production.min.js','react-dom@18.3.1/umd/react-dom.production.min.js':NM+'react-dom/umd/react-dom.production.min.js','leaflet@1.9.4/dist/leaflet.js':NM+'leaflet/dist/leaflet.js','leaflet@1.9.4/dist/leaflet.css':NM+'leaflet/dist/leaflet.css'};
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:420,height:800}});
+await p.route('https://unpkg.com/**',r=>{const u=r.request().url();const k=Object.keys(M).find(k=>u.includes(k));if(k)return r.fulfill({body:fs.readFileSync(M[k]),contentType:'application/javascript',headers:{'access-control-allow-origin':'*'}});r.abort()});
+await p.route(/fonts\.|tile\.|supabase|open-meteo|er-api/,r=>r.abort());
+await p.goto('http://localhost:8960/new9/index.html?demo=1');await p.waitForTimeout(2500);
+let n=await p.evaluate(()=>!!document.querySelector('[role=alert]'));console.log('before',n);
+await p.route(/index\.html\?v=/,r=>r.fulfill({body:'<meta name="tk-build" content="9999999999">',contentType:'text/html'}));
+await p.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await p.waitForTimeout(1000);
+console.log('after',await p.evaluate(()=>{const a=document.querySelector('[role=alert]');return a&&a.innerText}));
+await p.screenshot({path:'/tmp/s/ver.png'});await b.close()})();

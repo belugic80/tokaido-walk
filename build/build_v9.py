@@ -820,8 +820,8 @@ dc = dc.replace(_o, '<span style="flex:none;white-space:nowrap;height:34px;paddi
 # 히어로 오른쪽 위: 날씨 칩 → 날짜 이동 알약
 _a = dc.index('<span style="flex:none;white-space:nowrap;height:32px;padding:0 11px 0 8px;border-radius:99px;background:rgba(255,255,255,.22)')
 _b = dc.index('</span>\n</span>', _a)
-_nb = lambda fn, ch, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="flex:none;width:52px;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.35);background:rgba(14,18,40,.38);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#fff;font:700 26px/1 \'DM Sans\',sans-serif;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}">%s</button>' % (fn, lab, op, ch)
-dc = dc[:_a] + '<span style="display:flex;align-items:center;gap:6px">' + _nb('prev', '‹', 'pO', '이전 날') + '<span style="flex:none;height:46px;padding:0 10px 0 16px;border-radius:14px;background:rgba(255,255,255,.95);display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#1A1D20;white-space:nowrap;box-shadow:0 6px 16px rgba(10,14,50,.2)">{{ dn2.lbl }}<sc-if value="{{ dn2.hasRel }}" hint-placeholder-val="{{ true }}"><span style="height:26px;padding:0 10px;border-radius:99px;background:' + _PG + ';color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center">{{ dn2.cur.rel }}</span></sc-if></span>' + _nb('next', '›', 'nO', '다음 날') + '</span>' + dc[_b + len('</span>'):]
+_nb = lambda fn, ch, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="flex:none;width:50px;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);font:700 26px/1 \'DM Sans\',sans-serif;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}">%s</button>' % (fn, lab, op, ch)
+dc = dc[:_a] + '<span style="display:flex;align-items:center;gap:6px">' + _nb('prev', '‹', 'pO', '이전 날') + '<span style="flex:none;height:46px;padding:0 10px 0 16px;border-radius:14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);white-space:nowrap">{{ dn2.lbl }}<sc-if value="{{ dn2.hasRel }}" hint-placeholder-val="{{ true }}"><span style="height:26px;padding:0 10px;border-radius:99px;background:' + _PG + ';color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center">{{ dn2.cur.rel }}</span></sc-if></span>' + _nb('next', '›', 'nO', '다음 날') + '</span>' + dc[_b + len('</span>'):]
 # ── 홈 지도: 가이드/구버전 표시 — 지나온 길(초록·실제 GPS) / 앞으로 갈 길(파랑·다음 거점부터), 방문 ✓, 명물 주황 번호
 _mr = [
  ("var pts = D.route || []; if (pts.length > 1) { L.polyline(pts, { color: '#fff', weight: 10, opacity: .9 }).addTo(el._lay); L.polyline(pts, { color: '#3B5BDB', weight: 6, opacity: .95 }).addTo(el._lay); }",
@@ -976,6 +976,27 @@ dc = dc[:_mi] + _GEO + dc[_mi:]
 _o = '<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>\n'
 assert dc.count(_o) == 1, dc.count(_o)
 dc = dc.replace(_o, '', 1)
+# ── 홈 2열 높이 맞춤: 좌우 카드를 행 단위로 짝지어 같은 높이(걸은 거리|타일, 지도|경유지+다음 목적지, 숙소|전체 종주)
+def _kids(s, a):
+    e = _dend(s, a); i = s.index('>', a) + 1; out = []; d = 0; st = None
+    for m in re.finditer(r'<(div|button|sc-if)\b[^>]*>|</(div|button|sc-if)>', s[i:e - 6]):
+        if m.group(1):
+            if d == 0: st = i + m.start()
+            d += 1
+        else:
+            d -= 1
+            if d == 0: out.append(s[st:i + m.end()])
+    return out
+_hh = dc.index('data-screen-label="홈 사진 히어로"')
+_g0 = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch;min-height:{{ fr.gridMin }}">', _hh)
+_g1 = _dend(dc, _g0)
+_cols = _kids(dc, _g0); assert len(_cols) == 2
+_L = _kids(_cols[0], 0); _R = _kids(_cols[1], 0); assert len(_L) == 3 and len(_R) == 4, (len(_L), len(_R))
+_R0 = _R[0].replace('<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:10px">', 1)
+_R1 = _R[1].replace('<div style="background:rgba(255,255,255,.6);', '<div style="flex:1;background:rgba(255,255,255,.6);', 1)
+_new = ('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">' + _L[0] + _R0 + _L[1]
+        + '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">' + _R1 + _R[2] + '</div>' + _L[2] + _R[3] + '</div>')
+dc = dc[:_g0] + _new + dc[_g1:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

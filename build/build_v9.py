@@ -882,6 +882,16 @@ _st = _st.replace('grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin
 _a = dc.index('<sc-if value="{{ sb2.stamp }}"'); _a = dc.index('>', _a) + 1
 _b = dc.index('</sc-if>\n<sc-if value="{{ sb2.', _a)
 dc = dc[:_a] + '\n<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">' + _st + '</div>\n' + dc[_b:]
+# ── 사진 일기: 구버전 카드 구성(큰 사진 1 + 작은 사진 2, DAY·날짜·거리·상태, 경로, 한 줄)
+_a = dc.index('<sc-for list="{{ diary2 }}" as="d" hint-placeholder-count="6">')
+_b = dc.index('</button>\n</sc-for>', _a) + len('</button>\n</sc-for>')
+dc = dc[:_a] + ('<sc-for list="{{ diary2 }}" as="d" hint-placeholder-count="6">'
+ '<button onClick="{{ d.open }}" style="border-radius:24px;padding:12px;background:#fff;border:1px solid #E8E7EF;box-shadow:0 10px 28px rgba(40,50,140,.08);display:flex;flex-direction:column;gap:10px;text-align:left;cursor:pointer;color:#1A1D20;font-family:inherit;min-width:0">'
+ '<span style="display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:8px;height:clamp(170px,22vw,240px);filter:{{ dkImg }}"><sc-for list="{{ d.t3 }}" as="p" hint-placeholder-count="3"><span style="grid-area:{{ p.ga }};border-radius:14px;background:{{ p.bg }};border:{{ p.bd }};background-color:#ECECF2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#8C8CA0;font-size:14px;font-weight:600;min-width:0;min-height:0;overflow:hidden"><sc-if value="{{ p.emp }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C8CA0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="8.5" cy="8.5" r="1.8"></circle><path d="M21 15l-5-5L5 21"></path></svg>사진</sc-if></span></sc-for></span>'
+ '<span style="display:flex;align-items:center;gap:8px;padding:0 2px"><b style="font-family:\'DM Sans\',sans-serif;font-size:16px;font-weight:800;letter-spacing:.04em;color:#673DE6">DAY {{ d.n }}</b><span style="font-size:14px;color:#64748B;white-space:nowrap">{{ d.dt }} · {{ d.km }}</span><span style="flex:1"></span><sc-if value="{{ d.hasMood }}" hint-placeholder-val="{{ false }}"><span style="font-size:20px;line-height:1">{{ d.mood }}</span></sc-if><span style="flex:none;height:26px;padding:0 10px;border-radius:99px;background:{{ d.stB }};color:{{ d.stF }};font-size:14px;font-weight:800;display:flex;align-items:center">{{ d.stT }}</span></span>'
+ '<b style="padding:0 2px;font-size:18px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.path }}</b>'
+ '<span style="border-radius:14px;background:#F5F1FF;padding:12px 14px;font-size:15px;line-height:1.5;color:{{ d.nc }}">{{ d.note }}</span>'
+ '</button></sc-for>') + dc[_b:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

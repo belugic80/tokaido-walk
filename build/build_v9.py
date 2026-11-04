@@ -972,6 +972,10 @@ _GEO = r"""<script>(function () {
 })();</script>"""
 _mi = dc.index('<script>(function () {\n  var TILE')
 dc = dc[:_mi] + _GEO + dc[_mi:]
+# ── 히어로 날짜 줄 삭제(날짜·D-day는 날짜 이동 알약에만)
+_o = '<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>\n'
+assert dc.count(_o) == 1, dc.count(_o)
+dc = dc.replace(_o, '', 1)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

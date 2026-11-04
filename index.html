@@ -52,7 +52,6 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 </div>
 <div style="position:relative;display:flex;flex-direction:column;gap:12px">
 <div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">
-<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>
 <b style="font-size:32px;font-weight:800;letter-spacing:-.045em;line-height:1.12">{{ hr.title }}</b>
 <span style="font-size:14px;font-weight:600;opacity:.88">{{ hr.jpl }}</span>
 </div>
@@ -1793,7 +1792,7 @@ class Component extends DCLogic {
     const dinfo = n => ({ n, date: dayOf(n).date, path: dayOf(n).path, km: dayOf(n).rest ? '휴식' : dayOf(n).km+'km' });
     const rel = n => !started ? 'D-'+(Math.max(1, n-1)-df-1+1) : n === TD ? '오늘' : n === TD-1 ? '어제' : n === TD+1 ? '내일' : n < TD ? (TD-n)+'일 전' : (n-TD)+'일 뒤';
     const dv = VW, nxd = Math.min(dv+1, 31);
-    const dn2 = { cur: { ...dinfo(dv), rel: relV }, nx: { ...dinfo(nxd), rel: rel(nxd) }, lbl: String(dinfo(dv).date).replace('.', '/'), hasRel: !!relV && /오늘|내일|어제/.test(String(relV)),
+    const dn2 = { cur: { ...dinfo(dv), rel: relV }, nx: { ...dinfo(nxd), rel: rel(nxd) }, lbl: String(dinfo(dv).date).replace('.', '/'), hasRel: !!relV,
       chipBg: dv === TD ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : dv < TD ? 'linear-gradient(135deg,#8C96B0,#B3BAD0)' : 'linear-gradient(135deg,#7048E8,#9775FA)',
       prev: () => dv > 1 && (this.goView(dv-1), set({ spot:null, sheet:null })), next: () => dv < 31 && (this.goView(dv+1), set({ spot:null, sheet:null })), pO: dv > 1 ? '1' : '.3', nO: dv < 31 ? '1' : '.3', openNext: () => this.goView(nxd), goToday: () => this.goView(TD) };
 

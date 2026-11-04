@@ -396,6 +396,52 @@ _summary = _summary.replace('font-size:40px;font-weight:800', 'font-size:48px;fo
 _g0 = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">', dc.index('{{ jc.prev }}') - 14000)
 dc = dc[:_g0] + '<div style="padding:0 16px 12px;display:flex;flex-direction:column;gap:10px">' + _summary + _stats + '</div>\n' + dc[_g0:]
 
+
+# 오늘 지출: 분류 → 내용 → 금액 순서로 재배치 + 총 지출(오늘/누적/평균/분류별) 요약
+_a = dc.index('<div style="display:flex;gap:8px;align-items:center">\n<div style="flex:none;display:flex;padding:3px')
+_b = dc.index('placeholder="내용 (예: 라멘, 가케가와 호텔)"')
+_b = dc.index('>', _b) + 1
+_blk = dc[_a:_b]
+_row = _blk[:_blk.index('</div>\n<div style="display:flex;gap:6px;flex-wrap:wrap">')+6]
+_chips = _blk[len(_row)+1:_blk.index('</sc-for></div>', len(_row))+len('</sc-for></div>')]
+_memo = _blk[_blk.index('<input value="{{ lg2.nnote }}"'):]
+_memo = _memo.replace('height:46px;border-radius:14px', 'height:50px;border-radius:14px').replace('font:600 15px', 'font:600 16px')
+_row = _row.replace('height:46px;border-radius:14px', 'height:54px;border-radius:14px').replace('height:46px;padding:0 16px', 'height:54px;padding:0 20px').replace('font-size:18px;font-weight:800', 'font-size:20px;font-weight:800')
+_sum = ('<div style="border-radius:18px;padding:14px 16px;background:linear-gradient(135deg,#5428E8,#9A63F5);color:#fff;display:flex;flex-direction:column;gap:10px">'
+ '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+ '<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;opacity:.85">오늘</span><b style="font-size:19px;white-space:nowrap">{{ lg2.total }}</b></div>'
+ '<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;opacity:.85">총 누적</span><b style="font-size:19px;white-space:nowrap">{{ lg2.cum }}</b></div>'
+ '<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;opacity:.85">하루 평균</span><b style="font-size:19px;white-space:nowrap">{{ lg2.avgE }}</b></div></div>'
+ '<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ lg2.catT }}" as="q" hint-placeholder-count="4"><span style="background:rgba(255,255,255,.2);border-radius:99px;padding:5px 10px;font-size:13px;font-weight:700;white-space:nowrap">{{ q.k }} {{ q.v }}</span></sc-for></div></div>')
+_new = _sum + '\n' + _chips + '\n' + _memo + '\n' + _row
+dc = dc[:_a] + _new + dc[_b:]
+_cl = re.search(r'<span style="display:flex;justify-content:space-between;font-size:13px;color:#4A5D78;padding-top:8px;border-top:1px solid #EEF0F7"><span>[^<]*</span><b[^>]*>\{\{ lg2.cum \}\}</b></span>', dc)
+assert _cl, 'cumline'
+dc = dc[:_cl.start()] + dc[_cl.end():]
+
+
+# 체중 그래프: 점(1개여도 표시)
+_si = dc.index('<svg viewBox="0 0 300 110" preserveAspectRatio="none" style="width:100%;height:120px;display:block"><line x1="0" y1="{{ lg2.wtBase }}"')
+_se = dc.index('</svg>', _si) + 6
+dc = dc[:_si] + '<div style="position:relative">' + dc[_si:_se] + '<sc-for list="{{ lg2.wtDots }}" as="d" hint-placeholder-count="3"><span style="position:absolute;left:{{ d.x }}%;top:{{ d.y }}%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#1C7ED6;border:2px solid #fff;box-shadow:0 1px 4px rgba(28,126,214,.5)"></span></sc-for></div>' + dc[_se:]
+
+
+# 전체 여정: 주차별 거리를 5개 가로 버튼으로 (좌 전체 일정 / 우 날짜 플랜 높이 동일)
+_wi = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b>')
+_wc = dc.rindex('<div style="flex:1;background:#fff;', 0, _wi)
+_we = _end(dc, _wc)
+dc = dc[:_wc] + dc[_we:]
+_wk = ('<div style="padding:0 16px"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
+ '<span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b><span style="font-size:13px;color:#6B7A90">눌러서 그 주 시작일 보기</span></span>'
+ '<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px"><sc-for list="{{ jn.weeks }}" as="w" hint-placeholder-count="5">'
+ '<button onClick="{{ w.go }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:12px 6px;border-radius:18px;border:1px solid #DCE0F7;background:#F6F7FF;cursor:pointer;font-family:\'Pretendard Variable\',Pretendard,sans-serif;color:#18324F">'
+ '<b style="font-size:16px">{{ w.label }}</b><b style="font-size:15px;white-space:nowrap">{{ w.km }}</b>'
+ '<span style="width:100%;height:8px;border-radius:99px;background:#EEF0FA;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:{{ w.c }};width:{{ w.w }}"></span></span>'
+ '<span style="font-size:12px;font-weight:800;padding:3px 8px;border-radius:99px;background:{{ w.sb }};color:{{ w.sf }};white-space:nowrap">{{ w.st }}</span></button></sc-for></div></div></div>')
+_gs2 = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">', dc.index('{{ jc.prev }}') - 14000)
+_ge2 = _end(dc, _gs2)
+dc = dc[:_ge2] + '\n' + _wk + dc[_ge2:]
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]
@@ -406,7 +452,7 @@ PERSIST_OLD = "'bodyLog', "
 OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
 OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, smin: j.smin || [], at: Date.now() };", src=OLD)
 OLD = rep("this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);", "this._hcT = setTimeout(() => this.loadHc(), 2 * 6e4);", src=OLD)
-OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
+OLD = rep(PERSIST_OLD, "'bodyLog', 'expLog', 'wLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
 NEWJS = open(os.path.join(HERE, 'v9_logic.js'), encoding='utf-8').read()
 HEROS = sorted(os.listdir(os.path.join(ROOT, 'assets', 'hero')))

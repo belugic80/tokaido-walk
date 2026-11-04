@@ -1,7 +1,35 @@
 {
   "cleanUrls": true,
   "redirects": [
-    { "source": "/new", "destination": "/", "permanent": false },
-    { "source": "/new/", "destination": "/", "permanent": false }
+    {
+      "source": "/new",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/new/",
+      "destination": "/",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(assets|hero)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
   ]
 }

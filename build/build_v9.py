@@ -495,7 +495,7 @@ dc = dc[:_ts] + ('<div style="position:relative"><div id="pl-days" onScroll="{{ 
 # 일정 관리 요약 타일: 정사각형에 가깝게 키우고 그라데이션/아이콘 배지
 _ss = dc.index('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ pl2.sum }}"')
 _se = dc.index('</sc-for></div>', _ss) + len('</sc-for></div>')
-dc = dc[:_ss] + ('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:6px"><sc-for list="{{ pl2.sum }}" as="x" hint-placeholder-count="3"><span style="aspect-ratio:1/1;min-height:150px;box-sizing:border-box;border-radius:26px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;background:{{ x.g }};border:1px solid #E1D8FB;box-shadow:0 10px 24px rgba(84,40,232,.12)">'
+dc = dc[:_ss] + ('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:6px"><sc-for list="{{ pl2.sum }}" as="x" hint-placeholder-count="3"><span style="min-height:150px;box-sizing:border-box;overflow:hidden;border-radius:26px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;background:{{ x.g }};border:1px solid #E1D8FB;box-shadow:0 10px 24px rgba(84,40,232,.12)">'
  '<span style="width:44px;height:44px;border-radius:15px;background:{{ x.bg }};display:grid;place-items:center"><span style="@@IC@@font-size:26px;color:{{ x.ic }}">{{ x.icon }}</span></span>'
  '<span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:700;color:{{ x.sf }};white-space:nowrap">{{ x.k }}</span><b style="font-size:28px;font-weight:800;letter-spacing:-.03em;color:{{ x.fg }};white-space:nowrap">{{ x.v }}</b><span style="font-size:13px;font-weight:700;color:{{ x.sf }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ x.sub }}</span></span></span></sc-for></div>').replace('@@IC@@', _ic) + dc[_se:]
 
@@ -997,6 +997,71 @@ _R1 = _R[1].replace('<div style="background:rgba(255,255,255,.6);', '<div style=
 _new = ('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">' + _L[0] + _R0 + _L[1]
         + '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">' + _R1 + _R[2] + '</div>' + _L[2] + _R[3] + '</div>')
 dc = dc[:_g0] + _new + dc[_g1:]
+# ── 기록 탭 2열 높이 맞춤: 체중 카드를 왼쪽 열 끝으로, 양쪽 마지막 카드가 남는 높이를 채움
+_lg0 = dc.index('<sc-if value="{{ tb.log }}"')
+_g0 = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">', _lg0)
+_g1 = _dend(dc, _g0)
+_cols = _kids(dc, _g0); assert len(_cols) == 2
+_L = _kids(_cols[0], 0); _R = _kids(_cols[1], 0); assert len(_L) == 5 and len(_R) == 6, (len(_L), len(_R))
+assert '체중 변화' in _R[4] and '수면 시간' in _R[3]
+_R3 = _R[3].replace('<div style="background:#fff;', '<div style="flex:1;background:#fff;', 1)
+_cs = '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">'
+dc = dc[:_g0] + '<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:0 16px;align-items:stretch">' + _cs + ''.join(_L) + _R[4] + '</div>' + _cs + _R[0] + _R[1] + _R[2] + _R3 + _R[5] + '</div></div>' + dc[_g1:]
+# ── 수면·체중 그래프 다시: 선·막대는 SVG(늘어남), 글자·점은 HTML(크기 고정)
+_a = dc.index('<div style="position:relative;height:120px;display:flex;gap:10px;padding:0 4px"><span style="position:absolute;left:0;right:0;top:60px;border-top:2px dashed #9A63F5')
+_b = dc.index('</sc-for></div>', dc.index('</sc-for></div>', _a) + 5) + len('</sc-for></div>')
+_gl = ''.join('<line x1="0" y1="%d" x2="320" y2="%d" stroke="#EEF0F6" stroke-width="1" vector-effect="non-scaling-stroke"></line>' % (y, y) for y in (10, 40, 100, 130))
+dc = dc[:_a] + ('<div style="position:relative;height:140px;margin-top:4px"><svg viewBox="0 0 320 140" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">' + _gl +
+  '<line x1="0" y1="70" x2="320" y2="70" stroke="#9A63F5" stroke-width="1.6" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"></line>'
+  '<sc-for list="{{ lg2.sl.v }}" as="b" hint-placeholder-count="7"><rect x="{{ b.x }}" y="{{ b.y }}" width="12" height="{{ b.h }}" rx="2" fill="{{ b.c }}"></rect></sc-for></svg>'
+  '<span style="position:absolute;right:0;top:50%;transform:translateY(-130%);font-size:14px;font-weight:800;color:#7544ED;background:rgba(255,255,255,.85);padding:0 2px">기준 7h</span></div>'
+  '<div style="position:relative;height:20px"><sc-for list="{{ lg2.sl.v }}" as="b" hint-placeholder-count="7"><span style="position:absolute;left:{{ b.lp }};transform:translateX(-50%);font-size:14px;color:#64748B">{{ b.l }}</span></sc-for></div>') + dc[_b:]
+_a = dc.index('<div style="position:relative;margin-top:6px"><svg viewBox="0 0 300 110" preserveAspectRatio="none"')
+_b = dc.index('</sc-for></div>', _a) + len('</sc-for></div>')
+dc = dc[:_a] + ('<div style="position:relative;height:150px;margin:6px 0 4px"><svg viewBox="0 0 320 140" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">' + _gl +
+  '<polygon points="{{ lg2.w3.area }}" fill="rgba(154,99,245,.14)"></polygon><line x1="0" y1="{{ lg2.w3.by }}" x2="320" y2="{{ lg2.w3.by }}" stroke="#9A63F5" stroke-width="1.6" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"></line>'
+  '<polyline points="{{ lg2.w3.pts }}" fill="none" stroke="#7544ED" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline></svg>'
+  '<span style="position:absolute;right:0;top:{{ lg2.w3.byp }};transform:translateY(-130%);font-size:14px;font-weight:800;color:#7544ED;background:rgba(255,255,255,.85);padding:0 2px">{{ lg2.w3.lab }}</span>'
+  '<sc-for list="{{ lg2.w3.dots }}" as="d" hint-placeholder-count="3"><span style="position:absolute;left:{{ d.lp }};top:{{ d.tp }};width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid #7544ED;box-sizing:border-box"></span></sc-for></div>') + dc[_b:]
+# ── 여정: 주차별 거리 다시 디자인(원형 주차 번호·상태 칩·거리·구간·주간 진행률)
+_wi = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b>')
+_wc = dc.rindex('<div style="background:#fff;', 0, _wi); _we = _dend(dc, _wc)
+dc = dc[:_wc] + ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
+ '<b style="font-size:18px;font-weight:800;letter-spacing:-.03em;color:#18324F">주차별 거리</b>'
+ '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px"><sc-for list="{{ jn.weeks }}" as="w" hint-placeholder-count="5">'
+ '<button onClick="{{ w.go }}" style="display:flex;flex-direction:column;gap:10px;min-width:0;padding:14px;border-radius:22px;border:{{ w.tbd }};background:{{ w.tbg }};box-shadow:0 6px 16px rgba(84,40,232,.06);cursor:pointer;text-align:left;font-family:inherit;color:#1A1D20">'
+ '<span style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 3px 10px rgba(84,40,232,.18);display:flex;align-items:baseline;justify-content:center;padding-top:9px;box-sizing:border-box;color:#5B32D6"><b style="font-size:17px;font-weight:800;line-height:1">{{ w.no }}</b><span style="font-size:12px;font-weight:700">주</span></span><span style="height:26px;padding:0 10px;border-radius:99px;background:{{ w.cb }};color:{{ w.cf }};font-size:13px;font-weight:800;display:flex;align-items:center;white-space:nowrap">{{ w.st }}</span></span>'
+ '<b style="font-size:22px;font-weight:800;letter-spacing:-.03em;white-space:nowrap">{{ w.km }}</b>'
+ '<span style="font-size:14px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ w.path }}</span>'
+ '<span style="display:flex;align-items:center;gap:8px"><span style="flex:1;height:6px;border-radius:99px;background:#EEEAF8;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5428E8,#9A63F5);width:{{ w.pctT }}"></span></span><b style="font-size:13px;font-weight:800;color:#5B32D6;white-space:nowrap">{{ w.pctT }}</b></span>'
+ '</button></sc-for></div></div>') + dc[_we:]
+# ── 2열 화면 공통: 각 열 마지막 카드가 남는 높이를 채워 좌우 아래끝 맞춤
+for _key in ['{{ sb2.plan }}', '{{ sb2.glance }}', '{{ sb2.day }}', '{{ sb2.info }}', '{{ sb2.stamp }}']:
+    _p0 = dc.find('<sc-if value="' + _key + '"')
+    if _p0 < 0: continue
+    _gx = dc.find('grid-template-columns:{{ fr.cols }}', _p0)
+    _pe = dc.find('</sc-if>', _p0)
+    if _gx < 0: continue
+    _g0 = dc.rindex('<div', 0, _gx)
+    try: _cols = _kids(dc, _g0)
+    except Exception: continue
+    _new = []
+    for _c in _cols:
+        _ks = _kids(_c, 0) if _c.startswith('<div style="display:flex;flex-direction:column') else []
+        if _ks:
+            _cand = [k for k in _ks if k.startswith('<div style="') and 'position:fixed' not in k[:k.index('>')] and ('background' in k[:k.index('>')] or 'display:grid' in k[:k.index('>')])]
+            _last = _cand[-1] if _cand else ''
+            if _last and not _last.startswith('<div style="flex:1'):
+                _c = _c.replace(_last, '<div style="flex:1;' + _last[len('<div style="'):], 1)
+        _new.append(_c)
+    _g1 = _dend(dc, _g0)
+    _hd = dc[_g0:dc.index('>', _g0) + 1]
+    dc = dc[:_g0] + _hd + ''.join(_new) + '</div>' + dc[_g1:]
+# 일정 관리: 고정 버튼용 빈칸을 오른쪽 열 안 → 표 아래로(좌우 아래끝 맞춤)
+assert dc.count('<div style="height:76px"></div>') == 1
+dc = dc.replace('<div style="height:76px"></div>', '', 1)
+_p0 = dc.index('<sc-if value="{{ sb2.plan }}"'); _gx = dc.index('grid-template-columns:{{ fr.cols }}', _p0); _g0 = dc.rindex('<div', 0, _gx); _g1 = _dend(dc, _g0)
+dc = dc[:_g1] + '<div style="height:76px"></div>' + dc[_g1:]
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

@@ -728,6 +728,11 @@ os.makedirs(OUT, exist_ok=True)
 _sub = '<span style="font-size:13px;color:#6B7A90">시나가와 → 교토 · 31일 · 488km</span>'
 assert dc.count(_sub) >= 1
 dc = dc.replace(_sub, '')
+# 일본어 상단 문구는 홈에만 남김
+_eb = '<span style="font-size:13px;font-weight:800;letter-spacing:.02em;color:#5B6FD4">東海道 53の休符</span>'
+_i1 = dc.index(_eb) + len(_eb)
+assert dc.count(_eb) >= 2
+dc = dc[:_i1] + dc[_i1:].replace(_eb, '')
 # 일본어: 교토만 묻는 문장이 아니므로 ○○로
 for _a, _b in [('すみません、京都へはこの道でいいですか？', 'すみません、○○へはこの道でいいですか？'), ('스미마센, 쿄-토에와 코노 미치데 이이데스카?', '스미마센, ○○에와 코노 미치데 이이데스카?'), ('실례합니다, 교토는 이 길로 가면 되나요?', '실례합니다, ○○는 이 길로 가면 되나요?')]:
     assert dc.count(_a) >= 1, _a

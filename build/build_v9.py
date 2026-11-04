@@ -892,6 +892,10 @@ dc = dc[:_a] + ('<sc-for list="{{ diary2 }}" as="d" hint-placeholder-count="6">'
  '<b style="padding:0 2px;font-size:18px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.path }}</b>'
  '<span style="border-radius:14px;background:#F5F1FF;padding:12px 14px;font-size:15px;line-height:1.5;color:{{ d.nc }}">{{ d.note }}</span>'
  '</button></sc-for>') + dc[_b:]
+# ── 팝업 지표 박스 → 세로 알약 타일(흰 원형 아이콘 + 라벨 + 값) — 참고 이미지 방식
+_pillre = re.compile(r'<span style="border-radius:16px;background:#F6F7FB;border:1px solid #E6E9F5;padding:12px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;min-width:0"><span style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:600;color:#6B7A90;white-space:nowrap"><span style="([^"]*?)font-size:16px;color:#5B6FD4">([^<]*)</span>([^<]*)</span>')
+dc, _np = _pillre.subn(lambda m: '<span style="border-radius:32px;background:linear-gradient(180deg,#F1ECFF 0%,#FFFFFF 75%);border:1px solid #E6DEFF;padding:12px 6px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0;box-shadow:0 8px 18px rgba(84,40,232,.08)"><span style="width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(84,40,232,.18);display:grid;place-items:center"><span style="' + m.group(1) + 'font-size:23px;color:#7544ED">' + m.group(2) + '</span></span><span style="font-size:14px;font-weight:700;color:#475569;white-space:nowrap">' + m.group(3) + '</span>', dc)
+assert _np >= 3, _np
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

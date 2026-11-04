@@ -155,7 +155,7 @@
     const dinfo = n => ({ n, date: dayOf(n).date, path: dayOf(n).path, km: dayOf(n).rest ? '휴식' : dayOf(n).km+'km' });
     const rel = n => !started ? 'D-'+(Math.max(1, n-1)-df-1+1) : n === TD ? '오늘' : n === TD-1 ? '어제' : n === TD+1 ? '내일' : n < TD ? (TD-n)+'일 전' : (n-TD)+'일 뒤';
     const dv = VW, nxd = Math.min(dv+1, 31);
-    const dn2 = { cur: { ...dinfo(dv), rel: relV }, nx: { ...dinfo(nxd), rel: rel(nxd) },
+    const dn2 = { cur: { ...dinfo(dv), rel: relV }, nx: { ...dinfo(nxd), rel: rel(nxd) }, lbl: String(dinfo(dv).date).replace('.', '/'), hasRel: !!relV && /오늘|내일|어제/.test(String(relV)),
       chipBg: dv === TD ? 'linear-gradient(120deg,#5B6FD4,#8B9CF0)' : dv < TD ? 'linear-gradient(135deg,#8C96B0,#B3BAD0)' : 'linear-gradient(135deg,#7048E8,#9775FA)',
       prev: () => dv > 1 && (this.goView(dv-1), set({ spot:null, sheet:null })), next: () => dv < 31 && (this.goView(dv+1), set({ spot:null, sheet:null })), pO: dv > 1 ? '1' : '.3', nO: dv < 31 ? '1' : '.3', openNext: () => this.goView(nxd), goToday: () => this.goView(TD) };
 
@@ -412,7 +412,7 @@
     const lodge = { when: (isT ? 'TONIGHT · 오늘 밤 숙소' : 'STAY · '+VW+'일차 숙소'), name: (LSv(VW) && LSv(VW).name) || (lodgeOk ? lodgeH.ko : stName(nS-1)+' · 숙소 미정'), sub: lsSub(VW) || (lodgeOk ? ((lodgeH.town || stops[nS-1].jp)+(lodgeH.addr ? ' · '+lodgeH.addr : '')) : stops[nS-1].jp+' · 도착 지점 근처'), chip: (lodgeOk || (LSv(VW) && LSv(VW).name)) ? '예약 확정' : '미정', cb: (lodgeOk || (LSv(VW) && LSv(VW).name)) ? '#E4F8EC' : '#FFF3D8', cf: (lodgeOk || (LSv(VW) && LSv(VW).name)) ? '#16804A' : '#8A5A0E',
       dir: gmap(lodgeOk && lodgeH.ll && !/^35\.0,138\.5$/.test(lodgeH.ll) ? lodgeH.ll : encodeURIComponent((lodgeOk && (lodgeH.ja || lodgeH.en || lodgeH.ko)) || stops[nS-1].jp+'駅 ホテル')) };
     const G1 = 'linear-gradient(135deg,#8B9CF0,#C9B8F5)';
-    return { ...XT, lodge,
+    return { ...O, ...XT, lodge,
       fr: F ? { w:'100%', h:'100lvh', r:'0', cols:'minmax(0,1fr) minmax(0,1fr)', gridMin:'520px', mapFlex:'1', mapH:'auto', ctlW:'100%', sheetW:'560px', modeBig:'112px', modeW:'600px', menuCols:'repeat(2,minmax(0,1fr))', diaryCols:'repeat(3,minmax(0,1fr))', jpH:'max(300px, calc(100lvh - 640px))', dayMin:'calc(100lvh - 140px)', lodgeMapH:'190px', dayPh:'300px', jpFs:'64px', jpRd:'30px', jpBig:'60px', jpCols:'repeat(3,minmax(0,1fr))', wmH:'230px', wmCol:'74px', spotW:'560px', spotH:'300px', heroH:'250px' }
             : { w:'100%', h:'100lvh', r:'0', cols:'minmax(0,1fr)', gridMin:'0', mapFlex:'none', mapH:'300px', ctlW:'100%', sheetW:'100%', modeBig:'84px', modeW:'100%', menuCols:'repeat(2,minmax(0,1fr))', diaryCols:'repeat(2,minmax(0,1fr))', jpH:'400px', dayMin:'0', lodgeMapH:'170px', dayPh:'320px', jpFs:'34px', jpRd:'26px', jpBig:'40px', jpCols:'minmax(0,1fr)', wmH:'190px', wmCol:'66px', spotW:'100%', spotH:'290px', heroH:'270px' },
       st: ST_, hr, pg, mp, tiles, wps, wpCount: dnN+' / '+nS+' 통과', ctl, sh, planOpts, tabs,

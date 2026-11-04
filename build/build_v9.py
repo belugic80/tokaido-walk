@@ -248,7 +248,8 @@ rep('<sc-if value="{{ spotOpen }}" hint-placeholder-val="{{ false }}">\n<div dat
 # 홈 사진 히어로 좌우 날짜 이동 버튼(반투명 흰색)
 _ic = "font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'wght\' 600;font-size:26px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)"
 _b1 = lambda fn, ic, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="width:56px;height:44px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}"><span style="%s">%s</span></button>' % (fn, lab, op, _ic, ic)
-_hb2 = '<span style="position:absolute;right:18px;top:-44px;display:flex;align-items:center;border-radius:18px 18px 0 0;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(2px) saturate(1.2);border:1px solid rgba(255,255,255,.32);border-bottom:0">' + _b1('prev','chevron_left','pO','이전 날') + '<i style="width:1px;height:22px;background:rgba(255,255,255,.32)"></i>' + _b1('next','chevron_right','nO','다음 날') + '</span>'
+_hb2_old = '<span style="position:absolute;right:18px;top:-44px;display:flex;align-items:center;border-radius:18px 18px 0 0;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(2px) saturate(1.2);border:1px solid rgba(255,255,255,.32);border-bottom:0">' + _b1('prev','chevron_left','pO','이전 날') + '<i style="width:1px;height:22px;background:rgba(255,255,255,.32)"></i>' + _b1('next','chevron_right','nO','다음 날') + '</span>'
+_hb2 = ''
 rep('border-radius:20px;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid rgba(255,255,255,.32);padding:12px 14px;display:flex;flex-direction:column;gap:10px">', 'position:relative;border-radius:20px;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(2px) saturate(1.2);border:1px solid rgba(255,255,255,.32);padding:12px 14px;display:flex;flex-direction:column;gap:10px">' + _hb2)
 rep('<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>', '<div style="display:flex;flex-direction:column;gap:3px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">\n<span style="font-size:13px;font-weight:700;opacity:.92">{{ hr.when }}</span>')
 # 사진일기 팝업: 큰 사진 탭 → 전체 화면 보기 / 사진 없음 안내
@@ -795,31 +796,50 @@ _new = '</div>\n<div style="display:flex;flex-direction:column;align-items:cente
 dc = dc[:_sg] + dc[_sg + len(_G):_s0] + _new + dc[_s1:]
 # 상세 시트: 걸음·심박 / 남은 시간·걸은 시간 같은 높이
 dc = dc.replace('data-screen-label="상세 시트" style="width:100%;max-width:{{ fr.sheetW }};max-height:86%;', 'data-screen-label="상세 시트" style="width:100%;max-width:{{ fr.sheetW }};max-height:86%;min-height:min(86%,{{ sh.minH }});box-sizing:border-box;', 1)
-# ── 디자인 가이드 색: 주 버튼·강조 = Primary Blue 그라데이션(#3979E8→#55A9F5→#8AD8E8), 보라는 브랜드 로고에만
+# ── 디자인 가이드: 주 버튼(높이 44px 이상 button/a)만 Primary Blue 그라데이션, 나머지 색은 유지
 _PG = 'linear-gradient(120deg,#3979E8,#55A9F5,#8AD8E8)'
-for _a, _b in [
-    ('linear-gradient(135deg,#5428E8,#9A63F5)', _PG), ('linear-gradient(150deg,#5428E8,#9A63F5)', _PG),
-    ('linear-gradient(90deg,#5428E8,#9A63F5)', 'linear-gradient(90deg,#3979E8,#55A9F5)'),
-    ('linear-gradient(135deg,#7048E8,#9775FA)', _PG), ('linear-gradient(135deg,#3B5BDB,#6C7FE8)', _PG),
-    ('linear-gradient(135deg,#3B5BDB,#6C8CF5)', _PG), ('linear-gradient(120deg,#5B6FD4,#8B9CF0)', _PG),
-    ('linear-gradient(135deg,#5B6FD4,#8B9CF0)', _PG),
-    ('linear-gradient(90deg,#3B5BDB,#8B9CF0)', 'linear-gradient(90deg,#3979E8,#55A9F5)'),
-    ('linear-gradient(90deg,#3B5BDB,#7A8CF0)', 'linear-gradient(90deg,#3979E8,#55A9F5)'),
-    ('linear-gradient(90deg,#3B5BDB,#6C8CF5)', 'linear-gradient(90deg,#3979E8,#55A9F5)'),
-    ('linear-gradient(90deg,#5B6FD4,#C9B8F5)', 'linear-gradient(90deg,#55A9F5,#B8DCFF)'),
-    ('linear-gradient(180deg,#9775FA,#7048E8)', 'linear-gradient(180deg,#55A9F5,#3979E8)'),
-    ('linear-gradient(180deg,#8B9CF0,#3B5BDB)', 'linear-gradient(180deg,#55A9F5,#3979E8)'),
-    ('linear-gradient(180deg,#8B9CF0,#5B6FD4)', 'linear-gradient(180deg,#55A9F5,#3979E8)'),
-    ('linear-gradient(135deg,#8B9CF0,#C9B8F5)', 'linear-gradient(135deg,#83C2FF,#B8DCFF)'),
-    ('rgba(84,40,232,.3)', 'rgba(57,121,232,.3)'), ('rgba(112,72,232,.3)', 'rgba(57,121,232,.3)'),
-    ('rgba(91,111,212,.35)', 'rgba(57,121,232,.3)'), ('rgba(59,91,219,.3)', 'rgba(57,121,232,.3)'),
-    ('rgba(59,91,219,.35)', 'rgba(57,121,232,.3)'), ('rgba(91,111,212,.15)', 'rgba(57,121,232,.14)'),
-    ('rgba(91,111,212,.2)', 'rgba(57,121,232,.18)'),
-    ('#3B5BDB', '#006FE6'), ('#7048E8', '#006FE6'), ('#5B32D6', '#005FCC'), ('#5B3FD0', '#005FCC'),
-    ('#5B6FD4', '#3979E8'), ('#8B9CF0', '#83C2FF'), ('#9775FA', '#55A9F5'), ('#6C8CF5', '#55A9F5'),
-    ('#EDF0FF', '#EFF7FF'), ('#F3F0FF', '#EFF7FF'), ('#F1ECFF', '#EFF7FF'), ('#C9B8F5', '#B8DCFF'),
-    ('#CDBBFF', '#B8DCFF'), ('#E0D7FB', '#DCEEFF'), ('#C9D3FF', '#B8DCFF')]:
+_VG = ['linear-gradient(135deg,#5428E8,#9A63F5)', 'linear-gradient(135deg,#7048E8,#9775FA)', 'linear-gradient(135deg,#3B5BDB,#6C7FE8)', 'linear-gradient(135deg,#3B5BDB,#6C8CF5)', 'linear-gradient(120deg,#5B6FD4,#8B9CF0)', 'linear-gradient(135deg,#5B6FD4,#8B9CF0)', 'linear-gradient(135deg,#1C7ED6,#4DA3F0)']
+def _btn(m):
+    s = m.group(0)
+    if not re.search(r'height:(4[4-9]|[5-6]\d)px', s): return s
+    if re.search(r'width:(4[4-9]|5\d)px;height', s) and 'border-radius:50%' in s: return s  # 원형 아이콘 버튼 제외
+    for g in _VG:
+        if 'background:' + g in s:
+            s = s.replace('background:' + g, 'background:' + _PG)
+            s = re.sub(r'box-shadow:0 (\d+)px (\d+)px rgba\([^)]*\)', r'box-shadow:0 \1px \2px rgba(57,121,232,.3)', s)
+    return s
+dc = re.sub(r'<(?:button|a)\b[^>]*>', _btn, dc)
+# ── 홈 상단: 구버전 헤더(TOKAIDO WALK · DAY · 날씨) + 히어로 날짜 이동 알약
+_IC = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
+_i = dc.index('東海道 53の休符</span>'); _o = dc[dc.rindex('<span', 0, _i):_i + len('東海道 53の休符</span>')]
+dc = dc.replace(_o, '<span style="display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap"><b style="font-family:\'DM Sans\',\'Pretendard Variable\',Pretendard,sans-serif;font-size:17px;font-weight:800;letter-spacing:.14em;color:#1A1D20;white-space:nowrap">TOKAIDO <span style="color:#7544ED">WALK</span></b><span style="flex:none;height:30px;padding:0 12px;border-radius:99px;background:#172338;color:#fff;font-size:14px;font-weight:800;letter-spacing:.04em;display:flex;align-items:center;white-space:nowrap">DAY&nbsp;{{ hr.day }}&nbsp;/&nbsp;31</span><span style="flex:none;height:34px;padding:0 12px 0 9px;border-radius:99px;background:#fff;border:1px solid #E2E8F0;display:flex;align-items:center;gap:5px;font-size:14px;font-weight:800;color:#1A1D20;white-space:nowrap"><span style="' + _IC + 'font-size:19px;color:#F5A524">{{ hr.wx.icon }}</span>{{ hr.wx.t }}<span style="font-weight:600;color:#64748B">/ {{ hr.wx.lo }}</span></span></span>', 1)
+# 히어로 왼쪽 위 칩
+_o = '<span style="flex:none;white-space:nowrap;height:32px;padding:0 12px;border-radius:99px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.42);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff">DAY {{ hr.day }}<span style="font-weight:600;opacity:.8">/ 31</span></span>'
+assert dc.count(_o) == 1
+dc = dc.replace(_o, '<span style="flex:none;white-space:nowrap;height:34px;padding:0 14px;border-radius:99px;background:rgba(14,18,40,.45);border:1px solid rgba(255,255,255,.38);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;font-family:\'DM Sans\',\'Pretendard Variable\',sans-serif;font-size:13px;font-weight:800;letter-spacing:.14em;color:#fff">TODAY\'S JOURNEY · DAY{{ hr.day }}</span>', 1)
+# 히어로 오른쪽 위: 날씨 칩 → 날짜 이동 알약
+_a = dc.index('<span style="flex:none;white-space:nowrap;height:32px;padding:0 11px 0 8px;border-radius:99px;background:rgba(255,255,255,.22)')
+_b = dc.index('</span>\n</span>', _a)
+_nb = lambda fn, ch, op, lab: '<button onClick="{{ dn2.%s }}" aria-label="%s" style="flex:none;width:52px;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.35);background:rgba(14,18,40,.38);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#fff;font:700 26px/1 \'DM Sans\',sans-serif;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.%s }}">%s</button>' % (fn, lab, op, ch)
+dc = dc[:_a] + '<span style="display:flex;align-items:center;gap:6px">' + _nb('prev', '‹', 'pO', '이전 날') + '<span style="flex:none;height:46px;padding:0 10px 0 16px;border-radius:14px;background:rgba(255,255,255,.95);display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#1A1D20;white-space:nowrap;box-shadow:0 6px 16px rgba(10,14,50,.2)">{{ dn2.lbl }}<sc-if value="{{ dn2.hasRel }}" hint-placeholder-val="{{ true }}"><span style="height:26px;padding:0 10px;border-radius:99px;background:' + _PG + ';color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center">{{ dn2.cur.rel }}</span></sc-if></span>' + _nb('next', '›', 'nO', '다음 날') + '</span>' + dc[_b + len('</span>'):]
+# ── 홈 지도: 가이드/구버전 표시 — 지나온 길(초록·실제 GPS) / 앞으로 갈 길(파랑·다음 거점부터), 방문 ✓, 명물 주황 번호
+_mr = [
+ ("var pts = D.route || []; if (pts.length > 1) { L.polyline(pts, { color: '#fff', weight: 10, opacity: .9 }).addTo(el._lay); L.polyline(pts, { color: '#3B5BDB', weight: 6, opacity: .95 }).addTo(el._lay); }",
+  "var pts = D.route || [], _sa = D.stops || [], _pv = null; for (var _q = 0; _q < _sa.length; _q++) { if (_sa[_q].past || _q === 0) _pv = _sa[_q].ll; } var _from = D.me || _pv, _fi = 0; if (_from && pts.length > 1) { var _bd = 1e9; pts.forEach(function (q, k) { var d = (q[0]-_from[0])*(q[0]-_from[0]) + (q[1]-_from[1])*(q[1]-_from[1]); if (d < _bd) { _bd = d; _fi = k; } }); } var fut = pts.slice(_fi); if (_from && D.me) fut = [D.me].concat(fut); if (fut.length > 1) { L.polyline(fut, { color: '#fff', weight: 10, opacity: .9 }).addTo(el._lay); L.polyline(fut, { color: '#0088FF', weight: 6, opacity: .95 }).addTo(el._lay); }"),
+ ("L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 5, dashArray: '2 9', lineCap: 'round' } : { color: '#7048E8', weight: 5 }).addTo(el._lay); });\n      (D.stops",
+  "L.polyline(r.pts, r.m === 'v' ? { color: '#F08A24', weight: 5, dashArray: '2 9', lineCap: 'round' } : { color: '#16A34A', weight: 6 }).addTo(el._lay); });\n      (D.stops"),
+ ("html: pin(st ? 'A' : en ? 'B' : String(i), st ? '#2F9E44' : en ? '#7048E8' : s.nx ? '#3B5BDB' : s.past ? '#8B9CF0' : '#fff', st || en || s.nx || s.past ? '#fff' : '#4A5D78', st || en || s.nx || s.past ? '#fff' : '#C5CCEE', st || en || s.nx ? 32 : 24)",
+  "html: pin(st ? 'A' : en ? 'B' : s.past ? '✓' : String(i), st ? '#172338' : en ? '#7C3AED' : s.past ? '#16A34A' : s.nx ? '#0088FF' : '#fff', st || en || s.nx || s.past ? '#fff' : '#0088FF', st || en || s.nx || s.past ? '#fff' : '#0088FF', st || en || s.nx ? 34 : 28)"),
+ ("background:' + (p.passed ? '#20A85A' : '#fff') + ';border:2px solid ' + (p.passed ? '#fff' : '#7B46F0') + ';display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.25)\"><b style=\"rotate:-45deg;font:800 12px Pretendard,sans-serif;color:' + (p.passed ? '#fff' : '#7B46F0') + '\">' + p.n + '</b>",
+  "background:' + (p.passed ? '#16A34A' : '#EA580C') + ';border:2px solid #fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.25)\"><b style=\"rotate:-45deg;font:800 12px Pretendard,sans-serif;color:#fff\">' + (p.passed ? '✓' : p.n) + '</b>"),
+]
+for _a, _b in _mr:
+    assert dc.count(_a) == 1, _a[:60]
     dc = dc.replace(_a, _b)
+_lo = '<span style="display:flex;align-items:center;gap:5px"><i style="width:16px;height:4px;border-radius:2px;background:#3B5BDB"></i>걸은 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:16px;height:0;border-top:4px dotted #3B5BDB"></i>남은 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#2F9E44"></i>출발</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#3B5BDB"></i>다음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#7048E8"></i>도착</span>'
+_ln = '<span style="display:flex;align-items:center;gap:5px"><i style="width:18px;height:5px;border-radius:3px;background:#16A34A"></i>지나온 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:18px;height:5px;border-radius:3px;background:#0088FF"></i>앞으로 갈 길</span><span style="display:flex;align-items:center;gap:5px"><i style="width:11px;height:11px;border-radius:3px;rotate:45deg;background:#EA580C"></i>명물</span>'
+assert dc.count(_lo) == 1
+dc = dc.replace(_lo, _ln)
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(dc)
 shutil.copy(os.path.join(ROOT, 'design', 'v9', 'support.js'), os.path.join(OUT, 'support.js'))
 (os.path.abspath(OUT) != ROOT) and shutil.copy(os.path.join(ROOT, 'image-slot.js'), os.path.join(OUT, 'image-slot.js'))

@@ -357,6 +357,7 @@
       if (ST2.length < 2) return 'https://maps.google.com/maps?q='+encodeURIComponent((dd.stops[0] && dd.stops[0].jp) || '東海道')+'&z=12&hl=ko&output=embed';
       const mid = ST2.slice(1, -1), keep = mid.length > 6 ? Array.from({length:6}, (x,k) => mid[Math.round(k*(mid.length-1)/5)]) : mid;
       return 'https://maps.google.com/maps?saddr='+ll(ST2[0])+'&daddr='+[...keep, ST2[ST2.length-1]].map(ll).join('+to:')+'&dirflg=w&hl=ko&output=embed'; })();
+    amen.openGm = () => { try { window.open(gmSrc.replace(/&output=embed/, ''), '_blank', 'noopener'); } catch (e) {} };
 
     const DK = !!S.dark, DKF = 'invert(1) hue-rotate(180deg)';
     const SUBT = { day:'DAY '+dN+' 자세히', plan:'일정 관리', stamp:'스탬프 · 배지', diary:'사진 일기', jp:'일본어', info:'날씨 · 환율 · 연락처' };

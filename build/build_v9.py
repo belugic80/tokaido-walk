@@ -442,6 +442,13 @@ _gs2 = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};ga
 _ge2 = _end(dc, _gs2)
 dc = dc[:_ge2] + '\n' + _wk + dc[_ge2:]
 
+
+# 여정: 우측 카드가 좌측 높이만큼 채우고, 주차 버튼에 구간 표시, 위와 간격
+rep('<div style="background:linear-gradient(160deg,#fff,#F6F1FF);border:1px solid #E8E1FB;', '<div style="flex:1;background:linear-gradient(160deg,#fff,#F6F1FF);border:1px solid #E8E1FB;')
+rep('<div style="background:#fff;border:1px solid #E8E7EF;border-radius:20px;padding:14px 14px 6px;display:flex;flex-direction:column">', '<div style="flex:1;background:#fff;border:1px solid #E8E7EF;border-radius:20px;padding:14px 14px 6px;display:flex;flex-direction:column;justify-content:center">')
+rep('<div style="padding:0 16px"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b>', '<div style="padding:14px 16px 0"><div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0"><span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-.03em">주차별 거리</b>')
+rep('<b style="font-size:16px">{{ w.label }}</b><b style="font-size:15px;white-space:nowrap">{{ w.km }}</b>', '<b style="font-size:16px">{{ w.label }}</b><b style="font-size:15px;white-space:nowrap">{{ w.km }}</b><span style="font-size:13px;color:#4A5D78;line-height:1.35;text-align:center;word-break:keep-all">{{ w.path }}</span>')
+
 # ───────────────────────── 5. 로직: 기존 앱 로직 + 새 화면 값 ─────────────────────────
 oa = old.index('<script type="text/x-dc"'); ob = old.index('>', oa) + 1; oe = old.index('</script>', ob)
 OLD = old[ob:oe]

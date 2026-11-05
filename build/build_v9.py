@@ -1126,7 +1126,7 @@ _parts = _re2.split(r'(<script[\s\S]*?</script>)', dc)
 dc = ''.join(p_ if k_ % 2 else _re2.sub(r'font-size:(?:1[0-3]|[0-9])(?:\.\d+)?px', 'font-size:14px', p_) for k_, p_ in enumerate(_parts))
 # 터치 영역 최소 44px
 for _a, _b in [('width:36px;height:44px', 'width:44px;height:44px'), ('width:40px;height:40px;border-radius:50', 'width:44px;height:44px;border-radius:50'),
-               ('height:38px;border-radius:12px;border:1px solid', 'height:44px;border-radius:12px;border:1px solid'),
+               ('height:38px;border-radius:12px;border:1px solid', 'height:44px;min-width:44px;border-radius:12px;border:1px solid'),
                ('height:40px;padding:0 14px;border-radius:99px', 'height:44px;padding:0 14px;border-radius:99px'),
                ('height:40px;width:46px', 'height:44px;width:48px'),
                ('white-space:nowrap;height:40px;padding:', 'white-space:nowrap;height:44px;padding:')]:

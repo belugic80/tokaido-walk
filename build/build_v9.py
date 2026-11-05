@@ -1203,6 +1203,16 @@ dc = dc[:_rs] + dc[_re:]
 _end = '</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"'
 assert dc.count(_end) == 1
 dc = dc.replace(_end, _row + '\n' + _end)
+# 지도 탭: 우측 하단에 날짜 변경(이전/다음 날), 다음 목적지 카드와 한 줄로
+_mo = '<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<button onClick="{{ openNext }}" style="width:100%;'
+assert dc.count(_mo) == 1
+_mi = dc.index(_mo)
+_mc = dc.index('</button>\n</sc-if>', _mi) + len('</button>\n')
+_ic = lambda n: '<span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 500;font-size:24px;color:#3B5BDB">' + n + '</span>'
+_bt = lambda fn, op, n, lb: '<button onClick="{{ dn2.' + fn + ' }}" aria-label="' + lb + '" style="flex:none;width:44px;height:44px;border-radius:50%;border:0;background:#F3F5FF;display:grid;place-items:center;cursor:pointer;opacity:{{ dn2.' + op + ' }}">' + _ic(n) + '</button>'
+_dc = '<div style="flex:none;border-radius:22px;background:#fff;box-shadow:0 10px 26px rgba(40,50,140,.16);padding:8px;display:flex;align-items:center;gap:4px">' + _bt('prev','pO','chevron_left','이전 날') + '<span onClick="{{ dn2.goToday }}" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:64px;line-height:1.15"><b style="font-size:16px;white-space:nowrap">{{ dn2.cur.n }}일차</b><span style="font-size:13px;font-weight:600;color:#6B7A90;white-space:nowrap">{{ dn2.cur.date }}</span></span>' + _bt('next','nO','chevron_right','다음 날') + '</div>'
+_blk = dc[_mi:_mc].replace('<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<button onClick="{{ openNext }}" style="width:100%;', '<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;gap:8px;align-items:stretch"><button onClick="{{ openNext }}" style="flex:1;min-width:0;', 1) + _dc + '</div>\n'
+dc = dc[:_mi] + _blk + dc[_mc:]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

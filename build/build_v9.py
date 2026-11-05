@@ -1148,6 +1148,10 @@ _WS = """<script>(function () {
 })();</script>"""
 _mi2 = dc.index('<script>(function () {\n  var TILE')
 dc = dc[:_mi2] + _WS + dc[_mi2:]
+# 기분 사진 타일: 배경 이미지 대신 <img>로 표시(빈 박스 방지)
+_pt = '<div style="position:relative;aspect-ratio:1/1;border-radius:18px;background:{{ p.bg }};overflow:hidden"><button onClick="{{ p.del }}"'
+assert dc.count(_pt) == 1, dc.count(_pt)
+dc = dc.replace(_pt, '<div style="position:relative;aspect-ratio:1/1;border-radius:18px;background:#E9E6FA;overflow:hidden"><img src="{{ p.src }}" alt="" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block"><button onClick="{{ p.del }}"')
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)

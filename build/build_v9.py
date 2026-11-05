@@ -1033,12 +1033,12 @@ _wi = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">
 _wc = dc.rindex('<div style="background:#fff;', 0, _wi); _we = _dend(dc, _wc)
 dc = dc[:_wc] + ('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
  '<b style="font-size:18px;font-weight:800;letter-spacing:-.03em;color:#18324F">주차별 거리</b>'
- '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px"><sc-for list="{{ jn.weeks }}" as="w" hint-placeholder-count="5">'
+ '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px"><sc-for list="{{ jn.weeks }}" as="w" hint-placeholder-count="5">'
  '<button onClick="{{ w.go }}" style="display:flex;flex-direction:column;gap:10px;min-width:0;padding:14px;border-radius:22px;border:{{ w.tbd }};background:{{ w.tbg }};box-shadow:0 6px 16px rgba(84,40,232,.06);cursor:pointer;text-align:left;font-family:inherit;color:#1A1D20">'
  '<span style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 3px 10px rgba(84,40,232,.18);display:flex;align-items:baseline;justify-content:center;padding-top:9px;box-sizing:border-box;color:#5B32D6"><b style="font-size:17px;font-weight:800;line-height:1">{{ w.no }}</b><span style="font-size:12px;font-weight:700">주</span></span><span style="height:26px;padding:0 10px;border-radius:99px;background:{{ w.cb }};color:{{ w.cf }};font-size:13px;font-weight:800;display:flex;align-items:center;white-space:nowrap">{{ w.st }}</span></span>'
  '<b style="font-size:22px;font-weight:800;letter-spacing:-.03em;white-space:nowrap">{{ w.km }}</b>'
- '<span style="font-size:14px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ w.path }}</span>'
- '<span style="display:flex;align-items:center;gap:8px"><span style="flex:1;height:6px;border-radius:99px;background:#EEEAF8;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5428E8,#9A63F5);width:{{ w.pctT }}"></span></span><b style="font-size:13px;font-weight:800;color:#5B32D6;white-space:nowrap">{{ w.pctT }}</b></span>'
+ '<span style="font-size:14px;line-height:1.35;color:#64748B;overflow-wrap:anywhere">{{ w.path }}</span>'
+ '<span style="display:flex;align-items:center;gap:8px;margin-top:auto"><span style="flex:1;height:6px;border-radius:99px;background:#EEEAF8;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5428E8,#9A63F5);width:{{ w.pctT }}"></span></span><b style="font-size:13px;font-weight:800;color:#5B32D6;white-space:nowrap">{{ w.pctT }}</b></span>'
  '</button></sc-for></div></div>') + dc[_we:]
 # ── 2열 화면 공통: 각 열 마지막 카드가 남는 높이를 채워 좌우 아래끝 맞춤
 for _key in ['{{ sb2.plan }}', '{{ sb2.glance }}', '{{ sb2.day }}', '{{ sb2.info }}', '{{ sb2.stamp }}']:
@@ -1142,6 +1142,10 @@ dc = dc.replace('</body>', "<script>if('serviceWorker' in navigator&&location.pr
 _b0 = "if (_from && D.me) fut = [D.me].concat(fut); if (fut.length > 1) {"
 assert dc.count(_b0) == 1
 dc = dc.replace(_b0, "var _span = pts.length > 1 ? Math.abs(pts[0][0]-pts[pts.length-1][0]) + Math.abs(pts[0][1]-pts[pts.length-1][1]) : 0; if (_span < 0.002) fut = []; else if (_from && D.me) { var _dm = Infinity; pts.forEach(function (q) { var dd2 = Math.pow(q[0]-D.me[0], 2) + Math.pow(q[1]-D.me[1], 2); if (dd2 < _dm) _dm = dd2; }); if (_dm < 0.0004) fut = [D.me].concat(fut); } if (fut.length > 1) {")
+# 전체 일정 목록: 오른쪽 카드가 더 높을 때 빈칸 대신 행 높이를 늘려 채움
+_l0 = '<div style="display:flex;flex-direction:column">\n<sc-for list="{{ jn.days }}" as="d" hint-placeholder-count="7">\n<button onClick="{{ d.open }}" style="display:grid;grid-template-columns:48px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:11px 0;'
+assert dc.count(_l0) == 1
+dc = dc.replace(_l0, '<div style="flex:1;display:flex;flex-direction:column">\n<sc-for list="{{ jn.days }}" as="d" hint-placeholder-count="7">\n<button onClick="{{ d.open }}" style="flex:1;display:grid;grid-template-columns:48px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:11px 0;')
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

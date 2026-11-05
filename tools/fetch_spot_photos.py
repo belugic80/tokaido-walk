@@ -33,6 +33,8 @@ def info(titles):
         out.append({'title': pg['title'], 'url': ii.get('thumburl') or ii['url'], 'page': ii['descriptionurl'], 'author': auth, 'license': lic})
     return out
 
+OVR = {0:['Matsumoto Kiyoshi drugstore','ドラッグストア 日本 店舗'],1:['品川宿','Shinagawa-juku'],4:['大磯 松並木','Oiso pine tree road'],7:['かまぼこ 小田原','kamaboko'],16:['源兵衛川'],24:['白隠正宗'],25:['蒲原宿'],33:['清水港 マグロ','Shimizu port'],48:['蓬莱橋','Horai Bridge Shimada'],52:['掛川茶','Kakegawa tea'],54:['浜松 うなぎ','unagi kabayaki'],55:['浜松餃子','Hamamatsu gyoza'],57:['浜松餃子','Hamamatsu gyoza'],59:['舞阪 松並木'],61:['潮見坂'],65:['ちくわ 豊橋','chikuwa'],67:['いなり寿司','inarizushi'],69:['藤川宿'],74:['有松 町並み','Arimatsu'],75:['有松 絞'],76:['有松 絞'],81:['味噌カツ','手羽先','きしめん'],82:['桑名 蛤','Hamaguri clam'],83:['しぐれ蛤'],88:['関の戸'],93:['石部宿'],98:['鮒ずし'],100:['滋賀 日本酒'],101:['三条大橋','Sanjo Ohashi'],103:['ドン・キホーテ','Don Quijote store']}
+
 def cores(s):
     out = []
     for term in (s.get('jp'), s['ko']):
@@ -52,7 +54,13 @@ def wiki_img(term):
             if c: return c[0]
     return None
 
-def pick(s):
+def pick(s, idx=None):
+    for term in OVR.get(idx, []):
+        r = q(list='search', srsearch=term, srnamespace=6, srlimit=12)
+        t = [x['title'] for x in (r or {}).get('query', {}).get('search', [])]
+        c = info(t[:12]) if t else []
+        if c: return c[0], 'query'
+    if OVR: return None, None
     for term in cores(s):
         c = wiki_img(term)
         if c: return c, 'wiki'
@@ -71,7 +79,7 @@ def main():
     for i, s in enumerate(spots):
         k = str(i)
         if k in meta and os.path.exists(os.path.join(ROOT, 'assets/spots', meta[k]['file'])): continue
-        c, how = pick(s); time.sleep(0.4)
+        c, how = pick(s, i); time.sleep(0.4)
         if not c: print(i, s['ko'], '-> 사진 없음'); continue
         d = get(c['url'], True)
         if not d or len(d) < 20000: print(i, s['ko'], '-> 내려받기 실패'); continue

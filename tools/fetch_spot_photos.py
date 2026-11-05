@@ -33,19 +33,34 @@ def info(titles):
         out.append({'title': pg['title'], 'url': ii.get('thumburl') or ii['url'], 'page': ii['descriptionurl'], 'author': auth, 'license': lic})
     return out
 
-def pick(s):
-    ll = s.get('ll')
-    if ll:
-        r = q(list='geosearch', gscoord=f'{ll[0]}|{ll[1]}', gsradius=400, gsnamespace=6, gslimit=15)
-        t = [x['title'] for x in (r or {}).get('query', {}).get('geosearch', []) if not BAD.search(x['title'])]
-        c = info(t[:10]) if t else []
-        if c: return c[0], 'geo'
+def cores(s):
+    out = []
     for term in (s.get('jp'), s['ko']):
-        if not term: continue
-        r = q(list='search', srsearch=term + ' filetype:bitmap', srnamespace=6, srlimit=10)
-        t = [x['title'] for x in (r or {}).get('query', {}).get('search', [])]
+        for p in re.split(r'[\s/／・·,()（）:：]+', term or ''):
+            p = p.strip()
+            if len(p) >= 2 and p not in out and not re.fullmatch(r'[0-9A-Za-z.]+', p): out.append(p)
+    return out
+
+def wiki_img(term):
+    # 위키백과(일/영/한) 항목의 대표 사진 → 커먼즈 라이선스 확인. 항목 제목이 이름과 겹칠 때만 사용
+    for lang in ('ja', 'en', 'ko'):
+        r = get(f'https://{lang}.wikipedia.org/w/api.php?' + urllib.parse.urlencode({'action': 'query', 'format': 'json', 'generator': 'search', 'gsrsearch': term, 'gsrlimit': 3, 'prop': 'pageimages', 'piprop': 'name', 'redirects': 1}))
+        for pg in sorted((r or {}).get('query', {}).get('pages', {}).values(), key=lambda x: x.get('index', 9)):
+            t = pg.get('title', '')
+            if not pg.get('pageimage') or not (term in t or t in term): continue
+            c = info(['File:' + pg['pageimage']])
+            if c: return c[0]
+    return None
+
+def pick(s):
+    for term in cores(s):
+        c = wiki_img(term)
+        if c: return c, 'wiki'
+    for term in cores(s):
+        r = q(list='search', srsearch=term, srnamespace=6, srlimit=10)
+        t = [x['title'] for x in (r or {}).get('query', {}).get('search', []) if term in x['title']]
         c = info(t[:10]) if t else []
-        if c: return c[0], 'search'
+        if c: return c[0], 'name'
     return None, None
 
 def main():

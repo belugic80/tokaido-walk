@@ -1076,7 +1076,7 @@ dc = dc[:_g1] + '<div style="height:76px"></div>' + dc[_g1:]
 # 여정 사진 줄: 고른 날을 확실히(크게·굵은 흰 테두리+보라 링·번호 보라 배경, 나머지 흐리게)
 _o = 'style="flex:none;position:relative;width:64px;height:76px;border-radius:18px;border:2px solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden"><span style="position:absolute;left:0;right:0;bottom:0;padding:14px 0 4px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(20,10,70,.85));'
 assert dc.count(_o) == 1
-dc = dc.replace(_o, 'style="flex:none;align-self:center;position:relative;width:{{ q.w }};height:{{ q.h }};border-radius:18px;border:{{ q.bw }} solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden;margin:4px 2px;transition:all .15s"><span style="position:absolute;left:0;right:0;bottom:0;padding:5px 0 4px;background:{{ q.lb }};', 1)
+dc = dc.replace(_o, 'style="flex:none;align-self:center;position:relative;width:{{ q.w }};height:{{ q.h }};border-radius:24px;border:{{ q.bw }} solid {{ q.bd }};background:{{ q.img }};opacity:{{ q.op }};box-shadow:{{ q.sh }};cursor:pointer;padding:0;overflow:hidden;margin:4px 2px;transition:all .15s"><span style="position:absolute;left:0;right:0;bottom:0;padding:5px 0 4px;background:{{ q.lb }};', 1)
 # 날짜 자세히: '이 날 걸은 길' 지도가 남는 높이를 채워 오른쪽 '오늘 나의 하루'와 아래끝 맞춤 · 사진 칸 안내 글자 삭제
 _i = dc.index('<b style="font-size:18px;font-weight:800;letter-spacing:-.03em">이 날 걸은 길</b>')
 _o = '<div style="position:relative;height:200px;border-radius:18px;overflow:hidden;background:#EEF2F8;border:1px solid #E6E9F7">'

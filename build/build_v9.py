@@ -1089,8 +1089,10 @@ _PH = r"""<script>(function () {
   var U = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-photo';
   function hd() { return window.__tkHdr || {}; }
   function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || '{}'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return {}; } }
-  function put(iso, arr) { var P = ls('tk-ph-pend'); P[iso] = 1; ls('tk-ph-pend', P);
-    return fetch(U + '?iso=' + iso, { method: 'PUT', headers: hd(), body: JSON.stringify(arr || []) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () { var P2 = ls('tk-ph-pend'); delete P2[iso]; ls('tk-ph-pend', P2); var T2 = ls('tk-ph-ts'); T2[iso] = Date.now(); ls('tk-ph-ts', T2); }).catch(function () {}); }
+  var stT = 0;
+  function st(msg, bad) { try { var e = document.getElementById('tk-ph-st'); if (!e) { e = document.createElement('div'); e.id = 'tk-ph-st'; e.setAttribute('role', 'status'); e.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:108px;z-index:9998;padding:10px 16px;border-radius:99px;font:700 14px Pretendard,system-ui,sans-serif;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);pointer-events:none;transition:opacity .2s'; document.body.appendChild(e); } e.textContent = msg; e.style.background = bad ? '#DC2626' : '#1C1B33'; e.style.opacity = '1'; clearTimeout(stT); stT = setTimeout(function () { e.style.opacity = '0'; }, bad ? 4000 : 2200); } catch (x) {} }
+  function put(iso, arr) { var P = ls('tk-ph-pend'); P[iso] = 1; ls('tk-ph-pend', P); st('사진 백업 중…');
+    return fetch(U + '?iso=' + iso, { method: 'PUT', headers: hd(), body: JSON.stringify(arr || []) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () { var P2 = ls('tk-ph-pend'); delete P2[iso]; ls('tk-ph-pend', P2); var T2 = ls('tk-ph-ts'); T2[iso] = Date.now(); ls('tk-ph-ts', T2); st('사진 백업 완료'); }).catch(function () { st('사진 백업 실패 · 연결되면 다시 시도해요', true); }); }
   window.__phPut = put;
   window.__phSync = function (local, apply) {
     if (!window.__tkHdr) return void setTimeout(function () { window.__phSync(local, apply); }, 1500);

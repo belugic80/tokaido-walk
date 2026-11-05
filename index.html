@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793881933"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793882209"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -2065,8 +2065,10 @@ class Component extends DCLogic {
   var U = 'https://jmfvsusybouibqmdvtmy.supabase.co/functions/v1/tk-photo';
   function hd() { return window.__tkHdr || {}; }
   function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || '{}'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return {}; } }
-  function put(iso, arr) { var P = ls('tk-ph-pend'); P[iso] = 1; ls('tk-ph-pend', P);
-    return fetch(U + '?iso=' + iso, { method: 'PUT', headers: hd(), body: JSON.stringify(arr || []) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () { var P2 = ls('tk-ph-pend'); delete P2[iso]; ls('tk-ph-pend', P2); var T2 = ls('tk-ph-ts'); T2[iso] = Date.now(); ls('tk-ph-ts', T2); }).catch(function () {}); }
+  var stT = 0;
+  function st(msg, bad) { try { var e = document.getElementById('tk-ph-st'); if (!e) { e = document.createElement('div'); e.id = 'tk-ph-st'; e.setAttribute('role', 'status'); e.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:108px;z-index:9998;padding:10px 16px;border-radius:99px;font:700 14px Pretendard,system-ui,sans-serif;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);pointer-events:none;transition:opacity .2s'; document.body.appendChild(e); } e.textContent = msg; e.style.background = bad ? '#DC2626' : '#1C1B33'; e.style.opacity = '1'; clearTimeout(stT); stT = setTimeout(function () { e.style.opacity = '0'; }, bad ? 4000 : 2200); } catch (x) {} }
+  function put(iso, arr) { var P = ls('tk-ph-pend'); P[iso] = 1; ls('tk-ph-pend', P); st('사진 백업 중…');
+    return fetch(U + '?iso=' + iso, { method: 'PUT', headers: hd(), body: JSON.stringify(arr || []) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () { var P2 = ls('tk-ph-pend'); delete P2[iso]; ls('tk-ph-pend', P2); var T2 = ls('tk-ph-ts'); T2[iso] = Date.now(); ls('tk-ph-ts', T2); st('사진 백업 완료'); }).catch(function () { st('사진 백업 실패 · 연결되면 다시 시도해요', true); }); }
   window.__phPut = put;
   window.__phSync = function (local, apply) {
     if (!window.__tkHdr) return void setTimeout(function () { window.__phSync(local, apply); }, 1500);

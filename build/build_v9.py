@@ -1256,10 +1256,11 @@ dc = dc.replace(_fc, 'border:1px solid #E8E7EF;background:#F7F7FB;padding:16px 8
 # 일본어: 문장 카드 12개를 모든 카테고리에서 같은 크기로
 _jg = 'display:grid;grid-template-columns:{{ fr.jpCols }};gap:10px">'
 assert dc.count(_jg) == 1
-dc = dc.replace(_jg, 'display:grid;grid-template-columns:{{ fr.jpCols }};grid-auto-rows:114px;gap:10px">', 1)
+dc = dc.replace(_jg, 'display:grid;grid-template-columns:{{ fr.jpCols }};grid-auto-rows:90px;gap:10px">', 1)
 _jb = re.search(r'<sc-for list="\{\{ jp2\.list \}\}" as="p"[^>]*><button onClick="\{\{ p\.pick \}\}" style="min-height:\d+px;', dc)
 assert _jb
 dc = dc.replace(_jb.group(0), _jb.group(0).rsplit('min-height', 1)[0] + 'min-height:0;height:100%;box-sizing:border-box;overflow:hidden;', 1)
+dc = dc.replace('box-shadow:0 6px 18px rgba(40,50,140,.07);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;text-align:left', 'box-shadow:0 6px 18px rgba(40,50,140,.07);padding:8px 12px;display:flex;flex-direction:column;justify-content:center;gap:2px;text-align:left', 1)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

@@ -1178,7 +1178,7 @@ dc = _re2.sub(r'<span style="font-size:1[2-4]px;font-weight:700;color:\{\{ m\.sc
 # 스탬프 화면: 역참 도장 박스(제목·필터)는 고정하고 도장 목록만 박스 안에서 스크롤
 _m = _re2.search(r'<div style="display:grid;grid-template-columns:[^"]*;gap:8px"><sc-for list="\{\{ stp2\.list \}\}"', dc)
 assert _m, 'stamp-grid'
-dc = dc[:_m.start()] + _m.group(0).replace('gap:8px"', 'gap:8px;overflow-y:auto;overscroll-behavior:contain;max-height:min(62vh,560px);padding:2px 2px 6px;-webkit-overflow-scrolling:touch"', 1) + dc[_m.end():]
+dc = dc[:_m.start()] + _m.group(0).replace('gap:8px"', 'gap:8px;overflow-y:auto;overscroll-behavior:contain;flex:1 1 min(62vh,560px);min-height:0;padding:2px 2px 6px;-webkit-overflow-scrolling:touch"', 1) + dc[_m.end():]
 # 일본어: 파파고 열기 버튼을 뒤로 버튼과 같은 높이로 좌측 하단에 고정
 _bk = _re2.search(r'<button onClick="\{\{ back2 \}\}" aria-label="뒤로 가기"', dc)
 assert _bk, 'back2'

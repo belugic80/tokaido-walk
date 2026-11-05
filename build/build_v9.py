@@ -1245,6 +1245,20 @@ dc = dc.replace(_h.group(0), _h.group(1) + _leg, 1)
 _fx = 'display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px">\n<sc-for list="{{ fx.table }}"'
 assert dc.count(_fx) == 1
 dc = dc.replace(_fx, _fx.replace('repeat(5,', 'repeat(3,'), 1)
+# 지도 하단: 다음 목적지 카드 폭 = 칩 줄(구글지도 보기 버튼 끝)까지, 날짜 이동은 그 오른쪽
+_c0 = '<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;flex-direction:column;gap:8px;width:calc(100% - 216px)">\n'
+_c1 = '\n\n</div>\n</sc-if>\n'
+_ci = dc.index(_c0); _cj = dc.index(_c1, _ci)
+_chips = dc[_ci + len(_c0):_cj]
+_n0 = '<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;gap:8px;align-items:stretch"><button onClick="{{ openNext }}" style="flex:1;min-width:0;'
+_ni = dc.index(_n0, _cj)
+_nb = dc.index('</button>', _ni) + len('</button>')
+_ne = dc.index('</div>\n</sc-if>\n', _nb)
+_nextbtn = '<button onClick="{{ openNext }}" style="width:100%;box-sizing:border-box;' + dc[_ni + len(_n0):_nb]
+_date = dc[_nb:_ne]
+_new = '<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;gap:8px;align-items:flex-end"><div style="display:flex;flex-direction:column;gap:8px;width:max-content;max-width:calc(100% - 216px);min-width:0">\n' + _chips + '\n' + _nextbtn + '</div>' + _date + '</div>\n</sc-if>\n'
+_ne2 = _ne + len('</div>\n</sc-if>\n')
+dc = dc[:_ci] + _new + dc[_ne2:]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

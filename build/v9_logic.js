@@ -336,6 +336,7 @@
     const expDays = Array.from({length:14}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(13-k)); const iso = isoOf(d); return { l: String(d.getDate()), v: (EL[iso] || []).reduce((q,e) => q + toW(e), 0) }; }), expMx = Math.max(1, ...expDays.map(x => x.v));
     const slV = sleepDays.filter(x => x.v > 0), slAvg = slV.length ? slV.reduce((q,x) => q+x.v, 0)/slV.length : 0;
     const WLg = S.wLog || {}, wMap = {}; Object.keys(HCD).forEach(k => { if (HCD[k].weight && k <= LISO) wMap[k] = +HCD[k].weight; }); Object.keys(WLg).forEach(k => { if (k <= LISO) wMap[k] = +WLg[k]; }); if (isLT && S.wToday && !WLg[LISO]) wMap[LISO] = +S.wToday;
+    if (/[?&]wdemo=1/.test(location.search)) { Object.keys(wMap).forEach(k => delete wMap[k]); const b0 = Date.parse(LISO+'T00:00:00Z'); for (let q = 0; q < 20; q++) { const dd = new Date(b0 - Math.round((19-q)*1.55)*864e5); wMap[dd.toISOString().slice(0,10)] = +(79.2 - q*0.21 + Math.sin(q*1.7)*0.45).toFixed(1); } }
     const wDays = Object.keys(wMap).sort().slice(-31), WT = wDays.map(k => wMap[k]);
     const wNowV = (isLT && S.wToday) || (hcL && hcL.weight) || (WT.length ? WT[WT.length-1] : null), wBase = WT.length ? WT[0] : wNowV;
     const wMin = WT.length ? Math.min(...WT, wNowV || 99)-0.5 : 70, wMax = WT.length ? Math.max(...WT, wNowV || 0)+0.5 : 80;

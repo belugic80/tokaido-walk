@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793890685"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793890742"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -1949,6 +1949,7 @@ class Component extends DCLogic {
     const expDays = Array.from({length:14}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(13-k)); const iso = isoOf(d); return { l: String(d.getDate()), v: (EL[iso] || []).reduce((q,e) => q + toW(e), 0) }; }), expMx = Math.max(1, ...expDays.map(x => x.v));
     const slV = sleepDays.filter(x => x.v > 0), slAvg = slV.length ? slV.reduce((q,x) => q+x.v, 0)/slV.length : 0;
     const WLg = S.wLog || {}, wMap = {}; Object.keys(HCD).forEach(k => { if (HCD[k].weight && k <= LISO) wMap[k] = +HCD[k].weight; }); Object.keys(WLg).forEach(k => { if (k <= LISO) wMap[k] = +WLg[k]; }); if (isLT && S.wToday && !WLg[LISO]) wMap[LISO] = +S.wToday;
+    if (/[?&]wdemo=1/.test(location.search)) { Object.keys(wMap).forEach(k => delete wMap[k]); const b0 = Date.parse(LISO+'T00:00:00Z'); for (let q = 0; q < 20; q++) { const dd = new Date(b0 - Math.round((19-q)*1.55)*864e5); wMap[dd.toISOString().slice(0,10)] = +(79.2 - q*0.21 + Math.sin(q*1.7)*0.45).toFixed(1); } }
     const wDays = Object.keys(wMap).sort().slice(-31), WT = wDays.map(k => wMap[k]);
     const wNowV = (isLT && S.wToday) || (hcL && hcL.weight) || (WT.length ? WT[WT.length-1] : null), wBase = WT.length ? WT[0] : wNowV;
     const wMin = WT.length ? Math.min(...WT, wNowV || 99)-0.5 : 70, wMax = WT.length ? Math.max(...WT, wNowV || 0)+0.5 : 80;

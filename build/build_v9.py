@@ -1124,16 +1124,30 @@ while _cp in dc:
     _i = dc.index(_cp); _k = dc[_i+len(_cp):].split('.')[0]
     dc = dc[:_i] + _cp.replace('style="flex:1;', 'style="flex:{{ lgc.' + _k + '.fl }};') + dc[_i+len(_cp):]; _n += 1
 print('flex-cards', _n)
-# 체중 입력: 숫자 타이핑 대신 현재 체중을 먼저 보여주고 ±버튼으로 조절
+# 체중 입력: 생일 고르듯 위아래로 돌리는 휠
 _wi0 = dc.index('<div style="display:flex;gap:8px"><input value="{{ lg2.wtIn }}"')
 _wi1 = dc.index('</div>', dc.index('저장</button>', _wi0)) + 6
-_bt = 'flex:1;height:48px;border:1px solid #DCE0F7;border-radius:14px;background:#F8F9FF;color:#3B5BDB;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer'
-_new = ('<div style="display:flex;flex-direction:column;gap:10px">'
-  '<div style="display:flex;align-items:center;justify-content:center;gap:8px"><button onClick="{{ lg2.wtM1 }}" style="' + _bt + '">−1</button><button onClick="{{ lg2.wtM01 }}" style="' + _bt + '">−0.1</button>'
-  '<div style="flex:none;min-width:104px;text-align:center;font:800 30px \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:-.03em;color:#18324F;white-space:nowrap">{{ lg2.wtVal }}<span style="font-size:14px;font-weight:700;color:#64748B"> kg</span></div>'
-  '<button onClick="{{ lg2.wtP01 }}" style="' + _bt + '">+0.1</button><button onClick="{{ lg2.wtP1 }}" style="' + _bt + '">+1</button></div>'
+_wh = lambda kind, lst, w: ('<div class="wtw" data-k="' + kind + '" data-v="{{ lg2.' + ('wtI' if kind == 'i' else 'wtD') + ' }}" style="width:' + w + ';height:132px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain;padding:44px 0;box-sizing:border-box;touch-action:pan-y">'
+   '<sc-for list="{{ lg2.' + lst + ' }}" as="w" hint-placeholder-count="5"><div style="height:44px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;font:800 26px \'DM Sans\',\'Noto Sans KR\',sans-serif;color:#18324F;font-variant-numeric:tabular-nums">{{ w.n }}</div></sc-for></div>')
+_new = ('<div style="display:flex;flex-direction:column;gap:10px"><div style="position:relative;display:flex;align-items:center;justify-content:center;gap:4px;height:132px;background:#F8F9FF;border:1px solid #DCE0F7;border-radius:16px;overflow:hidden">'
+  '<div style="position:absolute;left:8px;right:8px;top:44px;height:44px;border-radius:12px;background:rgba(59,91,219,.12);pointer-events:none"></div>'
+  + _wh('i', 'wtInts', '96px') + _wh('d', 'wtDecs', '72px') +
+  '<b style="font-size:18px;color:#64748B;padding-left:6px">kg</b></div>'
   '<button onClick="{{ lg2.saveWt }}" style="height:48px;border:0;border-radius:14px;background:#3B5BDB;color:#fff;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">이 체중으로 저장</button></div>')
 dc = dc[:_wi0] + _new + dc[_wi1:]
+_WS = """<script>(function () {
+  function init(el) {
+    if (el._wi) { return; } el._wi = 1; var t = null;
+    var go = function () { var v = +el.getAttribute('data-v') || 0, i = el.getAttribute('data-k') === 'i' ? Math.max(0, v - 35) : v; el._lock = 1; el.scrollTop = i * 44; setTimeout(function () { el._lock = 0; }, 150); };
+    go(); el._go = go;
+    el.addEventListener('scroll', function () { if (el._lock) return; clearTimeout(t); t = setTimeout(function () { var n = Math.round(el.scrollTop / 44); if (el.getAttribute('data-k') === 'i') n += 35; if (window.__wtSet) window.__wtSet(el.getAttribute('data-k'), n); }, 140); }, { passive: true });
+  }
+  function scan() { document.querySelectorAll('.wtw').forEach(function (el) { if (!el._wi) init(el); else if (!el._busy && Math.round(el.scrollTop / 44) !== (el.getAttribute('data-k') === 'i' ? Math.max(0, (+el.getAttribute('data-v') || 0) - 35) : (+el.getAttribute('data-v') || 0)) && !el.matches(':active')) { el._go(); } }); }
+  new MutationObserver(function () { clearTimeout(scan._t); scan._t = setTimeout(scan, 60); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-v'] });
+  setInterval(scan, 1500);
+})();</script>"""
+_mi2 = dc.index('<script>(function () {\n  var TILE')
+dc = dc[:_mi2] + _WS + dc[_mi2:]
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)

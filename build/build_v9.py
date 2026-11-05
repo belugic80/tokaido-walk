@@ -1191,17 +1191,18 @@ _k = 'border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12p
 assert _blk.count(_k) >= 2, 'more-cards'
 _blk = _blk.replace(_k, 'border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0">', 2)
 dc = dc[:_g] + _blk + dc[_g + 9000:]
-# 홈: 날짜 변경·이전/다음 날 카드를 '오늘 지나는 명물' 아래로
-_ds = dc.index('<div style="background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:12px 12px 12px 14px;display:flex;align-items:center;gap:12px;min-width:0;min-height:72px">\n<span onClick="{{ dn2.goToday }}"')
-_de = dc.index('{{ dn2.nx.n }}') if False else dc.index('\n</div>\n', dc.index('{{ dn2.next }}', _ds)) + len('\n</div>')
-_dblk = dc[_ds:_de]
-dc = dc[:_ds] + dc[_de:]
+# 홈: 다음 날 카드 + 날짜 변경 카드(반반)를 '오늘 지나는 명물' 아래로
 _rowo = '<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;padding:12px 16px 0;align-items:stretch">\n<button onClick="{{ dn2.openNext }}"'
 assert dc.count(_rowo) == 1
-dc = dc.replace(_rowo, _rowo.replace('{{ fr.cols }}', '1fr'))
+_rs = dc.index(_rowo)
+_re = dc.index('\n</div>\n', dc.index('{{ dn2.next }}', _rs)) + len('\n</div>') 
+_re = dc.index('\n</div>', _re) + len('\n</div>')
+_row = dc[_rs:_re]
+assert _row.count('<button onClick="{{ dn2.next }}"') == 1 and _row.endswith('</div>\n</div>')
+dc = dc[:_rs] + dc[_re:]
 _end = '</div>\n\n<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div data-screen-label="지도 전체 화면"'
 assert dc.count(_end) == 1
-dc = dc.replace(_end, '<div style="padding:12px 16px 0">' + _dblk + '</div>\n' + _end)
+dc = dc.replace(_end, _row + '\n' + _end)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

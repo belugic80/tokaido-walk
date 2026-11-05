@@ -1164,6 +1164,9 @@ dc = dc.replace(_wd, 'border-radius:50%;background:#fff;border:3px solid #7544ED
 _wm = '<div style="position:relative;height:150px;margin:6px 0 4px">'
 assert dc.count(_wm) == 1
 dc = dc.replace(_wm, '<div style="position:relative;height:150px;margin:6px 0 30px">')
+_dm = 'width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid #7544ED;box-sizing:border-box"></span>'
+assert dc.count(_dm) == 1, dc.count(_dm)
+dc = dc.replace(_dm, 'width:{{ d.sz }};height:{{ d.sz }};transform:translate(-50%,-50%);border-radius:50%;background:#fff;border:{{ d.bwd }} solid #7544ED;box-sizing:border-box"></span>')
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)

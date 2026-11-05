@@ -263,6 +263,7 @@ _fs = """<sc-if value="{{ dpv.fsOpen }}" hint-placeholder-val="{{ false }}">
 </sc-if>
 """
 rep('<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">', _fs + '<sc-if value="{{ plc.pop.open }}" hint-placeholder-val="{{ false }}">')
+rep('scrollbar-width:none;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + 110px)">', 'scrollbar-width:none;padding:calc(env(safe-area-inset-top) + 12px) 0 calc(env(safe-area-inset-bottom) + {{ padM }})">')
 rep('scrollbar-width:none;padding-bottom:110px">', 'scrollbar-width:none;padding-bottom:{{ padB }}">')
 # 지도 화면 중복 범례 정리: 아래쪽 범례 삭제, 위 범례에 '교통 구간' 추가
 _i = dc.index('<div style="display:flex;gap:12px;flex-wrap:wrap;padding:6px 12px;border-radius:14px;background:rgba(255,255,255,.92);')

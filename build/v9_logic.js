@@ -280,9 +280,12 @@
 
     // ───── 일본어 ─────
     const PHD = { '필수': PH.filter(p => p[4]).map(p => [p[3], p[1], p[2]]) }; PH.forEach(p => (PHD[p[0]] = PHD[p[0]] || []).push([p[3], p[1], p[2]]));
+    const JF = Array.isArray(S.jfav) ? S.jfav : [], _all = {}; Object.values(PHD).forEach(l => l.forEach(x => { _all[x[0]] = x; }));
+    { const fl = JF.filter(k => _all[k]).map(k => _all[k]); if (fl.length) PHD['즐겨찾기'] = fl; }
     const JC = PHD[S.jc] ? S.jc : '필수', pls = PHD[JC], ji = Math.min(S.ji, pls.length-1);
-    const jp2 = { cats: Object.keys(PHD).map(c => ({ label: c === '필수' ? '★ 필수' : c, ...chipOf(JC === c), pick: () => set({ jc:c, ji:0 }) })), sel: { cat:JC, ko:pls[ji][0], jp:pls[ji][1], read:pls[ji][2] },
+    const jp2 = { cats: Object.keys(PHD).sort((x,y) => (y === '즐겨찾기') - (x === '즐겨찾기')).map(c => ({ label: c === '필수' ? '★ 필수' : c === '즐겨찾기' ? '♥ 즐겨찾기' : c, ...chipOf(JC === c), pick: () => set({ jc:c, ji:0 }) })), sel: { cat:JC, ko:pls[ji][0], jp:pls[ji][1], read:pls[ji][2] },
       list: pls.map((p,k) => ({ ko:p[0], jp:p[1], read:p[2], bd: k === ji ? '2px solid #8B9CF0' : '1px solid rgba(255,255,255,.95)', bg: k === ji ? '#F6F4FF' : 'rgba(255,255,255,.85)', pick: () => set({ ji:k }) })),
+      isFav: JF.includes(pls[ji][0]), favT: JF.includes(pls[ji][0]) ? '♥ 저장됨' : '♡ 저장', toggleFav: () => { const k = pls[ji][0]; set({ jfav: JF.includes(k) ? JF.filter(x => x !== k) : [...JF, k] }); },
       badge: (JC === '필수' ? '★ ' : '')+JC+' · '+(ji+1)+' / '+pls.length, big: !!S.jpBig, openBig: () => set({ jpBig:true }), closeBig: () => set({ jpBig:false }),
       prev: () => set({ ji:(ji+pls.length-1)%pls.length }), next: () => set({ ji:(ji+1)%pls.length }) };
 

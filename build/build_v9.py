@@ -573,7 +573,7 @@ PERSIST_OLD = "'bodyLog', "
 OLD = rep("if (this.dayInfo().diff < 0) return 0; ", "", src=OLD)  # 출발 전에도 걷기 상태(테스트) 허용
 OLD = rep("const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, at: Date.now() };", "const hc = { days, snaps: j.snaps || [], locs: j.locs || {}, live: j.live || null, smin: j.smin || [], at: Date.now() };", src=OLD)
 OLD = rep("this._hcT = setTimeout(() => this.loadHc(), 5 * 6e4);", "this._hcT = setTimeout(() => this.loadHc(), 2 * 6e4);", src=OLD)
-OLD = rep(PERSIST_OLD, "'bodyLog', 'sd', 'expLog', 'wLog', 'moodLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', ", src=OLD)
+OLD = rep(PERSIST_OLD, "'bodyLog', 'sd', 'expLog', 'wLog', 'moodLog', 'noteLog', 'walk', 'wsrc', 'wStart', 'wPauseAt', 'wPausedMs', 'wDay', 'stageDate', 'dark', 'nfxDir', 'jc', 'wNoAuto', 'ntab', 'sub', 'dayN', 'lo', 'pd', 'sf', 'trm', 'jpBig', 'cur', 'ji', 'jfav', ", src=OLD)
 na = dc.index('<script type="text/x-dc"'); nb = dc.index('>', na) + 1; ne = dc.index('</script>', nb)
 NEWJS = open(os.path.join(HERE, 'v9_logic.js'), encoding='utf-8').read()
 HEROS = sorted(os.listdir(os.path.join(ROOT, 'assets', 'hero')))
@@ -1161,6 +1161,9 @@ for _k, _v in _ph.items():
     _n = _sp[int(_k)]['ko']
     _sph[_n] = {'f': _v['file'], 'c': '사진: ' + _v['credit']}
 dc = dc.replace('</head>', '<script>window.__SPH=' + _js.dumps(_sph, ensure_ascii=False) + ';</script></head>', 1)
+_o = _re2.search(r'<span style="font-size:1[24]px;font-weight:700;color:rgba\(255,255,255,\.85\)">눌러서 크게 보기</span>', dc)
+assert _o, 'jfav'
+dc = dc[:_o.start()] + ('<button onClick="{{ jp2.toggleFav }}" aria-label="즐겨찾기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px -4px 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.22);color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">{{ jp2.favT }}</button>') + dc[_o.end():]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

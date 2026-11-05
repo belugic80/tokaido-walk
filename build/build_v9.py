@@ -1143,13 +1143,12 @@ dc = dc[:_wi0] + _new + dc[_wi1:]
 _WS = """<script>(function () {
   function init(el) {
     if (el._wi) { return; } el._wi = 1; var t = null;
-    var go = function () { var v = +el.getAttribute('data-v') || 0, i = el.getAttribute('data-k') === 'i' ? Math.max(0, v - 35) : v; el._lock = 1; el.scrollTop = i * 44; setTimeout(function () { el._lock = 0; }, 150); };
+    var go = function () { var v = +el.getAttribute('data-v') || 0, i = el.getAttribute('data-k') === 'i' ? Math.max(0, v - 30) : v; el._lock = 1; el.scrollTop = i * 44; setTimeout(function () { el._lock = 0; }, 150); };
     go(); el._go = go;
-    el.addEventListener('scroll', function () { if (el._lock) return; clearTimeout(t); t = setTimeout(function () { var n = Math.round(el.scrollTop / 44); if (el.getAttribute('data-k') === 'i') n += 35; if (window.__wtSet) window.__wtSet(el.getAttribute('data-k'), n); }, 140); }, { passive: true });
+    el.addEventListener('scroll', function () { if (el._lock) return; el._ls = Date.now(); clearTimeout(t); t = setTimeout(function () { var n = Math.round(el.scrollTop / 44); if (el.getAttribute('data-k') === 'i') n += 30; if (window.__wtSet) window.__wtSet(el.getAttribute('data-k'), n); }, 140); }, { passive: true });
   }
-  function scan() { document.querySelectorAll('.wtw').forEach(function (el) { if (!el._wi) init(el); else if (!el._busy && Math.round(el.scrollTop / 44) !== (el.getAttribute('data-k') === 'i' ? Math.max(0, (+el.getAttribute('data-v') || 0) - 35) : (+el.getAttribute('data-v') || 0)) && !el.matches(':active')) { el._go(); } }); }
+  function scan() { document.querySelectorAll('.wtw').forEach(function (el) { if (!el._wi) init(el); else if (!el._busy && Math.round(el.scrollTop / 44) !== (el.getAttribute('data-k') === 'i' ? Math.max(0, (+el.getAttribute('data-v') || 0) - 30) : (+el.getAttribute('data-v') || 0)) && Date.now() - (el._ls || 0) > 900) { el._go(); } }); }
   new MutationObserver(function () { clearTimeout(scan._t); scan._t = setTimeout(scan, 60); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-v'] });
-  setInterval(scan, 1500);
 })();</script>"""
 _mi2 = dc.index('<script>(function () {\n  var TILE')
 dc = dc[:_mi2] + _WS + dc[_mi2:]

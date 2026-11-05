@@ -1167,6 +1167,9 @@ dc = dc[:_o.start()] + ('<span style="display:flex;gap:6px"><button onClick="{{ 
 _o = '<div style="padding:8px 20px 16px;display:flex;flex-direction:column;gap:4px"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em">하루 기록</b></div>'
 assert dc.count(_o) == 1, 'share'
 dc = dc.replace(_o, '<div style="padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em">하루 기록</b><button onClick="{{ lg2.shareDay }}" aria-label="하루 요약 공유" style="flex:none;height:44px;padding:0 16px;border-radius:99px;border:1px solid #C5CCEE;background:#fff;color:#3B5BDB;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">요약 공유</button></div>')
+_o = _re2.findall(r'<span style="font-size:1[2-4]px;font-weight:700;color:\{\{ m\.sc \}\}"> \{\{ m\.s \}\}</span></b>', dc)
+assert _o, 'metric-s'
+dc = _re2.sub(r'<span style="font-size:1[2-4]px;font-weight:700;color:\{\{ m\.sc \}\}"> \{\{ m\.s \}\}</span></b>', lambda m: '<span style="display:block;font-size:14px;font-weight:700;color:{{ m.sc }}">{{ m.s }}</span></b>', dc)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

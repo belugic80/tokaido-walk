@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793883353"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793883543"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -61,7 +61,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 <div style="position:relative;border-radius:20px;background:rgba(14,18,50,.05);backdrop-filter:blur(2px) saturate(1.2);-webkit-backdrop-filter:blur(2px) saturate(1.2);border:1px solid rgba(255,255,255,.32);padding:12px 14px;display:flex;flex-direction:column;gap:10px">
 <span style="height:6px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#fff,#C9D4FF);width:{{ pg.w }}"></span></span>
 <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr))">
-<sc-for list="{{ hr.metrics }}" as="m" hint-placeholder-count="3"><span style="display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 10px;border-left:{{ m.bl }}"><span style="font-size:14px;font-weight:700;color:rgba(255,255,255,.82);white-space:nowrap">{{ m.k }}</span><b style="font-size:19px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">{{ m.v }}<span style="font-size:14px;font-weight:700;color:{{ m.sc }}"> {{ m.s }}</span></b></span></sc-for>
+<sc-for list="{{ hr.metrics }}" as="m" hint-placeholder-count="3"><span style="display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 10px;border-left:{{ m.bl }}"><span style="font-size:14px;font-weight:700;color:rgba(255,255,255,.82);white-space:nowrap">{{ m.k }}</span><b style="font-size:19px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">{{ m.v }}<span style="display:block;font-size:14px;font-weight:700;color:{{ m.sc }}">{{ m.s }}</span></b></span></sc-for>
 </div>
 </div>
 </div>

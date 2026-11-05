@@ -1087,7 +1087,7 @@
       // Controls and reframe entry gate on this so share links stay read-only.
       const editable = !!(window.omelette && window.omelette.writeFile);
       this.toggleAttribute('data-editable', editable);
-      this._sub.style.display = editable ? '' : 'none';
+      if (this._sub) this._sub.style.display = editable ? '' : 'none';
 
       // Content. The sidecar is also writable by the agent's write_file
       // tool, so its value isn't guaranteed canvas-originated — only accept

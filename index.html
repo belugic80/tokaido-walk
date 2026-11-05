@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793889678"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793889700"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -2140,7 +2140,7 @@ class Component extends DCLogic {
   function idbGet() { return idb().then(function (db) { return new Promise(function (res) { var q = db.transaction('kv').objectStore('kv').get(F); q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { res(null); }; }); }).catch(function () { return null; }); }
   function idbPut(v) { return idb().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, F); t.oncomplete = res; t.onerror = function () { rej(t.error); }; }); }); }
   function dirtySet() { try { return JSON.parse(ls('tk-sync-dirty') || '{}'); } catch (e) { return {}; } }
-  function mark(n) { var d = dirtySet(); d[n] = 1; ls('tk-sync-dirty', JSON.stringify(d)); clearTimeout(timer); timer = setTimeout(push, 4000); }
+  function mark(n) { var d = dirtySet(); d[n] = 1; ls('tk-sync-dirty', JSON.stringify(d)); clearTimeout(timer); timer = setTimeout(push, 1500); }
   function local(n) { return n === 'data' ? Promise.resolve(ls(DK)) : idbGet(); }
   function mergeData(lv) {
     return fetch(URL_ + '?name=data', { headers: H }).then(function (r) { return r.ok ? r.json() : null; }).then(function (srv) {
@@ -2181,6 +2181,10 @@ class Component extends DCLogic {
       });
     })).then(function () { if (reload && !sessionStorage.getItem('tk-sync-rl')) { sessionStorage.setItem('tk-sync-rl', '1'); location.reload(); } }).catch(function () {});
   }
+  function flush() { try { clearTimeout(timer); if (Object.keys(dirtySet()).length) push(); } catch (e) {} }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
+  window.addEventListener('pagehide', flush); window.addEventListener('online', flush);
+  setInterval(function () { if (Object.keys(dirtySet()).length && !busy) push(); }, 60000);
   init();
 })();</script><script>(function () {
   /* 위에서 아래로 당기면 새로고침 (맨 위에서만, 지도·입력창·팝업 제외) */

@@ -1163,13 +1163,21 @@ for _k, _v in _ph.items():
 dc = dc.replace('</head>', '<script>window.__SPH=' + _js.dumps(_sph, ensure_ascii=False) + ';</script></head>', 1)
 _o = _re2.search(r'<span style="font-size:1[24]px;font-weight:700;color:rgba\(255,255,255,\.85\)">눌러서 크게 보기</span>', dc)
 assert _o, 'jfav'
-dc = dc[:_o.start()] + ('<span style="display:flex;gap:6px"><button onClick="{{ jp2.papago }}" aria-label="파파고 앱 열기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px 0 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:#03C75A;color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">파파고 열기</button>' + '<button onClick="{{ jp2.toggleFav }}" aria-label="즐겨찾기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px -4px 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.22);color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">{{ jp2.favT }}</button></span>') + dc[_o.end():]
+dc = dc[:_o.start()] + ('<span style="display:flex;gap:6px">' + '<button onClick="{{ jp2.toggleFav }}" aria-label="즐겨찾기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px -4px 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.22);color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">{{ jp2.favT }}</button></span>') + dc[_o.end():]
 _o = '<div style="padding:8px 20px 16px;display:flex;flex-direction:column;gap:4px"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em">하루 기록</b></div>'
 assert dc.count(_o) == 1, 'share'
 dc = dc.replace(_o, '<div style="padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em">하루 기록</b><button onClick="{{ lg2.shareDay }}" aria-label="하루 요약 공유" style="flex:none;height:44px;padding:0 16px;border-radius:99px;border:1px solid #C5CCEE;background:#fff;color:#3B5BDB;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">요약 공유</button></div>')
 _o = _re2.findall(r'<span style="font-size:1[2-4]px;font-weight:700;color:\{\{ m\.sc \}\}"> \{\{ m\.s \}\}</span></b>', dc)
 assert _o, 'metric-s'
 dc = _re2.sub(r'<span style="font-size:1[2-4]px;font-weight:700;color:\{\{ m\.sc \}\}"> \{\{ m\.s \}\}</span></b>', lambda m: '<span style="display:block;font-size:14px;font-weight:700;color:{{ m.sc }}">{{ m.s }}</span></b>', dc)
+# 스탬프 화면: 역참 도장 박스(제목·필터)는 고정하고 도장 목록만 박스 안에서 스크롤
+_m = _re2.search(r'<div style="display:grid;grid-template-columns:[^"]*;gap:8px"><sc-for list="\{\{ stp2\.list \}\}"', dc)
+assert _m, 'stamp-grid'
+dc = dc[:_m.start()] + _m.group(0).replace('gap:8px"', 'gap:8px;overflow-y:auto;overscroll-behavior:contain;max-height:min(62vh,560px);padding:2px 2px 6px;-webkit-overflow-scrolling:touch"', 1) + dc[_m.end():]
+# 일본어: 파파고 열기 버튼을 뒤로 버튼과 같은 높이로 좌측 하단에 고정
+_bk = _re2.search(r'<button onClick="\{\{ back2 \}\}" aria-label="뒤로 가기"', dc)
+assert _bk, 'back2'
+dc = dc[:_bk.start()] + '<sc-if value="{{ sb2.jp }}" hint-placeholder-val="{{ false }}"><button onClick="{{ jp2.papago }}" aria-label="파파고 앱 열기" style="position:absolute;left:16px;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:3;height:60px;padding:0 22px;border-radius:30px;border:0;background:#03C75A;box-shadow:0 12px 26px rgba(3,199,90,.3);display:flex;align-items:center;color:#fff;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">파파고 열기</button></sc-if>' + dc[_bk.start():]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

@@ -1138,6 +1138,10 @@ _seg = _seg.replace('linear-gradient(135deg,#C92A42,#F06A7F)', 'linear-gradient(
 dc = dc[:_ek] + _seg + dc[_ee:]
 # 오프라인용 서비스 워커 등록
 dc = dc.replace('</body>', "<script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}</script></body>", 1)
+# 휴식일/멀리 있을 때: 내 위치에서 출발지까지 이어지는 파란 줄 방지
+_b0 = "if (_from && D.me) fut = [D.me].concat(fut); if (fut.length > 1) {"
+assert dc.count(_b0) == 1
+dc = dc.replace(_b0, "var _span = pts.length > 1 ? Math.abs(pts[0][0]-pts[pts.length-1][0]) + Math.abs(pts[0][1]-pts[pts.length-1][1]) : 0; if (_span < 0.002) fut = []; else if (_from && D.me) { var _dm = Infinity; pts.forEach(function (q) { var dd2 = Math.pow(q[0]-D.me[0], 2) + Math.pow(q[1]-D.me[1], 2); if (dd2 < _dm) _dm = dd2; }); if (_dm < 0.0004) fut = [D.me].concat(fut); } if (fut.length > 1) {")
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

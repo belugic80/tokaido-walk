@@ -329,6 +329,7 @@
     const EL = S.expLog || {}, expT = EL[LISO] || [], toW = e => e.c === 'jpy' ? e.v*rate : e.v, totW = expT.reduce((q,e) => q+toW(e), 0);
     const cumW = Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.reduce((r,e) => r + toW(e), 0), 0), cumDays = Math.max(1, Object.keys(EL).filter(k => (!started || k >= '2026-12-04') && EL[k].length).length);
     const sleepDays = Array.from({length:14}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(13-k)); const iso = isoOf(d), h = HCD[iso]; return { l: String(d.getDate()), v: h && h.sleep ? h.sleep/60 : 0 }; });
+    const expDays = Array.from({length:14}, (x,k) => { const d = new Date(LD); d.setDate(d.getDate()-(13-k)); const iso = isoOf(d); return { l: String(d.getDate()), v: (EL[iso] || []).reduce((q,e) => q + toW(e), 0) }; }), expMx = Math.max(1, ...expDays.map(x => x.v));
     const slV = sleepDays.filter(x => x.v > 0), slAvg = slV.length ? slV.reduce((q,x) => q+x.v, 0)/slV.length : 0;
     const WLg = S.wLog || {}, wMap = {}; Object.keys(HCD).forEach(k => { if (HCD[k].weight && k <= LISO) wMap[k] = +HCD[k].weight; }); Object.keys(WLg).forEach(k => { if (k <= LISO) wMap[k] = +WLg[k]; }); if (isLT && S.wToday && !WLg[LISO]) wMap[LISO] = +S.wToday;
     const wDays = Object.keys(wMap).sort().slice(-12), WT = wDays.map(k => wMap[k]);
@@ -358,6 +359,7 @@
       add: () => { const v = Number(dig(S.amt)); if (v) set({ expLog:{...EL,[LISO]:[...expT,{cat:S.ncat,note:(S.nnote||'').trim() || S.ncat,v,c:S.cur,t:Date.now()}]}, amt:'', nnote:'' }); },
       nnote: S.nnote || '', onNote: e => set({ nnote: e.target.value }),
       items: expT.map((e,k) => ({ tbg:(CATC[e.cat]||CATC['기타'])[2], tfg:(CATC[e.cat]||CATC['기타'])[3], cat:e.cat, note:e.note, v: e.c === 'jpy' ? '¥'+fmt(e.v) : '₩'+fmt(e.v), del: () => set({ expLog:{...EL,[LISO]:expT.filter((x,j) => j !== k)} }) })), total:'₩'+fmt(totW), cum:'₩'+fmt(cumW), avgE:'₩'+fmt(cumW/cumDays), catT:['식비','숙박','교통','기타'].map(c => ({ k:c, v:'₩'+fmt(Object.entries(EL).filter(([k]) => !started || k >= '2026-12-04').reduce((q,[k,a]) => q + a.filter(e => e.cat === c).reduce((r,e) => r + toW(e), 0), 0)) })), cumNoteE: (started ? TD+'일차까지 누적' : '누적')+' · 하루 평균 ₩'+fmt(cumW/cumDays),
+      expBars: expDays.map(x => ({ h: Math.max(3, Math.round(x.v/expMx*56))+'px', l: x.l, o: x.v ? '1' : '.35' })),
       sleep: sleepDays.map(x => ({ h: Math.max(3, Math.round(x.v/10*116))+'px', l: x.l, c: x.v >= 8 ? 'linear-gradient(180deg,#9775FA,#7048E8)' : 'linear-gradient(180deg,#8B9CF0,#5B6FD4)' })), sleepLine: Math.round(20 + 8/10*116)+'px',
       wtPts: pts(WT.length >= 2 ? WT : [], 300, 110, wMin, wMax), wtDots: WT.map((v,i) => ({ x: (WT.length > 1 ? 2+i/(WT.length-1)*96 : 50).toFixed(1), y: (100*(wMax-v)/(wMax-wMin)).toFixed(1) })), wtBase: wBase ? ((wMax-wBase)/(wMax-wMin)*110).toFixed(1) : '55', wtNow: wNowV ? (+wNowV).toFixed(1) : '—',
       wtIn: S.wInput ?? '', onWt: O.onWInput, saveWt: () => { const v = parseFloat(S.wInput); if (v > 30 && v < 200) set({ wToday: v, wLog: {...WLg, [LISO]: v}, wIn: false, wInput: '' }); } };

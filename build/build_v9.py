@@ -293,7 +293,11 @@ assert dc.count(_old) == 1 and dc.index(_old) > _ma
 dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:12px">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
-_seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:84px;padding:10px 12px;gap:4px')
+_seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:64px;padding:10px 12px;gap:10px').replace('border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;gap:12px', 'border-radius:24px;padding:16px;display:flex;flex-direction:row;align-items:center;min-width:0')
+_seg = _seg.replace('display:flex;justify-content:space-between;align-items:flex-start;width:100%', 'display:flex;flex:none;align-items:center')
+_seg = re.sub(r'<span style="width:30px;height:30px;border-radius:50%;background:#F3F5FF;display:grid;place-items:center">.*?</span></span>', '', _seg, count=1, flags=re.S)
+_seg = _seg.replace('white-space:nowrap;overflow:hidden;text-overflow:ellipsis', 'line-height:1.3')
+_seg = _seg.replace('<span style="display:flex;flex-direction:column;gap:2px"><b', '<span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1"><b')
 dc = dc[:_m0] + _seg + dc[_m1:]
 # 더보기 상단: 오늘 날씨 + 이번 주 날씨 + 일출·일몰 요약 카드
 _anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n'

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793891850"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793891936"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -1255,7 +1255,7 @@ class Component extends DCLogic {
     ];
     const _td0 = new Date(_n.getFullYear(), _n.getMonth(), _n.getDate()), _fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     const recMin = Math.min.apply(null, [0].concat(Object.keys((this.state.hc || {}).days || {}).map(k => Math.round((new Date(k + 'T00:00:00') - _td0) / 864e5))));
-    const recOff = Math.max(recMin, Math.min(0, this.state.recOff || 0)), recD = new Date(_td0.getTime() + recOff * 864e5), recIso = _fmt(recD);
+    const recOff = Math.max(recMin, Math.min(0, this.state.lo != null ? (this.state.lo || 0) : (this.state.recOff || 0))), recD = new Date(_td0.getTime() + recOff * 864e5), recIso = _fmt(recD);
     const _tp = (() => { const a = (((this.state.track || {})[recIso]) || []).concat((((this.state.hc || {}).locs || {})[recIso]) || []).sort((x, y) => x[2] - y[2]), o = []; a.forEach(q => { const l = o[o.length - 1]; if (!l || hav([l[0], l[1]], [q[0], q[1]]) > 0.02) o.push(q); }); return o; })();
     const hcR = recOff === 0 ? hcT0 : (((this.state.hc || {}).days || {})[recIso] || { km: 0, steps: 0, min: null, hr: null, hrMax: null, hourly: {}, series: null, sessions: null, hdist: {} });
     const recLabel = (recD.getMonth() + 1) + '/' + recD.getDate() + ' (' + '일월화수목금토'[recD.getDay()] + ')' + (recOff === 0 ? ' · 오늘' : recOff === -1 ? ' · 어제' : recOff === -2 ? ' · 그제' : '');

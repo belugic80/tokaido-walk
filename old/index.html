@@ -1267,7 +1267,7 @@ class Component extends DCLogic {
     ];
     const _td0 = new Date(_n.getFullYear(), _n.getMonth(), _n.getDate()), _fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     const recMin = Math.min.apply(null, [0].concat(Object.keys((this.state.hc || {}).days || {}).map(k => Math.round((new Date(k + 'T00:00:00') - _td0) / 864e5))));
-    const recOff = Math.max(recMin, Math.min(0, this.state.recOff || 0)), recD = new Date(_td0.getTime() + recOff * 864e5), recIso = _fmt(recD);
+    const recOff = Math.max(recMin, Math.min(0, this.state.lo != null ? (this.state.lo || 0) : (this.state.recOff || 0))), recD = new Date(_td0.getTime() + recOff * 864e5), recIso = _fmt(recD);
     const _tp = (() => { const a = (((this.state.track || {})[recIso]) || []).concat((((this.state.hc || {}).locs || {})[recIso]) || []).sort((x, y) => x[2] - y[2]), o = []; a.forEach(q => { const l = o[o.length - 1]; if (!l || hav([l[0], l[1]], [q[0], q[1]]) > 0.02) o.push(q); }); return o; })();
     const hcR = recOff === 0 ? hcT0 : (((this.state.hc || {}).days || {})[recIso] || { km: 0, steps: 0, min: null, hr: null, hrMax: null, hourly: {}, series: null, sessions: null, hdist: {} });
     const recLabel = (recD.getMonth() + 1) + '/' + recD.getDate() + ' (' + '일월화수목금토'[recD.getDay()] + ')' + (recOff === 0 ? ' · 오늘' : recOff === -1 ? ' · 어제' : recOff === -2 ? ' · 그제' : '');

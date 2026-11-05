@@ -285,6 +285,7 @@
     const JC = PHD[S.jc] ? S.jc : '필수', pls = PHD[JC], ji = Math.min(S.ji, pls.length-1);
     const jp2 = { cats: Object.keys(PHD).sort((x,y) => (y === '즐겨찾기') - (x === '즐겨찾기')).map(c => ({ label: c === '필수' ? '★ 필수' : c === '즐겨찾기' ? '♥ 즐겨찾기' : c, ...chipOf(JC === c), pick: () => set({ jc:c, ji:0 }) })), sel: { cat:JC, ko:pls[ji][0], jp:pls[ji][1], read:pls[ji][2] },
       list: pls.map((p,k) => ({ ko:p[0], jp:p[1], read:p[2], bd: k === ji ? '2px solid #8B9CF0' : '1px solid rgba(255,255,255,.95)', bg: k === ji ? '#F6F4FF' : 'rgba(255,255,255,.85)', pick: () => set({ ji:k }) })),
+      papago: () => { try { window.open('https://papago.naver.com/?sk=ko&tk=ja&hn=0&st='+encodeURIComponent(pls[ji][0]), '_blank'); } catch (e) {} },
       isFav: JF.includes(pls[ji][0]), favT: JF.includes(pls[ji][0]) ? '♥ 저장됨' : '♡ 저장', toggleFav: () => { const k = pls[ji][0]; set({ jfav: JF.includes(k) ? JF.filter(x => x !== k) : [...JF, k] }); },
       badge: (JC === '필수' ? '★ ' : '')+JC+' · '+(ji+1)+' / '+pls.length, big: !!S.jpBig, openBig: () => set({ jpBig:true }), closeBig: () => set({ jpBig:false }),
       prev: () => set({ ji:(ji+pls.length-1)%pls.length }), next: () => set({ ji:(ji+1)%pls.length }) };

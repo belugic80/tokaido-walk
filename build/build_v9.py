@@ -1163,7 +1163,7 @@ for _k, _v in _ph.items():
 dc = dc.replace('</head>', '<script>window.__SPH=' + _js.dumps(_sph, ensure_ascii=False) + ';</script></head>', 1)
 _o = _re2.search(r'<span style="font-size:1[24]px;font-weight:700;color:rgba\(255,255,255,\.85\)">눌러서 크게 보기</span>', dc)
 assert _o, 'jfav'
-dc = dc[:_o.start()] + ('<button onClick="{{ jp2.toggleFav }}" aria-label="즐겨찾기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px -4px 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.22);color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">{{ jp2.favT }}</button>') + dc[_o.end():]
+dc = dc[:_o.start()] + ('<span style="display:flex;gap:6px"><button onClick="{{ jp2.papago }}" aria-label="파파고 앱 열기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px 0 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:#03C75A;color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">파파고 열기</button>' + '<button onClick="{{ jp2.toggleFav }}" aria-label="즐겨찾기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px -4px 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.22);color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">{{ jp2.favT }}</button></span>') + dc[_o.end():]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

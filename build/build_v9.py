@@ -1124,6 +1124,16 @@ while _cp in dc:
     _i = dc.index(_cp); _k = dc[_i+len(_cp):].split('.')[0]
     dc = dc[:_i] + _cp.replace('style="flex:1;', 'style="flex:{{ lgc.' + _k + '.fl }};') + dc[_i+len(_cp):]; _n += 1
 print('flex-cards', _n)
+# 체중 입력: 숫자 타이핑 대신 현재 체중을 먼저 보여주고 ±버튼으로 조절
+_wi0 = dc.index('<div style="display:flex;gap:8px"><input value="{{ lg2.wtIn }}"')
+_wi1 = dc.index('</div>', dc.index('저장</button>', _wi0)) + 6
+_bt = 'flex:1;height:48px;border:1px solid #DCE0F7;border-radius:14px;background:#F8F9FF;color:#3B5BDB;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer'
+_new = ('<div style="display:flex;flex-direction:column;gap:10px">'
+  '<div style="display:flex;align-items:center;justify-content:center;gap:8px"><button onClick="{{ lg2.wtM1 }}" style="' + _bt + '">−1</button><button onClick="{{ lg2.wtM01 }}" style="' + _bt + '">−0.1</button>'
+  '<div style="flex:none;min-width:104px;text-align:center;font:800 30px \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:-.03em;color:#18324F;white-space:nowrap">{{ lg2.wtVal }}<span style="font-size:14px;font-weight:700;color:#64748B"> kg</span></div>'
+  '<button onClick="{{ lg2.wtP01 }}" style="' + _bt + '">+0.1</button><button onClick="{{ lg2.wtP1 }}" style="' + _bt + '">+1</button></div>'
+  '<button onClick="{{ lg2.saveWt }}" style="height:48px;border:0;border-radius:14px;background:#3B5BDB;color:#fff;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">이 체중으로 저장</button></div>')
+dc = dc[:_wi0] + _new + dc[_wi1:]
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)

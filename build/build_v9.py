@@ -1164,6 +1164,9 @@ dc = dc.replace('</head>', '<script>window.__SPH=' + _js.dumps(_sph, ensure_asci
 _o = _re2.search(r'<span style="font-size:1[24]px;font-weight:700;color:rgba\(255,255,255,\.85\)">눌러서 크게 보기</span>', dc)
 assert _o, 'jfav'
 dc = dc[:_o.start()] + ('<span style="display:flex;gap:6px"><button onClick="{{ jp2.papago }}" aria-label="파파고 앱 열기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px 0 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:#03C75A;color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">파파고 열기</button>' + '<button onClick="{{ jp2.toggleFav }}" aria-label="즐겨찾기" style="flex:none;white-space:nowrap;height:44px;min-width:44px;padding:0 14px;margin:-8px -4px 0 0;border-radius:99px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.22);color:#fff;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer;z-index:3">{{ jp2.favT }}</button></span>') + dc[_o.end():]
+_o = '<div style="padding:8px 20px 16px;display:flex;flex-direction:column;gap:4px"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em">하루 기록</b></div>'
+assert dc.count(_o) == 1, 'share'
+dc = dc.replace(_o, '<div style="padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:30px;font-weight:800;letter-spacing:-.04em">하루 기록</b><button onClick="{{ lg2.shareDay }}" aria-label="하루 요약 공유" style="flex:none;height:44px;padding:0 16px;border-radius:99px;border:1px solid #C5CCEE;background:#fff;color:#3B5BDB;font:800 14px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">요약 공유</button></div>')
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

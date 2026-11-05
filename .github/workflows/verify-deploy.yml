@@ -1,0 +1,21 @@
+name: Verify deploy
+on:
+  push:
+    branches: [main]
+    paths: ['index.html']
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: 라이브 사이트가 이번 빌드로 바뀔 때까지 확인
+        run: |
+          want=$(grep -o 'tk-build" content="[0-9]*"' index.html | grep -o '[0-9]\{6,\}' | head -1)
+          echo "기대 빌드 ID: $want"
+          for i in $(seq 1 40); do
+            got=$(curl -fsS "https://japan-one-mu.vercel.app/?c=$RANDOM" | grep -o 'tk-build" content="[0-9]*"' | grep -o '[0-9]\{6,\}' | head -1 || true)
+            [ "$got" = "$want" ] && { echo "OK: 배포 반영됨"; exit 0; }
+            sleep 15
+          done
+          echo "실패: 10분 안에 라이브가 새 빌드로 바뀌지 않음 (현재: $got)"; exit 1

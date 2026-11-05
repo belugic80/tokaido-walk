@@ -1113,6 +1113,10 @@ _PH = r"""<script>(function () {
 })();</script>"""
 _mi = dc.index('<script>(function () {\n  var TILE')
 dc = dc[:_mi] + _PH + dc[_mi:]
+# 체중 카드: 접으면 늘어나지 않게
+_wc = '<div style="flex:1;background:#fff;border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px rgba(40,50,140,.10);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">\n<button onClick="{{ lgc.wt.toggle }}"'
+assert dc.count(_wc) == 1, dc.count(_wc)
+dc = dc.replace(_wc, _wc.replace('style="flex:1;', 'style="flex:{{ lgc.wt.fl }};'))
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)

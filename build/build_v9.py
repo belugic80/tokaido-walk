@@ -1249,6 +1249,10 @@ _date = dc[_nb:_ne]
 _new = '<sc-if value="{{ mapFull }}" hint-placeholder-val="{{ false }}">\n<div style="display:flex;gap:8px;align-items:flex-end"><div style="display:flex;flex-direction:column;gap:8px;width:max-content;max-width:calc(100% - 216px);min-width:0">\n' + _chips + '\n' + _nextbtn + '</div>' + _date + '</div>\n</sc-if>\n'
 _ne2 = _ne + len('</div>\n</sc-if>\n')
 dc = dc[:_ci] + _new + dc[_ne2:]
+# 환율 계산: 칩 6개(3열 2줄), 카드 아래쪽이 왼쪽 '이번 주 걷기 날씨' 카드 아래와 맞게 칩을 조금 키움
+_fc = 'border:1px solid #E8E7EF;background:#F7F7FB;padding:10px 8px;text-align:center'
+assert dc.count(_fc) == 1
+dc = dc.replace(_fc, 'border:1px solid #E8E7EF;background:#F7F7FB;padding:16px 8px;text-align:center', 1)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

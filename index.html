@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793885263"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793885377"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -1876,7 +1876,7 @@ class Component extends DCLogic {
     const JC = PHD[S.jc] ? S.jc : '필수', pls = PHD[JC], ji = Math.min(S.ji, pls.length-1);
     const jp2 = { cats: Object.keys(PHD).sort((x,y) => (y === '즐겨찾기') - (x === '즐겨찾기')).map(c => ({ label: c === '필수' ? '★ 필수' : c === '즐겨찾기' ? '♥ 즐겨찾기' : c, ...chipOf(JC === c), pick: () => set({ jc:c, ji:0 }) })), sel: { cat:JC, ko:pls[ji][0], jp:pls[ji][1], read:pls[ji][2] },
       list: pls.map((p,k) => ({ ko:p[0], jp:p[1], read:p[2], bd: k === ji ? '2px solid #8B9CF0' : '1px solid rgba(255,255,255,.95)', bg: k === ji ? '#F6F4FF' : 'rgba(255,255,255,.85)', pick: () => set({ ji:k }) })),
-      papago: () => { try { window.open('https://papago.naver.com/?sk=ko&tk=ja&hn=0&st='+encodeURIComponent(pls[ji][0]), '_blank'); } catch (e) {} },
+      papago: () => { try { const t = pls[ji][0]; try { navigator.clipboard && navigator.clipboard.writeText(t); } catch (e) {} const ua = navigator.userAgent || ''; if (/Android/i.test(ua)) window.location.href = 'intent://#Intent;scheme=papago;package=com.naver.labs.translator;S.browser_fallback_url=' + encodeURIComponent('market://details?id=com.naver.labs.translator') + ';end'; else if (/iPhone|iPad/i.test(ua)) window.location.href = 'papago://'; else window.open('https://papago.naver.com/?sk=ko&tk=ja&hn=0&st=' + encodeURIComponent(t), '_blank'); } catch (e) {} },
       isFav: JF.includes(pls[ji][0]), favT: JF.includes(pls[ji][0]) ? '♥ 저장됨' : '♡ 저장', toggleFav: () => { const k = pls[ji][0]; set({ jfav: JF.includes(k) ? JF.filter(x => x !== k) : [...JF, k] }); },
       badge: (JC === '필수' ? '★ ' : '')+JC+' · '+(ji+1)+' / '+pls.length, big: !!S.jpBig, openBig: () => set({ jpBig:true }), closeBig: () => set({ jpBig:false }),
       prev: () => set({ ji:(ji+pls.length-1)%pls.length }), next: () => set({ ji:(ji+1)%pls.length }) };
@@ -2120,8 +2120,25 @@ class Component extends DCLogic {
   function dirtySet() { try { return JSON.parse(ls('tk-sync-dirty') || '{}'); } catch (e) { return {}; } }
   function mark(n) { var d = dirtySet(); d[n] = 1; ls('tk-sync-dirty', JSON.stringify(d)); clearTimeout(timer); timer = setTimeout(push, 4000); }
   function local(n) { return n === 'data' ? Promise.resolve(ls(DK)) : idbGet(); }
+  function mergeData(lv) {
+    return fetch(URL_ + '?name=data', { headers: H }).then(function (r) { return r.ok ? r.json() : null; }).then(function (srv) {
+      try {
+        if (!srv || !srv.value) return lv;
+        var s = JSON.parse(srv.value), l = JSON.parse(lv), ch = false;
+        ['wLog', 'bodyLog', 'expLog', 'moodLog', 'noteLog', 'dayNotes', 'track', 'sd', 'jfav'].forEach(function (k) {
+          var a = s[k], b = l[k];
+          if (k === 'jfav') { if (Array.isArray(a) && a.length) { var u = (Array.isArray(b) ? b : []).concat(a.filter(function (x) { return !(b || []).includes(x); })); if (u.length !== (b || []).length) { l[k] = u; ch = true; } } return; }
+          if (a && typeof a === 'object' && !Array.isArray(a)) { var m = Object.assign({}, a, b || {}); if (JSON.stringify(m) !== JSON.stringify(b || {})) { l[k] = m; ch = true; } }
+        });
+        if (!ch) return lv;
+        var out = JSON.stringify(l); sp.call(localStorage, DK, out); last = out;
+        try { if (!sessionStorage.getItem('tk-merge-rl')) { sessionStorage.setItem('tk-merge-rl', '1'); setTimeout(function () { location.reload(); }, 1500); } } catch (e) {}
+        return out;
+      } catch (e) { return lv; }
+    }).catch(function () { return lv; });
+  }
   function put(n, v) { return fetch(URL_ + '?name=' + n, { method: 'PUT', headers: H, body: typeof v === 'string' ? v : JSON.stringify(v) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { ls('tk-sync-ts-' + n, String(Date.parse(j.updated_at))); var d = dirtySet(); delete d[n]; ls('tk-sync-dirty', JSON.stringify(d)); }); }
-  function push() { if (busy) return; busy = true; var d = dirtySet(); Promise.all(Object.keys(d).map(function (n) { return local(n).then(function (v) { return v ? put(n, v) : null; }); })).catch(function () { clearTimeout(timer); timer = setTimeout(push, 30000); }).then(function () { busy = false; }); }
+  function push() { if (busy) return; busy = true; var d = dirtySet(); Promise.all(Object.keys(d).map(function (n) { return local(n).then(function (v) { return v ? (n === 'data' ? mergeData(v).then(function (m) { return put(n, m); }) : put(n, v)) : null; }); })).catch(function () { clearTimeout(timer); timer = setTimeout(push, 30000); }).then(function () { busy = false; }); }
   var last = ls(DK); var sp = Storage.prototype.setItem;
   Storage.prototype.setItem = function (k, v) { if (pulling && k === DK) return; sp.apply(this, arguments); if (k === DK && v !== last) { last = v; mark('data'); } };
   function hookSlots() { var o = window.omelette; if (o && o.writeFile && !o._tk) { var w = o.writeFile; o.writeFile = function () { mark('slots'); return w.apply(this, arguments); }; o._tk = 1; } }
@@ -2132,7 +2149,7 @@ class Component extends DCLogic {
       return fetch(URL_ + '?name=' + n, { headers: H }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (srv) {
         return local(n).then(function (lv) {
           var sMs = srv.updated_at ? Date.parse(srv.updated_at) : 0, tMs = +ls('tk-sync-ts-' + n) || 0;
-          if (d[n] || (lv && !srv.value)) return lv ? put(n, lv) : null;
+          if (d[n] || (lv && !srv.value)) return lv ? (n === 'data' ? mergeData(lv).then(function (m) { return put(n, m); }) : put(n, lv)) : null;
           if (srv.value && (!lv || sMs > tMs)) {
             if (lv && lv === srv.value) { ls('tk-sync-ts-' + n, String(sMs)); return null; }
             pulling = true; return (n === 'data' ? Promise.resolve(sp.call(localStorage, DK, srv.value)) : idbPut(srv.value)).then(function () { ls('tk-sync-ts-' + n, String(sMs)); reload = true; });

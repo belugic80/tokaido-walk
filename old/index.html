@@ -1743,8 +1743,25 @@ class Component extends DCLogic {
   function dirtySet() { try { return JSON.parse(ls('tk-sync-dirty') || '{}'); } catch (e) { return {}; } }
   function mark(n) { var d = dirtySet(); d[n] = 1; ls('tk-sync-dirty', JSON.stringify(d)); clearTimeout(timer); timer = setTimeout(push, 4000); }
   function local(n) { return n === 'data' ? Promise.resolve(ls(DK)) : idbGet(); }
+  function mergeData(lv) {
+    return fetch(URL_ + '?name=data', { headers: H }).then(function (r) { return r.ok ? r.json() : null; }).then(function (srv) {
+      try {
+        if (!srv || !srv.value) return lv;
+        var s = JSON.parse(srv.value), l = JSON.parse(lv), ch = false;
+        ['wLog', 'bodyLog', 'expLog', 'moodLog', 'noteLog', 'dayNotes', 'track', 'sd', 'jfav'].forEach(function (k) {
+          var a = s[k], b = l[k];
+          if (k === 'jfav') { if (Array.isArray(a) && a.length) { var u = (Array.isArray(b) ? b : []).concat(a.filter(function (x) { return !(b || []).includes(x); })); if (u.length !== (b || []).length) { l[k] = u; ch = true; } } return; }
+          if (a && typeof a === 'object' && !Array.isArray(a)) { var m = Object.assign({}, a, b || {}); if (JSON.stringify(m) !== JSON.stringify(b || {})) { l[k] = m; ch = true; } }
+        });
+        if (!ch) return lv;
+        var out = JSON.stringify(l); sp.call(localStorage, DK, out); last = out;
+        try { if (!sessionStorage.getItem('tk-merge-rl')) { sessionStorage.setItem('tk-merge-rl', '1'); setTimeout(function () { location.reload(); }, 1500); } } catch (e) {}
+        return out;
+      } catch (e) { return lv; }
+    }).catch(function () { return lv; });
+  }
   function put(n, v) { return fetch(URL_ + '?name=' + n, { method: 'PUT', headers: H, body: typeof v === 'string' ? v : JSON.stringify(v) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { ls('tk-sync-ts-' + n, String(Date.parse(j.updated_at))); var d = dirtySet(); delete d[n]; ls('tk-sync-dirty', JSON.stringify(d)); }); }
-  function push() { if (busy) return; busy = true; var d = dirtySet(); Promise.all(Object.keys(d).map(function (n) { return local(n).then(function (v) { return v ? put(n, v) : null; }); })).catch(function () { clearTimeout(timer); timer = setTimeout(push, 30000); }).then(function () { busy = false; }); }
+  function push() { if (busy) return; busy = true; var d = dirtySet(); Promise.all(Object.keys(d).map(function (n) { return local(n).then(function (v) { return v ? (n === 'data' ? mergeData(v).then(function (m) { return put(n, m); }) : put(n, v)) : null; }); })).catch(function () { clearTimeout(timer); timer = setTimeout(push, 30000); }).then(function () { busy = false; }); }
   var last = ls(DK); var sp = Storage.prototype.setItem;
   Storage.prototype.setItem = function (k, v) { if (pulling && k === DK) return; sp.apply(this, arguments); if (k === DK && v !== last) { last = v; mark('data'); } };
   function hookSlots() { var o = window.omelette; if (o && o.writeFile && !o._tk) { var w = o.writeFile; o.writeFile = function () { mark('slots'); return w.apply(this, arguments); }; o._tk = 1; } }
@@ -1755,7 +1772,7 @@ class Component extends DCLogic {
       return fetch(URL_ + '?name=' + n, { headers: H }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (srv) {
         return local(n).then(function (lv) {
           var sMs = srv.updated_at ? Date.parse(srv.updated_at) : 0, tMs = +ls('tk-sync-ts-' + n) || 0;
-          if (d[n] || (lv && !srv.value)) return lv ? put(n, lv) : null;
+          if (d[n] || (lv && !srv.value)) return lv ? (n === 'data' ? mergeData(lv).then(function (m) { return put(n, m); }) : put(n, lv)) : null;
           if (srv.value && (!lv || sMs > tMs)) {
             if (lv && lv === srv.value) { ls('tk-sync-ts-' + n, String(sMs)); return null; }
             pulling = true; return (n === 'data' ? Promise.resolve(sp.call(localStorage, DK, srv.value)) : idbPut(srv.value)).then(function () { ls('tk-sync-ts-' + n, String(sMs)); reload = true; });

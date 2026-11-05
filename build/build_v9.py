@@ -290,7 +290,7 @@ dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
 _ma = dc.index('<sc-if value="{{ tb.more }}"')
 _old = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">\n<div style="display:grid;grid-template-columns:{{ fr.menuCols }};gap:10px">'
 assert dc.count(_old) == 1 and dc.index(_old) > _ma
-dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n<div style="order:2;margin-top:auto;display:grid;grid-template-columns:{{ fr.menuCols }};gap:12px">')
+dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n<div style="order:2;flex:1;margin-top:auto;min-height:150px;max-height:270px;display:grid;grid-auto-rows:1fr;grid-template-columns:{{ fr.menuCols }};gap:12px">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
 _seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:64px;padding:10px 12px;gap:10px').replace('border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;gap:12px', 'border-radius:24px;padding:16px;display:flex;flex-direction:row;align-items:center;min-width:0')
@@ -1182,6 +1182,14 @@ dc = dc[:_m.start()] + _m.group(0).replace('gap:8px"', 'gap:8px;overflow-y:auto;
 _bk = _re2.search(r'<button onClick="\{\{ back2 \}\}" aria-label="뒤로 가기"', dc)
 assert _bk, 'back2'
 dc = dc[:_bk.start()] + '<sc-if value="{{ sb2.jp }}" hint-placeholder-val="{{ false }}"><button onClick="{{ jp2.papago }}" aria-label="파파고 앱 열기" style="position:absolute;left:16px;bottom:calc(env(safe-area-inset-bottom) + 22px);z-index:3;height:60px;padding:0 22px;border-radius:30px;border:0;background:#03C75A;box-shadow:0 12px 26px rgba(3,199,90,.3);display:flex;align-items:center;color:#fff;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">파파고 열기</button></sc-if>' + dc[_bk.start():]
+# 더보기: 비상 연락처·설정 카드 안 여백 줄이기
+_ma = dc.index('<sc-if value="{{ tb.more }}"')
+_g = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:12px;align-items:stretch">', _ma)
+_blk = dc[_g:_g + 9000]
+_k = 'border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
+assert _blk.count(_k) >= 2, 'more-cards'
+_blk = _blk.replace(_k, 'border-radius:24px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0">', 2)
+dc = dc[:_g] + _blk + dc[_g + 9000:]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

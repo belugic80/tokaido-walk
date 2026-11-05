@@ -14,4 +14,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/spots build/spot_photos.json
           git diff --cached --quiet || git commit -m "명물 사진 자동 수집(위키미디어 커먼즈)"
+          git pull --rebase origin main
           git push

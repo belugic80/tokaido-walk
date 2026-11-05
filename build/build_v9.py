@@ -1157,12 +1157,19 @@ dc = dc[:_mi2] + _WS + dc[_mi2:]
 _pt = '<div style="position:relative;aspect-ratio:1/1;border-radius:18px;background:{{ p.bg }};overflow:hidden"><button onClick="{{ p.del }}"'
 assert dc.count(_pt) == 1, dc.count(_pt)
 dc = dc.replace(_pt, '<div style="position:relative;aspect-ratio:1/1;border-radius:18px;background:#E9E6FA;overflow:hidden"><img src="{{ p.src }}" alt="" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block"><button onClick="{{ p.del }}"')
+# 체중 그래프: 날짜별 점에 날짜·체중 표시
+_wd = 'border-radius:50%;background:#fff;border:3px solid #7544ED;box-sizing:border-box"></span></sc-for></div>'
+assert dc.count(_wd) == 1, dc.count(_wd)
+dc = dc.replace(_wd, 'border-radius:50%;background:#fff;border:3px solid #7544ED;box-sizing:border-box"></span><span style="position:absolute;left:{{ d.lp }};top:{{ d.tp }};transform:translate(-50%,-30px);font-size:14px;font-weight:800;color:#18324F;white-space:nowrap">{{ d.vl }}</span><span style="position:absolute;left:{{ d.lp }};bottom:-24px;transform:translateX(-50%);font-size:14px;font-weight:700;color:#6B7A90;white-space:nowrap">{{ d.dl }}</span></sc-for></div>')
+_wm = '<div style="position:relative;height:150px;margin:6px 0 4px">'
+assert dc.count(_wm) == 1
+dc = dc.replace(_wm, '<div style="position:relative;height:150px;margin:6px 0 30px">')
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)
 dc = dc[:_w1] + '<div style="flex:1;display:flex;flex-direction:column;gap:12px">' + dc[_w1+len('<div style="display:flex;flex-direction:column;gap:12px">'):]
-_w2 = dc.index('<div style="position:relative;height:150px;margin:6px 0 4px">', _w1)
-dc = dc[:_w2] + '<div style="position:relative;flex:1;min-height:150px;margin:6px 0 4px">' + dc[_w2+len('<div style="position:relative;height:150px;margin:6px 0 4px">'):]
+_w2 = dc.index('<div style="position:relative;height:150px;margin:6px 0 30px">', _w1)
+dc = dc[:_w2] + '<div style="position:relative;flex:1;min-height:150px;margin:6px 0 30px">' + dc[_w2+len('<div style="position:relative;height:150px;margin:6px 0 30px">'):]
 # 기록 탭: GPS 기록이 없는 날은 그 날의 계획 경로를 흐린 점선으로 표시
 _k0 = "var D = window.__v8, k = el.getAttribute('data-k') + '|' + "
 assert dc.count(_k0) == 1

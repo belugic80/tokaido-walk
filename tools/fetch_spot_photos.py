@@ -33,7 +33,7 @@ def info(titles):
         out.append({'title': pg['title'], 'url': ii.get('thumburl') or ii['url'], 'page': ii['descriptionurl'], 'author': auth, 'license': lic})
     return out
 
-OVR = {0:['Matsumoto Kiyoshi drugstore','ドラッグストア 日本 店舗'],1:['品川宿','Shinagawa-juku'],4:['大磯 松並木','Oiso pine tree road'],7:['かまぼこ 小田原','kamaboko'],16:['源兵衛川'],24:['白隠正宗'],25:['蒲原宿'],33:['清水港 マグロ','Shimizu port'],48:['蓬莱橋','Horai Bridge Shimada'],52:['掛川茶','Kakegawa tea'],54:['浜松 うなぎ','unagi kabayaki'],55:['浜松餃子','Hamamatsu gyoza'],57:['浜松餃子','Hamamatsu gyoza'],59:['舞阪 松並木'],61:['潮見坂'],65:['ちくわ 豊橋','chikuwa'],67:['いなり寿司','inarizushi'],69:['藤川宿'],74:['有松 町並み','Arimatsu'],75:['有松 絞'],76:['有松 絞'],81:['味噌カツ','手羽先','きしめん'],82:['桑名 蛤','Hamaguri clam'],83:['しぐれ蛤'],88:['関の戸'],93:['石部宿'],98:['鮒ずし'],100:['滋賀 日本酒'],101:['三条大橋','Sanjo Ohashi'],103:['ドン・キホーテ','Don Quijote store']}
+OVR = {103:['Don Quijote store exterior','Don Quijote Kyoto','ドン・キホーテ 外観'],78:['Human Made','Human Made store Tokyo','BEAMS store Nagoya'],104:['Human Made store','BEAMS Kyoto','Kyoto fashion boutique'],108:['BEAMS store','BEAMS Japan','ビームス 店舗'],18:['すみの坊','三嶋大社 前 うなぎ','Mishima Taisha street'],40:['静岡駅 パルシェ','Shizuoka station shopping'],44:['蕎麦 店舗 外観','soba restaurant Japan'],46:['米屋 店舗','rice shop Japan'],1:['Shinagawa-shuku','旧東海道 品川'],7:['Odawara kamaboko shop','かまぼこ 店'],24:['Hakuin Masamune','酒蔵 静岡 白隠正宗','sake brewery Numazu'],33:['清水 まぐろ','Shimizu maguro'],38:['地酒 静岡 磯自慢','Isojiman','初亀 酒'],58:['花の舞 酒造','sake brewery Shizuoka'],54:['浜松 うなぎ 店','Hamamatsu unagi restaurant'],82:['桑名 はまぐり 料理','Kuwana hamaguri'],100:['滋賀 酒蔵','Shiga sake brewery'],29:['由比 桜えび','Sakura ebi Yui'],91:['道の駅 あいの土山','土山 茶'],59:['舞阪 松並木','Maisaka pine']}
 
 def cores(s):
     out = []

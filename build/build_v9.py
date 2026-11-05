@@ -290,7 +290,7 @@ dc = dc.replace(_t, '<div style="height:{{ lgd.spacer }}"></div>' + _t)
 _ma = dc.index('<sc-if value="{{ tb.more }}"')
 _old = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">\n<div style="display:grid;grid-template-columns:{{ fr.menuCols }};gap:10px">'
 assert dc.count(_old) == 1 and dc.index(_old) > _ma
-dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n<div style="order:2;flex:1;margin-top:auto;min-height:150px;max-height:270px;display:grid;grid-auto-rows:1fr;grid-template-columns:{{ fr.menuCols }};gap:12px">')
+dc = dc.replace(_old, '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 169px)">\n<div style="order:2;flex:1;margin-top:auto;min-height:150px;max-height:270px;display:grid;grid-auto-rows:1fr;grid-template-columns:{{ fr.menuCols }};gap:12px">')
 dc = dc.replace('font-family:inherit;min-height:132px">', 'font-family:inherit;min-height:112px">')
 _m0 = dc.index('<sc-for list="{{ mo2 }}"'); _m1 = dc.index('</sc-for>', _m0)
 _seg = dc[_m0:_m1].replace('min-height:112px', 'min-height:64px;padding:10px 12px;gap:10px').replace('border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;gap:12px', 'border-radius:24px;padding:16px;display:flex;flex-direction:row;align-items:center;min-width:0')
@@ -300,7 +300,7 @@ _seg = _seg.replace('white-space:nowrap;overflow:hidden;text-overflow:ellipsis',
 _seg = _seg.replace('<span style="display:flex;flex-direction:column;gap:2px"><b', '<span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1"><b')
 dc = dc[:_m0] + _seg + dc[_m1:]
 # 더보기 상단: 오늘 날씨 + 이번 주 날씨 + 일출·일몰 요약 카드
-_anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 197px)">\n'
+_anchor = '<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px;min-height:calc(100lvh - 169px)">\n'
 assert dc.count(_anchor) == 1
 _ic = "font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:'liga';font-variation-settings:'FILL' 1,'wght' 500;"
 _wcard = ('<div style="border-radius:24px;padding:14px 16px;background:linear-gradient(135deg,#1C7ED6,#4DABF7);box-shadow:0 12px 26px rgba(28,126,214,.28);color:#fff;display:flex;flex-direction:column;gap:8px;min-width:0">'
@@ -1188,7 +1188,7 @@ _g = dc.index('<div style="display:grid;grid-template-columns:{{ fr.cols }};gap:
 _blk = dc[_g:_g + 9000]
 _k = 'border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0">'
 assert _blk.count(_k) >= 2, 'more-cards'
-_blk = _blk.replace(_k, 'border-radius:24px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0">', 2)
+_blk = _blk.replace(_k, 'border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0">', 2)
 dc = dc[:_g] + _blk + dc[_g + 9000:]
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm

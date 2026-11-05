@@ -1261,6 +1261,26 @@ _jb = re.search(r'<sc-for list="\{\{ jp2\.list \}\}" as="p"[^>]*><button onClick
 assert _jb
 dc = dc.replace(_jb.group(0), _jb.group(0).rsplit('min-height', 1)[0] + 'min-height:0;height:100%;box-sizing:border-box;overflow:hidden;', 1)
 dc = dc.replace('box-shadow:0 6px 18px rgba(40,50,140,.07);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;text-align:left', 'box-shadow:0 6px 18px rgba(40,50,140,.07);padding:8px 12px;display:flex;flex-direction:column;justify-content:center;gap:2px;text-align:left', 1)
+# 기록 탭: 시간대별 걸음 / 걸은 길 · GPS / 걷는 동안 심박 카드도 접기·펴기
+_a = dc.index('<sc-if value="{{ tb.log }}"'); _b = dc.index('<sc-if value="{{ tb.more }}"', _a)
+_ICX = '<span style="font-family:\'Material Symbols Rounded\';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-feature-settings:\'liga\';font-variation-settings:\'FILL\' 1,\'wght\' 500;font-size:22px;color:#3B5BDB">expand_more</span>'
+for _t, _k in [('시간대별 걸음', 'steps'), ('걸은 길 · GPS', 'gps'), ('걷는 동안 심박', 'hr')]:
+    _seg = dc[_a:_b]
+    _m = re.search(r'<span style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><b style="font-size:18px;font-weight:800;letter-spacing:-\.03em">' + re.escape(_t) + r'</b>(.*?)</span>\n', _seg, re.S)
+    assert _m, _t
+    _right = _m.group(1)
+    _hs = _a + _m.start(); _he = _a + _m.end()
+    _cs = dc.rindex('<div style="background:#fff', 0, _hs)
+    _d = 0; _i = _cs; _ce = None
+    while True:
+        _o = dc.find('<div', _i); _c = dc.find('</div>', _i)
+        if _o != -1 and _o < _c: _d += 1; _i = _o + 4
+        else:
+            _d -= 1; _i = _c + 6
+            if _d == 0: _ce = _c; break
+    _btn = ('<button onClick="{{ lgc.' + _k + '.toggle }}" style="width:100%;border:0;background:transparent;padding:0;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;font-family:inherit;color:#18324F"><b style="flex:none;font-size:18px;font-weight:800;letter-spacing:-.03em">' + _t + '</b><span style="flex:1;min-width:0;display:flex;justify-content:flex-end;align-items:baseline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _right + '</span><span style="flex:none;width:32px;height:32px;border-radius:50%;background:#F3F5FF;display:grid;place-items:center;transform:{{ lgc.' + _k + '.rot }};transition:transform .2s">' + _ICX + '</span></button>\n<sc-if value="{{ lgc.' + _k + '.open }}" hint-placeholder-val="{{ true }}">\n<div style="display:flex;flex-direction:column;gap:12px">\n')
+    dc = dc[:_hs] + _btn + dc[_he:_ce] + '</div>\n</sc-if>\n' + dc[_ce:]
+    _b = dc.index('<sc-if value="{{ tb.more }}"', _a)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

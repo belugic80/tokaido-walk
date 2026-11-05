@@ -1167,6 +1167,10 @@ dc = dc.replace(_wm, '<div style="position:relative;height:150px;margin:6px 0 30
 _dm = 'width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid #7544ED;box-sizing:border-box"></span>'
 assert dc.count(_dm) == 1, dc.count(_dm)
 dc = dc.replace(_dm, 'width:{{ d.sz }};height:{{ d.sz }};transform:translate(-50%,-50%);border-radius:50%;background:#fff;border:{{ d.bwd }} solid #7544ED;box-sizing:border-box"></span>')
+# 걸은 길 GPS 범례: 걸음(보라 실선) / 차량·교통(주황 점선)
+_gl = '<i style="width:10px;height:10px;border-radius:50%;background:#E8453C"></i>현재·도착</span>'
+assert dc.count(_gl) == 1, dc.count(_gl)
+dc = dc.replace(_gl, _gl + '<span style="display:flex;align-items:center;gap:5px"><i style="width:22px;height:0;border-top:4px solid #673DE6;border-radius:2px"></i>걸음</span><span style="display:flex;align-items:center;gap:5px"><i style="width:22px;height:0;border-top:4px dotted #F08A24"></i>차량·교통</span>')
 # 기록 체중 카드: 왼쪽 열이 길 때 남는 높이를 그래프가 채우도록
 _wk = dc.index('{{ lgc.wt.open }}')
 _w1 = dc.index('<div style="display:flex;flex-direction:column;gap:12px">', _wk)

@@ -1786,6 +1786,7 @@ class Component extends DCLogic {
           if (d[n] || (lv && !srv.value)) return lv ? (n === 'data' ? mergeData(lv).then(function (m) { return put(n, m); }) : put(n, lv)) : null;
           if (srv.value && (!lv || sMs > tMs)) {
             if (lv && lv === srv.value) { ls('tk-sync-ts-' + n, String(sMs)); return null; }
+            if (n === 'data' && lv) { try { var S_ = JSON.parse(srv.value), L_ = JSON.parse(lv); ['wLog', 'bodyLog', 'expLog', 'moodLog', 'noteLog', 'dayNotes', 'track', 'sd'].forEach(function (k) { if (L_[k] && typeof L_[k] === 'object' && !Array.isArray(L_[k])) S_[k] = Object.assign({}, S_[k] || {}, L_[k]); }); var mg = JSON.stringify(S_); pulling = true; sp.call(localStorage, DK, mg); last = mg; pulling = false; return put(n, mg).then(function () { reload = true; }); } catch (e) {} }
             pulling = true; return (n === 'data' ? Promise.resolve(sp.call(localStorage, DK, srv.value)) : idbPut(srv.value)).then(function () { ls('tk-sync-ts-' + n, String(sMs)); reload = true; });
           }
         });

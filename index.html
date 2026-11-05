@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793889658"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793889678"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -2174,6 +2174,7 @@ class Component extends DCLogic {
           if (d[n] || (lv && !srv.value)) return lv ? (n === 'data' ? mergeData(lv).then(function (m) { return put(n, m); }) : put(n, lv)) : null;
           if (srv.value && (!lv || sMs > tMs)) {
             if (lv && lv === srv.value) { ls('tk-sync-ts-' + n, String(sMs)); return null; }
+            if (n === 'data' && lv) { try { var S_ = JSON.parse(srv.value), L_ = JSON.parse(lv); ['wLog', 'bodyLog', 'expLog', 'moodLog', 'noteLog', 'dayNotes', 'track', 'sd'].forEach(function (k) { if (L_[k] && typeof L_[k] === 'object' && !Array.isArray(L_[k])) S_[k] = Object.assign({}, S_[k] || {}, L_[k]); }); var mg = JSON.stringify(S_); pulling = true; sp.call(localStorage, DK, mg); last = mg; pulling = false; return put(n, mg).then(function () { reload = true; }); } catch (e) {} }
             pulling = true; return (n === 'data' ? Promise.resolve(sp.call(localStorage, DK, srv.value)) : idbPut(srv.value)).then(function () { ls('tk-sync-ts-' + n, String(sMs)); reload = true; });
           }
         });

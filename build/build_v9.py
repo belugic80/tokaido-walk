@@ -1223,6 +1223,28 @@ _ca = '<sc-if value="{{ ctl.active }}" hint-placeholder-val="{{ true }}">'
 assert dc.count(_ca) == 1
 dc = dc.replace(_ca, _wait + _ca, 1)
 # 지도 하단: 다음 목적지 카드를 칩 줄과 같은 폭(왼쪽 열)에 두고, 날짜 변경은 오른쪽에 크게
+# 일정 관리: 요약 타일 3개를 왼쪽 열(이동 방식 아래)로 옮겨 빈 공간 줄이기
+_t0 = '<div style="flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:6px"><sc-for list="{{ pl2.sum }}"'
+assert dc.count(_t0) == 1
+_ts = dc.index(_t0); _te = dc.index('</sc-for></div>', _ts) + len('</sc-for></div>')
+_tiles = dc[_ts:_te].replace('flex:1;display:grid','display:grid',1).replace('min-height:150px','min-height:128px').replace('padding:16px;display:flex;flex-direction:column;justify-content:space-between','padding:12px;display:flex;flex-direction:column;justify-content:space-between').replace('font-size:28px','font-size:21px').replace('white-space:nowrap','white-space:normal').replace('overflow:hidden;text-overflow:ellipsis;white-space:normal','white-space:normal')
+dc = dc[:_ts] + dc[_te:]
+_dist = dc.index('letter-spacing:-.03em">날짜별 거리</b>')
+_ro = dc.rindex('<div style="display:flex;flex-direction:column;gap:12px;min-width:0">\n', 0, _dist)
+_lc = dc.rindex('</div>\n', 0, _ro)
+dc = dc[:_lc] + _tiles + '\n' + dc[_lc:]
+# 스탬프: 범례(걸어서·교통·남은 곳)를 위쪽 제목 줄 오른쪽으로, 설명 문구 삭제
+_h = re.search(r'(역참 도장</b>)<span style="[^"]*">누를 때마다 미방문 → 도보 → 교통</span>', dc)
+assert _h
+_k = dc.index('<span style="display:flex;gap:14px;justify-content:center;', _h.end())
+_ke = dc.index('남은 곳</span></span>', _k) + len('남은 곳</span></span>')
+_leg = dc[_k:_ke].replace('justify-content:center;', 'flex:none;justify-content:flex-end;flex-wrap:nowrap;white-space:nowrap;', 1).replace('gap:14px;', 'gap:10px;', 1)
+dc = dc[:_k] + dc[_ke:]
+dc = dc.replace(_h.group(0), _h.group(1) + _leg, 1)
+# 환율 계산: 빠른 금액 칩이 박스를 벗어나지 않게 3열로
+_fx = 'display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px">\n<sc-for list="{{ fx.table }}"'
+assert dc.count(_fx) == 1
+dc = dc.replace(_fx, _fx.replace('repeat(5,', 'repeat(3,'), 1)
 # 새 버전 알림: 빌드 ID를 meta로 넣고, 주기적으로 서버의 index.html과 비교
 import time as _tm
 _bid = str(int(_tm.time()))

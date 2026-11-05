@@ -33,7 +33,7 @@ def info(titles):
         out.append({'title': pg['title'], 'url': ii.get('thumburl') or ii['url'], 'page': ii['descriptionurl'], 'author': auth, 'license': lic})
     return out
 
-OVR = {103:['Don Quijote store exterior','Don Quijote Kyoto','ドン・キホーテ 外観'],78:['Human Made','Human Made store Tokyo','BEAMS store Nagoya'],104:['Human Made store','BEAMS Kyoto','Kyoto fashion boutique'],108:['BEAMS store','BEAMS Japan','ビームス 店舗'],18:['すみの坊','三嶋大社 前 うなぎ','Mishima Taisha street'],40:['静岡駅 パルシェ','Shizuoka station shopping'],44:['蕎麦 店舗 外観','soba restaurant Japan'],46:['米屋 店舗','rice shop Japan'],1:['Shinagawa-shuku','旧東海道 品川'],7:['Odawara kamaboko shop','かまぼこ 店'],24:['Hakuin Masamune','酒蔵 静岡 白隠正宗','sake brewery Numazu'],33:['清水 まぐろ','Shimizu maguro'],38:['地酒 静岡 磯自慢','Isojiman','初亀 酒'],58:['花の舞 酒造','sake brewery Shizuoka'],54:['浜松 うなぎ 店','Hamamatsu unagi restaurant'],82:['桑名 はまぐり 料理','Kuwana hamaguri'],100:['滋賀 酒蔵','Shiga sake brewery'],29:['由比 桜えび','Sakura ebi Yui'],91:['道の駅 あいの土山','土山 茶'],59:['舞阪 松並木','Maisaka pine']}
+OVR = {24:['Hakuin Masamune sake','高嶋酒造','Numazu sake brewery','沼津 酒蔵'],33:['清水魚市場 河岸の市','Shimizu fish market','清水港 マグロ 丼','Shimizu Port Shizuoka'],38:['Isojiman','磯自慢酒造','Shizuoka jizake sake bottles','Fujieda sake'],44:['蕎麦 そば 手打ち','Soba noodles Japan','ざるそば','soba restaurant Shizuoka'],46:['Hamamatsu rice','米屋','Japanese rice shop','Kakegawa food shop'],59:['舞阪 松並木','Maisaka','Hamanako pine','浜松 松並木 東海道'],7:['かまぼこ','Odawara kamaboko','蒲鉾 小田原','Kamaboko fish cake'],82:['蛤','Hamaguri','Kuwana','桑名 焼き蛤','Hamaguri clam grilled']}
 
 def cores(s):
     out = []

@@ -1129,11 +1129,16 @@ _wi0 = dc.index('<div style="display:flex;gap:8px"><input value="{{ lg2.wtIn }}"
 _wi1 = dc.index('</div>', dc.index('저장</button>', _wi0)) + 6
 _wh = lambda kind, lst, w: ('<div class="wtw" data-k="' + kind + '" data-v="{{ lg2.' + ('wtI' if kind == 'i' else 'wtD') + ' }}" style="width:' + w + ';height:132px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain;padding:44px 0;box-sizing:border-box;touch-action:pan-y">'
    '<sc-for list="{{ lg2.' + lst + ' }}" as="w" hint-placeholder-count="5"><div style="height:44px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;font:800 26px \'DM Sans\',\'Noto Sans KR\',sans-serif;color:#18324F;font-variant-numeric:tabular-nums">{{ w.n }}</div></sc-for></div>')
-_new = ('<div style="display:flex;flex-direction:column;gap:10px"><div style="position:relative;display:flex;align-items:center;justify-content:center;gap:4px;height:132px;background:#F8F9FF;border:1px solid #DCE0F7;border-radius:16px;overflow:hidden">'
+_wheel = ('<div style="position:relative;display:flex;align-items:center;justify-content:center;gap:4px;height:132px;background:#F8F9FF;border:1px solid #DCE0F7;border-radius:16px;overflow:hidden">'
   '<div style="position:absolute;left:8px;right:8px;top:44px;height:44px;border-radius:12px;background:rgba(59,91,219,.12);pointer-events:none"></div>'
-  + _wh('i', 'wtInts', '96px') + _wh('d', 'wtDecs', '72px') +
-  '<b style="font-size:18px;color:#64748B;padding-left:6px">kg</b></div>'
-  '<button onClick="{{ lg2.saveWt }}" style="height:48px;border:0;border-radius:14px;background:#3B5BDB;color:#fff;font:800 16px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">이 체중으로 저장</button></div>')
+  + _wh('i', 'wtInts', '96px') + _wh('d', 'wtDecs', '72px') + '<b style="font-size:18px;color:#64748B;padding-left:6px">kg</b></div>')
+_new = ('<div style="display:flex;flex-direction:column;gap:10px">'
+  '<button onClick="{{ lg2.wOpenFn }}" style="height:64px;border:1px solid #DCE0F7;border-radius:16px;background:#F8F9FF;display:flex;align-items:center;justify-content:space-between;padding:0 18px;cursor:pointer;font-family:inherit;color:#18324F"><span style="font:800 28px \'DM Sans\',\'Noto Sans KR\',sans-serif;letter-spacing:-.03em">{{ lg2.wtNow }}<span style="font-size:15px;font-weight:700;color:#64748B"> kg</span></span><span style="font-size:15px;font-weight:800;color:#3B5BDB">눌러서 변경</span></button>'
+  '<sc-if value="{{ lg2.wOpen }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:0;right:0;top:0;bottom:0;z-index:9500;background:rgba(15,23,42,.5);display:flex;align-items:flex-end;justify-content:center">'
+  '<div style="width:100%;max-width:520px;background:#fff;border-radius:28px 28px 0 0;padding:20px 20px 28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 -10px 40px rgba(0,0,0,.2)">'
+  '<b style="font-size:20px;font-weight:800;color:#18324F;letter-spacing:-.03em">체중 변경</b>' + _wheel +
+  '<div style="display:flex;gap:10px"><button onClick="{{ lg2.wCloseFn }}" style="flex:1;height:52px;border:0;border-radius:14px;background:#EEF0F7;color:#475569;font:800 17px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">취소</button>'
+  '<button onClick="{{ lg2.saveWt }}" style="flex:2;height:52px;border:0;border-radius:14px;background:#3B5BDB;color:#fff;font:800 17px \'Pretendard Variable\',Pretendard,sans-serif;cursor:pointer">이 체중으로 저장</button></div></div></div></sc-if></div>')
 dc = dc[:_wi0] + _new + dc[_wi1:]
 _WS = """<script>(function () {
   function init(el) {

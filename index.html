@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="tk-build" content="1793888832"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
+<meta name="tk-build" content="1793888954"><script>(function(){var me=document.querySelector('meta[name="tk-build"]');if(!me)return;var cur=me.content,shown=false;
 function chk(){if(shown||!navigator.onLine)return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/name="tk-build" content="(\d+)"/);if(m&&m[1]!==cur){shown=true;var d=document.createElement('div');d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#1C1B33;color:#fff;font:600 16px/1.4 Pretendard,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';d.innerHTML='<span style="flex:1">새 버전이 나왔어요</span><button style="min-height:44px;padding:0 18px;border:0;border-radius:12px;background:linear-gradient(135deg,#4F82E8,#2DB7F5);color:#fff;font:700 16px system-ui">새로고침</button>';d.querySelector('button').onclick=function(){location.reload()};document.body.appendChild(d)}}).catch(function(){})}
 setInterval(chk,300000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});})();</script>
 <script>var __SD=[2026,11,4],__SDI='2026-12-04';try{var _v=null;try{_v=(JSON.parse(localStorage.getItem('tk-v15-data')||'{}')||{}).sd||null}catch(e){}_v=_v||localStorage.getItem('tokaido-start');if(/^\d{4}-\d{2}-\d{2}$/.test(_v)){var _p=_v.split('-');__SD=[+_p[0],+_p[1]-1,+_p[2]];__SDI=_v}}catch(e){}</script>
@@ -823,7 +823,18 @@ const PH = [
 ["숫자","八 (8)","하치","숫자 8",0],
 ["숫자","九 (9)","큐- / 쿠","숫자 9",0],
 ["숫자","十 (10)","쥬-","숫자 10",0],
-["사교","私は1980年生まれの47歳です。","와타시와 센큐-햐쿠 하치쥬-넨 우마레노 욘쥬-나나 사이데스.","저는 1980년생 47살입니다.",0]
+["사교","私は1980年生まれの47歳です。","와타시와 센큐-햐쿠 하치쥬-넨 우마레노 욘쥬-나나 사이데스.","저는 1980년생 47살입니다.",0],
+["이동","一番近い駅はどこですか？","이치방 치카이 에키와 도코데스카?","가장 가까운 역은 어디인가요?",0],
+["이동","右（左）に曲がってください。","미기(히다리)니 마갓테 쿠다사이.","오른쪽(왼쪽)으로 돌아 주세요.",0],
+["숙소","Wi-Fiのパスワードを教えてください。","와이화이노 파스와-도오 오시에테 쿠다사이.","와이파이 비밀번호를 알려 주세요.",0],
+["숙소","もう一泊できますか？","모- 잇파쿠 데키마스카?","하룻밤 더 묵을 수 있나요?",0],
+["식당","お会計をお願いします。","오카이케-오 오네가이시마스.","계산 부탁합니다.",0],
+["식당","メニューを見せてください。","메뉴-오 미세테 쿠다사이.","메뉴판을 보여 주세요.",0],
+["응급","病院に連れて行ってください。","뵤-인니 츠레테잇테 쿠다사이.","병원에 데려가 주세요.",0],
+["응급","アレルギーがあります。","아레루기-가 아리마스.","알레르기가 있어요.",0],
+["사교","ありがとうございます。","아리가토- 고자이마스.","감사합니다.",0],
+["숫자","十一 (11)","쥬-이치","숫자 11",0],
+["숫자","二十 (20)","니쥬-","숫자 20",0]
 ];
 const GSI = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const LODGES = { 11: '시마다 역 앞 호텔', 12: '가케가와 역 앞 료칸' };
